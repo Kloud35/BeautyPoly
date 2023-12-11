@@ -168,6 +168,7 @@ function addProductSku() {
 }
 
 function editProductSku(id) {
+    $('#option_value_product').clear();
     $.ajax({
         url: '/admin/product/get-product-sku-by-id',
         type: 'GET',

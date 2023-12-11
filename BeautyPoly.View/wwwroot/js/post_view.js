@@ -17,8 +17,8 @@ function GetDetailPost(postId) {
         data: { postId: postId },
         success: function (result) {
             var html = '';
-                console.log(result);
-                html += `<div class="blog-detail">
+            console.log(result);
+            html += `<div class="blog-detail">
                             <h3 class="blog-detail-title">${result.title}</h3>
                             <div class="blog-detail-category" >
                                 <a class="category"><i class="fa fa-calendar-o">${result.tags}</i></a>
@@ -30,8 +30,8 @@ function GetDetailPost(postId) {
                                 </div>
                             </div>
                         </div>`;
-        $('#tbody_post_view').html(html);
-    },
+            $('#tbody_post_view').html(html);
+        },
         error: function (err) {
             console.log(err);
         }

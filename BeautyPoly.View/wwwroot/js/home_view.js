@@ -275,3 +275,39 @@ function GetProductInCart() {
     });
 
 }
+
+function loadPost() {
+    $.ajax({
+        url: '/Home/GetPost',
+        type: 'GET',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        success: function (result) {
+            arrPost = result
+            var html = '';
+            $.each(arrPost, function (key, item) {
+                var formattedDate = formatDate(item.CreateDate);
+                html += `<div class="col-sm-6 col-lg-4 mb-8">
+                <div class="post-item">
+                         <a href="blog-details?postId=${item.PostsID}" class="thumb">
+                        <img src="${item.Img}" width="370" height="320" style="height: 320px !important;" alt="Image-HasTech">
+
+                        </a>
+                        <div class="content">
+                            <a class="post-category" href="">${item.Tags}</a>
+                            <h4 class="title"><a href="post-details.html">${item.Title}</a></h4>
+                            <ul class="meta">
+                                <li class="author-info"><span>By:</span> <a href="blog.html">${item.Author}</a></li>
+                                <li class="post-date">${formattedDate}</li>
+                            </ul>
+                        </div>
+                </div>
+            </div>`
+            });
+            $('#post_loadtest').html(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}

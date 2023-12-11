@@ -40,5 +40,12 @@ namespace BeautyPoly.View.Controllers
             var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductSkuByOptionValueID", new string[] { "@ListOptionValueID", "@ProductID" }, new object[] { listOptionValueID, productID });
             return Json(model, new System.Text.Json.JsonSerializerOptions());
         }
+        public IActionResult GetPost()
+        {
+            var filter = string.Empty;
+            List<PostViewModel> model = SQLHelper<PostViewModel>.ProcedureToList("spGetPost", new string[] { "@Keyword" }, new object[] { filter });
+            model.Where(m => m.Status == 1);
+            return Json(model, new System.Text.Json.JsonSerializerOptions());
+        }
     }
 }
