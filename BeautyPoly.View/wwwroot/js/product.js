@@ -108,8 +108,14 @@ function GetProduct() {
             });
             $('#tbody_product').html(html);
             $('#product_id_product_sku').html(htmlCombo);
+            $('#product_id_product_sku_edit').html(htmlCombo);
             $('#product_id_product_sku').select2({
                 dropdownParent: $("#modal_product_sku"),
+                theme: "bootstrap-5",
+                width: 'resolve'
+            });
+            $('#product_id_product_sku_edit').select2({
+                dropdownParent: $("#modal_product_sku_edit"),
                 theme: "bootstrap-5",
                 width: 'resolve'
             });
@@ -126,7 +132,6 @@ function GetProductSku() {
         type: 'GET',
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
-        //   data: JSON.stringify(objProduct),
         success: function (result) {
             arrProductSku = result;
             var html = '';
@@ -162,13 +167,15 @@ function GetProductSku() {
 
 function addProductSku() {
     $('#product_id_product_sku').val(0);
-
+    $('#btn_add_option').show();
+    $('#btn_add_option_edit').hide();
     $('#modal_product_sku').modal('show');
-
 }
 
 function editProductSku(id) {
-    $('#option_value_product').clear();
+    $('#option_value_product').empty();
+    $('#btn_add_option').hide();
+    $('#btn_add_option_edit').show();
     $.ajax({
         url: '/admin/product/get-product-sku-by-id',
         type: 'GET',
@@ -176,6 +183,7 @@ function editProductSku(id) {
         //contentType: 'application/json;charset=utf-8',
         data: { productSkuID: id },
         success: function (result) {
+            $('#product_sku_id_product_sku').val(id);
             $.ajax({
                 url: '/admin/product/get-product-detail',
                 type: 'GET',
@@ -183,26 +191,45 @@ function editProductSku(id) {
                 //contentType: 'application/json;charset=utf-8',
                 data: { productSkuID: id, productID: result.ProductID },
                 success: function (result1) {
-                    $('#product_id_product_sku').val(result.ProductID).trigger('change');
-                    $('#product_sku_id_product_sku').val(id);
-                    $.each(result1.Item2, (key,item) => {
-                        addOption();
+                    $('#product_id_product_sku_edit').val(result.ProductID).trigger('change');
+                    $.each(result1.Item2, (key, item) => {
+                        var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
+                        $.each(arrOption, function (key, item) {
+                            htmlOption += `<option value="${item.OptionID}">${item.OptionName}</option>`
+                        });
+
+                        var html = `<div class="row mt-2">
+                            <div class="col-12 col-md-4">
+                                <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" >
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-4" id="div_option_value_edit_${index}">
+                            </div>
+                              <div class="col-12 col-md-4">
+                       
+                            </div>
+                        </div>`
+                        $('#option_value_product_edit').append(html);
+                        $(`#option_product_edit_${index}`).html(htmlOption);
+                        $(`#option_product_edit_${index}`).select2({
+                            dropdownParent: $("#modal_product_sku_edit"),
+                            theme: "bootstrap-5"
+                        })
+                        $(`#option_product_edit_${index}`).val(item.OptionID).trigger('change');
+                        index++;
                         var idx = index - 1;
-                        $(`#option_product_${idx}`).val(item.OptionID).trigger('change');
-                        GetOptionValue(item.OptionID, `option_product_${idx}`)
+                        GetOptionValueEdit(item.OptionID, `option_product_edit_${idx}`)
                             .then(() => {
                                 var optionValue = result1.Item1.find(p => p.OptionDetailsID == item.OptionDetailsID).OptionValueID;
-                                $(`#option_value_product_${idx}`).select2({
-                                    maximumSelectionLength: 1
-                                })
-                                $(`#option_value_product_${idx}`).val(optionValue).trigger('change');
+                                $(`#option_value_product_edit_${idx}`).val(optionValue).trigger('change');
                             })
                             .catch(error => {
                                 console.error("Error fetching option value:", error);
                             });
+                       
                     });
-                    
-                    $('#modal_product_sku').modal('show');
+
+                    $('#modal_product_sku_edit').modal('show');
                 },
                 error: function (err) {
                     console.log(err)
@@ -213,9 +240,71 @@ function editProductSku(id) {
             console.log(err)
         }
     });
-   
+
 }
 
+function addOptionEdit() {
+    var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
+    $.each(arrOption, function (key, item) {
+        htmlOption += `<option value="${item.OptionID}">${item.OptionName}</option>`
+    });
+
+    var html = `<div class="row mt-2">
+                    <div class="col-12 col-md-4">
+                        <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" >
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4" id="div_option_value_edit_${index}">
+                    </div>
+                      <div class="col-12 col-md-4">
+                        <div class="d-flex justify-content-end">
+                            <button class="btn text-danger" onclick="deleteRow(this)"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                </div>`
+    $('#option_value_product_edit').append(html);
+    $(`#option_product_edit_${index}`).html(htmlOption);
+    $(`#option_product_edit_${index}`).select2({
+        dropdownParent: $("#modal_product_sku_edit"),
+        theme: "bootstrap-5"
+    })
+    index++;
+}
+function GetOptionValueEdit(id, selectID) {
+  //  console.log(item);
+   
+    var i = selectID.split('_')[3];
+    return $.ajax({
+        url: '/admin/option/getallvalue',
+        type: 'GET',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        data: { optionID: id },
+        success: function (result) {
+            $(`#option_value_product_edit_${i}`).select2('destroy');
+            var html = ` <select class="form-control" id="option_value_product_edit_${i}" state="states" multiple="multiple">
+                </select> `
+            $(`#div_option_value_edit_${i}`).html(html);
+            var htmlValue = ''
+            $.each(result, function (key, item) {
+                htmlValue += `<option value="${item.OptionValueID}" >${item.OptionValueName}</option>`
+            })
+            $(`#option_value_product_edit_${i}`).html(htmlValue);
+            $(`#option_value_product_edit_${i}`).select2({
+                dropdownParent: $("#modal_product_sku_edit"),
+                placeholder: '---Chọn giá trị---',
+                theme: "classic",
+                maximumSelectionLength: 1
+            });
+            $(`#option_value_product_edit_${i}`).on('change', function () {
+                optionValueChangeEdit();
+            });
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}
 
 function DeleteProductSku(id) {
 
@@ -263,7 +352,6 @@ function convertImagePathToBase64(imagePath, callback) {
     xhr.onload = function () {
         var reader = new FileReader();
         reader.onloadend = function () {
-            // Chuỗi Base64 được lưu trong reader.result
             callback(reader.result);
         };
         reader.readAsDataURL(xhr.response);
@@ -320,7 +408,7 @@ function DeleteProduct(id) {
             });
         }
     });
-  
+
 }
 
 function displayImages(files) {
@@ -352,26 +440,7 @@ function addProduct() {
 }
 
 
-//function GetCategory() {
-//    $.ajax({
-//        url: '/admin/category/getall',
-//        type: 'GET',
-//        dataType: 'json',
-//        contentType: 'application/json;charset=utf-8',
-//        success: function (result) {
-//            arrCategory = result;
-//            var html = '<option selected disabled>--Chọn danh mục--</option>';
-//            $.each(result, function (key, item) {
-//                html += ` <option value="${item.cateId}">${item.cateName}</option>`
-//            });
 
-//            $('#cate_id_product').html(html);
-//        },
-//        error: function (err) {
-//            console.log(err)
-//        }
-//    });
-//}
 
 
 
@@ -480,7 +549,37 @@ function GetAllOptionValue() {
         }
     });
 }
+function optionValueChangeEdit() {
+    arrayCombiner.removeAllArrays();
+    arrayCombinerText.removeAllArrays();
+    var allSelectedValues = [];
+    var allSelectText = [];
+    for (var j = 1; j <= index; j++) {
+        var values = $(`#option_value_product_edit_${j}`).val();
 
+        if (values && values.length > 0) {
+            var texts = arrOptionValue.filter(p => values.map(Number).includes(p.OptionValueID)).map(o => o.OptionValueName);
+
+            allSelectedValues.push(values);
+            allSelectText.push(texts);
+        }
+    }
+
+    for (var j = 0; j < allSelectedValues.length; j++) {
+        arrayCombiner.addArray(allSelectedValues[j]);
+        arrayCombinerText.addArray(allSelectText[j]);
+    }
+    var productVariants = arrayCombinerText.combinations;
+    var combinedArray = [];
+
+    for (var i = 0; i < arrayCombinerText.combinations.length; i++) {
+        var combinedObject = {
+            value: arrayCombiner.combinations[i],
+            text: arrayCombinerText.combinations[i]
+        };
+        combinedArray.push(combinedObject);
+    }
+}
 
 function optionValueChange() {
     arrayCombiner.removeAllArrays();
@@ -613,7 +712,7 @@ function saveProduct() {
 function save() {
     var listOptionID = [];
     var listSku = [];
-    var productID = parseInt( $('#product_id_product_sku').val());
+    var productID = parseInt($('#product_id_product_sku').val());
     var id = parseInt($('#product_sku_id_product_sku').val());
     $('select[id*="option_product_"]').each(function () {
         var optionID = parseInt($(this).val());

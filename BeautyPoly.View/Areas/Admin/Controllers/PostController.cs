@@ -1,6 +1,7 @@
 ﻿using BeautyPoly.Data.Models.DTO;
 using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
+using BeautyPoly.Helper;
 using BeautyPoly.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         {
             var check = await postRepo.FirstOrDefaultAsync(p => p.PostsID == postDTO.post.PostsID);
             var checkExists = await postRepo.FirstOrDefaultAsync(p => p.PostsCode.ToUpper().Trim() == postDTO.post.PostsCode.ToUpper().Trim());
-            if (checkExists != null)
+            if (checkExists != null && checkExists.PostsCode.ToUpper().Trim() != check.PostsCode.ToUpper().Trim())
             {
                 return Json("Mã Post đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
             }
@@ -50,6 +51,11 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             if (string.IsNullOrEmpty(postDTO.post.Author))
             {
                 return Json("Vui lòng nhập tác giả Post", new System.Text.Json.JsonSerializerOptions());
+            }
+            if (!string.IsNullOrEmpty(postDTO.post.Img))
+            {
+                string fileName = postDTO.post.PostsCode + ".png";
+                Utilities.ConvertAndSaveImage(postDTO.post.Img, fileName);
             }
             if (check != null)
             {

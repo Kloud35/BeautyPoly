@@ -44,7 +44,7 @@ namespace BeautyPoly.View.Controllers
         {
             var filter = string.Empty;
             List<PostViewModel> model = SQLHelper<PostViewModel>.ProcedureToList("spGetPost", new string[] { "@Keyword" }, new object[] { filter });
-            model.Where(m => m.Status == 1);
+            // model.Where(m => m.Status == 1);
             return Json(model, new System.Text.Json.JsonSerializerOptions());
         }
     }

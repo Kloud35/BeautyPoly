@@ -76,17 +76,17 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                         <div class="form-floating mb-3">
+                        <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="post_alias_post" placeholder="Bí danh">
                             <label for="post_alias_post">Bí danh</label>
                         </div>
                     </div>
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="post_tags_post" placeholder="Gắn thẻ">
-                                <label for="post_tags_post">Gắn thẻ</label>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="post_tags_post" placeholder="Gắn thẻ">
+                            <label for="post_tags_post">Gắn thẻ</label>
                         </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -95,17 +95,17 @@
                             <label for="post_shortContents_post">Tóm tắt</label>
                         </div>
                     </div>
-                        <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="post_author_post" placeholder="Tác giả">
-                                <label for="post_author_post">Tác giả</label>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="post_author_post" placeholder="Tác giả">
+                            <label for="post_author_post">Tác giả</label>
                         </div>
+                    </div>
                 </div>
 
                 <div class="form-floating">
-                    <textarea class="form-control" placeholder="Nội dung" id="post_content_post"  style="height: 150px"></textarea>
-                    
+                    <textarea class="form-control" placeholder="Nội dung" id="post_content_post" style="height: 150px"></textarea>
+
                     <label for="post_content_post">Nội dung</label>
                 </div>
 
@@ -122,36 +122,58 @@
                     </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <select class="form-select" id="post_isPublished_post">
-                        <option value="1">Được công bố</option>
-                        <option value="0">Không công bố</option>
-                    </select>
-                    <label for="floatingSelect">Công bố</label>
+                @*                <div class="form-floating mb-3">
+                <select class="form-select" id="post_isPublished_post">
+                <option value="1">Được công bố</option>
+                <option value="0">Không công bố</option>
+                </select>
+                <label for="floatingSelect">Công bố</label>
+                </div>*@
+
+                @*                <div class="form-floating mb-3">
+                <select class="form-select" id="post_isHot_post">
+                <option value="1">Có</option>
+                <option value="0">Không</option>
+                </select>
+                <label for="floatingSelect">Tin nổi bật</label>
+                </div>*@
+                @*                <div class="form-floating mb-3">
+                <select class="form-select" id="post_isNewFeed_post">
+                <option value="1">Có</option>
+                <option value="0">Không</option>
+                </select>
+                <label for="floatingSelect">Trang nhất</label>
+                </div>*@
+
+
+                @*                <div class="form-floating mb-3">
+                <select class="form-select" id="post_status_post">
+                <option value="1">Đang hoạt động</option>
+                <option value="0">Không hoạt động</option>
+                </select>
+                <label for="floatingSelect">Trạng thái</label>
+                </div>*@
+
+                <div><label class="form-check-label" for="post_status_switch">Công bố</label><br></div>
+                <div class="form-check form-switch">                    
+                    <input class="form-check-input btn-lg" type="checkbox" id="post_isPublished_post">
                 </div>
 
-                <div class="form-floating mb-3">
-                    <select class="form-select" id="post_isHot_post">
-                        <option value="1">Có</option>
-                        <option value="0">Không</option>
-                    </select>
-                    <label for="floatingSelect">Tin nổi bật</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <select class="form-select" id="post_isNewFeed_post">
-                        <option value="1">Có</option>
-                        <option value="0">Không</option>
-                    </select>
-                    <label for="floatingSelect">Trang nhất</label>
+                <div><label class="form-check-label" for="post_status_switch">Tin nổi bật</label><br></div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input btn-lg" type="checkbox" id="post_isHot_post">
                 </div>
 
-                <div class="form-floating mb-3">
-                    <select class="form-select" id="post_status_post">
-                        <option value="1">Đang hoạt động</option>
-                        <option value="0">Không hoạt động</option>
-                    </select>
-                    <label for="floatingSelect">Trạng thái</label>
+                <div><label class="form-check-label" for="post_status_switch">Trang nhất</label><br></div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input btn-lg" type="checkbox" id="post_isNewFeed_post">
                 </div>
+
+                <div><label class="form-check-label" for="post_status_switch">Trạng thái</label><br></div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input btn-lg" type="checkbox" id="post_status_post">
+                </div>
+
 
             </div>
             <div class="modal-footer">

@@ -93,21 +93,21 @@ function createUpdate() {
         imageSource = $(this).find('img').attr('src');
         console.log(imageSource);
     });
-    
+
 
     var id = parseInt($('#postid_post').val());
     var postCode = $('#post_code_post').val();
     var postTitle = $('#post_title_post').val();
     var postContent = $('#post_content_post').val();
-    var isPublished = $('#post_isPublished_post').val() === "1" ? true : false;
+    var isPublished = $('#post_isPublished_post').is(':checked') ? true : false;
     var tags = $('#post_tags_post').val();
     var img = $('#post_img_post').val(imageSource);
     var shortContents = $('#post_shortContents_post').val();
     var author = $('#post_author_post').val();
     var alias = $('#post_alias_post').val();
-    var isHot = $('#post_isHot_post').val() === "1" ? true : false;
-    var isNewFeed = $('#post_isNewFeed_post').val() === "1" ? true : false;
-    var status = $('#post_status_post').val();
+    var isHot = $('#post_isHot_post').is(':checked') ? true : false;
+    var isNewFeed = $('#post_isNewFeed_post').is(':checked') ? true : false;
+    var status = $('#post_status_post').is(':checked') ? 1 : 0;
 
     debugger;
     var post = {
@@ -178,21 +178,24 @@ function add() {
 function editPost(id) {
 
     $('#postid_post').val(id);
-    
+
     var post = arrPost.find(p => p.postsID == parseInt(id));
+
+
 
     var formattedDate = formatDate(post.createDate);
     $('#post_code_post').val(post.postsCode);
     $('#post_title_post').val(post.title);
     $('#post_content_post').val(post.contents);
-    $('#post_isPublished_post').val(post.isPublished);
     $('#post_tags_post').val(post.tags);
     $('#post_img_post').val(post.img);
     $('#post_shortContents_post').val(post.shortContents);
     $('#post_author_post').val(post.author);
     $('#post_alias_post').val(post.alias);
-    $('#post_isHot_post').val(post.isHot);
-    $('#post_status_post').val(post.isNewFeed);
+    $('#post_isHot_post').prop('checked', post.isHot);
+    $('#post_status_post').prop('checked', post.status);
+    $('#post_isNewFeed_post').prop('checked', post.isNewFeed);
+    $('#post_isPublished_post').prop('checked', post.isPublished);
     $('#post_createdate_post').val(formattedDate);
     $('#modal_post').modal('show');
     debugger;
