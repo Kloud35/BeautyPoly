@@ -199,10 +199,21 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 bool checkSameValue = productSkuDTO.ListOptionID.All(optionID => optionDetails.Any(p => p.OptionID == optionID));
                 if (checkSameValue)
                 {
+                    var checkExist = SQLHelper<ProductSkus>.ProcedureToModel("spCheckExistsProductDetails",
+                             new string[] { "@ProductID", "@OptionValueID", "@ProductSkuID" },
+                             new object[] { productSkuDTO.ProductID, productSkuDTO.OptionValueID.Replace('-', ',').Trim(), productSkuDTO.ID });
+
+                    if (checkExist.ProductSkusID > 0)
+                    {
+                        return Json("Đã tồn tại Sản phảm chi tiết với giá trị thuộc tính tương ứng! Vui lòng chọn lại.");
+                    }
                     var product = await productRepo.GetByIdAsync(productSkuDTO.ProductID);
 
                     string[] stringID = productSkuDTO.OptionValueID.Split('-');
                     string sku = product.ProductCode;
+
+
+
                     for (int i = 0; i < stringID.Length; i++)
                     {
                         var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
@@ -213,22 +224,31 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                             var values = resultValue.OptionValueName.Trim().Split(' ');
                             foreach (var value in values)
                             {
-                                sku += TextUtils.ToString(value[0]).ToUpper();
+                                if (value.Length <= 2)
+                                {
+                                    sku += TextUtils.ToString(value).ToUpper();
+                                }
+                                else
+                                {
+                                    sku += TextUtils.ToString(value[0]).ToUpper();
+                                }
+
                             }
                         }
                     }
+
                     ProductSkus productSkus = await productSkuRepo.GetByIdAsync(productSkuDTO.ID);
                     productSkus.Sku = sku;
                     productSkus.CapitalPrice = productSkuDTO.CapitalPrice;
                     productSkus.Price = productSkuDTO.Price;
                     productSkus.Quantity = productSkuDTO.Quantity;
                     await productSkuRepo.UpdateAsync(productSkus);
+                    await productDetailRepo.DeleteRangeAsync(await productDetailRepo.FindAsync(p => p.ProductSkusID == productSkus.ProductSkusID));
                     for (int i = 0; i < stringID.Length; i++)
                     {
                         var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
                         if (resultValue != null)
                         {
-                            await productDetailRepo.DeleteRangeAsync(await productDetailRepo.FindAsync(p => p.ProductSkusID == productSkus.ProductSkusID));
                             ProductDetails productDetails = new ProductDetails();
                             productDetails.OptionValueID = resultValue.OptionValueID;
                             var resultOptionDetail = optionDetailRepo.FindAsync(p => p.ProductID == product.ProductID && p.OptionID == resultValue.OptionID).Result.FirstOrDefault();

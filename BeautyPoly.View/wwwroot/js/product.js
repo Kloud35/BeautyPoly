@@ -173,7 +173,7 @@ function addProductSku() {
 }
 
 function editProductSku(id) {
-    $('#option_value_product').empty();
+    $('#option_value_product_edit').empty();
     $('#btn_add_option').hide();
     $('#btn_add_option_edit').show();
     $.ajax({
@@ -184,6 +184,9 @@ function editProductSku(id) {
         data: { productSkuID: id },
         success: function (result) {
             $('#product_sku_id_product_sku').val(id);
+            $('#capital_price_product_sku_edit').val(result.CapitalPrice);
+            $('#price_product_sku_edit').val(result.Price);
+            $('#quantity_product_sku_edit').val(result.Quantity);
             $.ajax({
                 url: '/admin/product/get-product-detail',
                 type: 'GET',
@@ -192,43 +195,43 @@ function editProductSku(id) {
                 data: { productSkuID: id, productID: result.ProductID },
                 success: function (result1) {
                     $('#product_id_product_sku_edit').val(result.ProductID).trigger('change');
-                    $.each(result1.Item2, (key, item) => {
-                        var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
-                        $.each(arrOption, function (key, item) {
-                            htmlOption += `<option value="${item.OptionID}">${item.OptionName}</option>`
-                        });
+                    //$.each(result1.Item2, (key, item) => {
+                    //    var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
+                    //    $.each(arrOption, function (key, item) {
+                    //        htmlOption += `<option value="${item.OptionID}">${item.OptionName}</option>`
+                    //    });
 
-                        var html = `<div class="row mt-2">
-                            <div class="col-12 col-md-4">
-                                <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" >
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4" id="div_option_value_edit_${index}">
-                            </div>
-                              <div class="col-12 col-md-4">
+                    //    var html = `<div class="row mt-2">
+                    //        <div class="col-12 col-md-4">
+                    //            <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" >
+                    //            </select>
+                    //        </div>
+                    //        <div class="col-12 col-md-4" id="div_option_value_edit_${index}">
+                    //        </div>
+                    //          <div class="col-12 col-md-4">
                        
-                            </div>
-                        </div>`
-                        $('#option_value_product_edit').append(html);
-                        $(`#option_product_edit_${index}`).html(htmlOption);
-                        $(`#option_product_edit_${index}`).select2({
-                            dropdownParent: $("#modal_product_sku_edit"),
-                            theme: "bootstrap-5"
-                        })
-                        $(`#option_product_edit_${index}`).val(item.OptionID).trigger('change');
-                        index++;
-                        var idx = index - 1;
-                        GetOptionValueEdit(item.OptionID, `option_product_edit_${idx}`)
-                            .then(() => {
-                                var optionValue = result1.Item1.find(p => p.OptionDetailsID == item.OptionDetailsID).OptionValueID;
-                                $(`#option_value_product_edit_${idx}`).val(optionValue).trigger('change');
-                            })
-                            .catch(error => {
-                                console.error("Error fetching option value:", error);
-                            });
-                       
-                    });
-
+                    //        </div>
+                    //    </div>`
+                    //    $('#option_value_product_edit').append(html);
+                    //    $(`#option_product_edit_${index}`).html(htmlOption);
+                    //    $(`#option_product_edit_${index}`).select2({
+                    //        dropdownParent: $("#modal_product_sku_edit"),
+                    //        theme: "bootstrap-5"
+                    //    })
+                    //    $(`#option_product_edit_${index}`).val(item.OptionID).trigger('change');
+                    //    index++;
+                    //    var idx = index - 1;
+                    //    GetOptionValueEdit(item.OptionID, `option_product_edit_${idx}`)
+                    //        .then(() => {
+                    //            var optionValue = result1.Item1.find(p => p.OptionDetailsID == item.OptionDetailsID).OptionValueID;
+                    //            $(`#option_value_product_edit_${idx}`).val(optionValue).trigger('change');
+                    //        })
+                    //        .catch(error => {
+                    //            console.error("Error fetching option value:", error);
+                    //        });
+                    //});
+                     processData(result1);
+                    optionValueChangeEdit();
                     $('#modal_product_sku_edit').modal('show');
                 },
                 error: function (err) {
@@ -242,6 +245,54 @@ function editProductSku(id) {
     });
 
 }
+function processItem(item, index, result1) {
+    return new Promise((resolve, reject) => {
+        var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
+        $.each(arrOption, function (key, optionItem) {
+            htmlOption += `<option value="${optionItem.OptionID}">${optionItem.OptionName}</option>`;
+        });
+
+        var html = `<div class="row mt-2">
+            <div class="col-12 col-md-4">
+                <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" ></select>
+            </div>
+            <div class="col-12 col-md-4" id="div_option_value_edit_${index}"></div>
+            <div class="col-12 col-md-4"></div>
+        </div>`;
+        $('#option_value_product_edit').append(html);
+        $(`#option_product_edit_${index}`).html(htmlOption);
+        $(`#option_product_edit_${index}`).select2({
+            dropdownParent: $("#modal_product_sku_edit"),
+            theme: "bootstrap-5"
+        });
+        $(`#option_product_edit_${index}`).val(item.OptionID).trigger('change');
+
+        GetOptionValueEdit(item.OptionID, `option_product_edit_${index}`)
+            .then(() => {
+                var optionValue = result1.Item1.find(p => p.OptionDetailsID == item.OptionDetailsID).OptionValueID;
+                $(`#option_value_product_edit_${index}`).val(optionValue).trigger('change');
+                resolve();
+            })
+            .catch(error => {
+                console.error("Error fetching option value:", error);
+                reject(error);
+            });
+    });
+}
+
+async function processData(result1) {
+    for (let i = 0; i < result1.Item2.length; i++) {
+        try {
+            await processItem(result1.Item2[i], index,result1);
+            index++;
+        } catch (error) {
+            console.error("Error processing item:", error);
+        }
+    }
+}
+
+
+
 
 function addOptionEdit() {
     var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
@@ -271,8 +322,7 @@ function addOptionEdit() {
     index++;
 }
 function GetOptionValueEdit(id, selectID) {
-  //  console.log(item);
-   
+
     var i = selectID.split('_')[3];
     return $.ajax({
         url: '/admin/option/getallvalue',
@@ -579,6 +629,9 @@ function optionValueChangeEdit() {
         };
         combinedArray.push(combinedObject);
     }
+    if (combinedArray.length > 0) {
+        $('#option_value_id_product_sku_edit').val(combinedArray[0].value);
+    }
 }
 
 function optionValueChange() {
@@ -758,3 +811,51 @@ function save() {
     });
 }
 
+function saveEdit() {
+    var listOptionID = [];
+    var listSku = [];
+    var productID = parseInt($('#product_id_product_sku_edit').val());
+    var id = parseInt($('#product_sku_id_product_sku').val());
+    $('select[id*="option_product_"]').each(function () {
+        var optionID = parseInt($(this).val());
+        listOptionID.push(optionID);
+    });
+
+    var capitalPrice = parseFloat($(`#capital_price_product_sku_edit`).val());
+    var price = parseFloat($(`#price_product_sku_edit`).val());
+    var quantity = parseInt($(`#quantity_product_sku_edit`).val());
+    var optionValueID = $("#option_value_id_product_sku_edit").val();
+   
+    var obj = {
+        ListOptionID: listOptionID,
+        CapitalPrice: capitalPrice,
+        Price: price,
+        Quantity: quantity,
+        OptionValueID: optionValueID,
+        ProductID: productID,
+        ID: id
+    }
+    $.ajax({
+        url: '/admin/product/update-sku',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        data: JSON.stringify(obj),
+        success: function (result) {
+            if (result == 1) {
+                $('#modal_product_sku_edit').modal('hide');
+                GetProductSku();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${result}`,
+                    showConfirmButton: true
+                })
+            }
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}

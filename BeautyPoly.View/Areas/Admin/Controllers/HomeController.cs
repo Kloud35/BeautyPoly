@@ -109,5 +109,9 @@ namespace BeautyPoly.Areas.Admin.Controllers
                 return RedirectToRoute("Login");
             }
         }
+        public IActionResult DashBoard()
+        {
+            return View();
+        }
     }
 }

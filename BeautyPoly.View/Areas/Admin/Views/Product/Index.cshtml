@@ -161,7 +161,6 @@
                 <h5 class="modal-title">Thêm sản phẩm</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <input type="number" value="0" id="product_sku_id_product_sku" hidden />
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12 col-md-4">
@@ -259,18 +258,18 @@
                         <input class="form-control" id="product_name_view_product_sku" disabled />
                     </div>
                     <div class="col-12 col-md-4">
-                        <label for="product_name_view_product_sku">Tên sản phẩm</label>
-                        <input class="form-control" id="product_name_view_product_sku" disabled />
+                        <label for="product_name_view_product_sku">Giá nhập</label>
+                        <input type="number" class="form-control" id="capital_price_product_sku_edit"  />
                     </div>
                     <div class="col-12 col-md-4">
                         <label for="product_name_view_product_sku">Tên sản phẩm</label>
-                        <input class="form-control" id="product_name_view_product_sku" disabled />
+                        <input type="number" class="form-control" id="price_product_sku_edit"  />
                     </div>
                     <div class="col-12 col-md-4">
-                        <label for="product_name_view_product_sku">Tên sản phẩm</label>
-                        <input class="form-control" id="product_name_view_product_sku" disabled />
+                        <label for="product_name_view_product_sku">Số lượng</label>
+                        <input type="number" class="form-control" id="quantity_product_sku_edit"  />
                     </div>
-                    
+                    <input type="text" id="option_value_id_product_sku_edit" hidden/>
                 </div>
                 <div class="accordion mt-2" id="accordion_option">
                     <div class="accordion-item">
@@ -295,7 +294,7 @@
                 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="btn_save_product_sku" onclick="save()">Lưu</button>
+                <button type="button" class="btn btn-primary" id="btn_save_product_sku" onclick="saveEdit()">Lưu</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
