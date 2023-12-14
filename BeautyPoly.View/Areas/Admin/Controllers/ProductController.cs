@@ -146,46 +146,37 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     for (int i = 0; i < defferentID.Count(); i++)
                     {
                         OptionDetails optionD = new OptionDetails();
-                        optionD.OptionID = defferentID[1];
+                        optionD.OptionID = defferentID[i];
                         optionD.ProductID = product.ProductID;
                         await optionDetailRepo.InsertAsync(optionD);
                     }
 
-
                     string[] stringID = productSkuDTO.OptionValueID.Split('-');
-                    string sku = product.ProductCode;
-                    for (int i = 0; i < stringID.Length; i++)
-                    {
-                        var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
-                        if (resultValue != null)
-                        {
-                            var resultOption = await optionRepo.GetByIdAsync((int)resultValue.OptionID);
-                            sku += TextUtils.ToString(resultOption.OptionName[0]).ToUpper();
-                            var values = resultValue.OptionValueName.Trim().Split(' ');
-                            foreach (var value in values)
-                            {
-                                sku += TextUtils.ToString(value[0]).ToUpper();
-                            }
-                        }
-                    }
+
                     ProductSkus productSkus = await productSkuRepo.GetByIdAsync(productSkuDTO.ID);
-                    productSkus.Sku = sku;
                     productSkus.CapitalPrice = productSkuDTO.CapitalPrice;
                     productSkus.Price = productSkuDTO.Price;
                     productSkus.Quantity = productSkuDTO.Quantity;
                     await productSkuRepo.UpdateAsync(productSkus);
+                    //await productDetailRepo.DeleteRangeAsync(SQLHelper<ProductDetails>.ProcedureToList("spGetProductDetailByProductID", new string[] { "@ProductID" }, new object[] { product.ProductID }));
+                    await productDetailRepo.DeleteRangeAsync(await productDetailRepo.FindAsync(p => p.ProductSkusID == productSkus.ProductSkusID));
                     for (int i = 0; i < stringID.Length; i++)
                     {
                         var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
                         if (resultValue != null)
                         {
-                            await productDetailRepo.DeleteRangeAsync(await productDetailRepo.FindAsync(p => p.ProductSkusID == productSkus.ProductSkusID));
-                            ProductDetails productDetails = new ProductDetails();
-                            productDetails.OptionValueID = resultValue.OptionValueID;
                             var resultOptionDetail = optionDetailRepo.FindAsync(p => p.ProductID == product.ProductID && p.OptionID == resultValue.OptionID).Result.FirstOrDefault();
-                            productDetails.OptionDetailsID = resultOptionDetail.OptionDetailsID;
-                            productDetails.ProductSkusID = productSkus.ProductSkusID;
-                            await productDetailRepo.InsertAsync(productDetails);
+                            var listSku = await productSkuRepo.FindAsync(p => p.ProductID == product.ProductID);
+                            foreach (var s in listSku)
+                            {
+                                var checkDetail = await productDetailRepo.FindAsync(p => p.ProductSkusID == s.ProductSkusID && p.OptionDetailsID == resultOptionDetail.OptionDetailsID);
+                                if (checkDetail.Count() > 0) continue;
+                                ProductDetails productDetails = new ProductDetails();
+                                productDetails.OptionValueID = resultValue.OptionValueID;
+                                productDetails.OptionDetailsID = resultOptionDetail.OptionDetailsID;
+                                productDetails.ProductSkusID = s.ProductSkusID;
+                                await productDetailRepo.InsertAsync(productDetails);
+                            }
                         }
                     }
                 }
@@ -210,35 +201,9 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     var product = await productRepo.GetByIdAsync(productSkuDTO.ProductID);
 
                     string[] stringID = productSkuDTO.OptionValueID.Split('-');
-                    string sku = product.ProductCode;
 
-
-
-                    for (int i = 0; i < stringID.Length; i++)
-                    {
-                        var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
-                        if (resultValue != null)
-                        {
-                            var resultOption = await optionRepo.GetByIdAsync((int)resultValue.OptionID);
-                            sku += TextUtils.ToString(resultOption.OptionName[0]).ToUpper();
-                            var values = resultValue.OptionValueName.Trim().Split(' ');
-                            foreach (var value in values)
-                            {
-                                if (value.Length <= 2)
-                                {
-                                    sku += TextUtils.ToString(value).ToUpper();
-                                }
-                                else
-                                {
-                                    sku += TextUtils.ToString(value[0]).ToUpper();
-                                }
-
-                            }
-                        }
-                    }
 
                     ProductSkus productSkus = await productSkuRepo.GetByIdAsync(productSkuDTO.ID);
-                    productSkus.Sku = sku;
                     productSkus.CapitalPrice = productSkuDTO.CapitalPrice;
                     productSkus.Price = productSkuDTO.Price;
                     productSkus.Quantity = productSkuDTO.Quantity;
@@ -272,52 +237,54 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             try
             {
                 var product = await productRepo.GetByIdAsync(productSkuDTO.ProductID);
-                foreach (int id in productSkuDTO.ListOptionID)
+                var checkProductSkuExist = await productSkuRepo.FindAsync(p => p.ProductID == product.ProductID);
+                if (checkProductSkuExist.Count() > 0)
                 {
-                    OptionDetails optionDetails = new OptionDetails();
-                    optionDetails.OptionID = id;
-                    optionDetails.ProductID = productSkuDTO.ProductID;
-                    await optionDetailRepo.InsertAsync(optionDetails);
+
                 }
-                foreach (var s in productSkuDTO.ListSku)
+                else
                 {
-                    string[] stringID = s.OptionValueID.Split('-');
-                    string sku = product.ProductCode;
-                    for (int i = 0; i < stringID.Length; i++)
+                    foreach (int id in productSkuDTO.ListOptionID)
                     {
-                        var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
-                        if (resultValue != null)
+                        var checkOptionDetail = await optionDetailRepo.FirstOrDefaultAsync(p => p.ProductID == product.ProductID && p.OptionID == id);
+                        if (checkOptionDetail != null)
                         {
-                            var resultOption = await optionRepo.GetByIdAsync((int)resultValue.OptionID);
-                            sku += TextUtils.ToString(resultOption.OptionName[0]).ToUpper();
-                            var values = resultValue.OptionValueName.Trim().Split(' ');
-                            foreach (var value in values)
+                            continue;
+                        }
+                        OptionDetails optionDetails = new OptionDetails();
+                        optionDetails.OptionID = id;
+                        optionDetails.ProductID = productSkuDTO.ProductID;
+                        await optionDetailRepo.InsertAsync(optionDetails);
+                    }
+                    int stt = 1;
+
+                    foreach (var s in productSkuDTO.ListSku)
+                    {
+                        string[] stringID = s.OptionValueID.Split('-');
+                        string sku = product.ProductCode + "_" + stt;
+                        ProductSkus productSkus = new ProductSkus();
+                        productSkus.ProductID = product.ProductID;
+                        productSkus.Sku = sku;
+                        productSkus.CapitalPrice = s.CapitalPrice;
+                        productSkus.Price = s.Price;
+                        productSkus.Quantity = s.Quantity;
+                        await productSkuRepo.InsertAsync(productSkus);
+                        for (int i = 0; i < stringID.Length; i++)
+                        {
+                            var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
+                            if (resultValue != null)
                             {
-                                sku += TextUtils.ToString(value[0]).ToUpper();
+                                ProductDetails productDetails = new ProductDetails();
+                                productDetails.OptionValueID = resultValue.OptionValueID;
+                                var resultOptionDetail = optionDetailRepo.FindAsync(p => p.ProductID == product.ProductID && p.OptionID == resultValue.OptionID).Result.FirstOrDefault();
+                                productDetails.OptionDetailsID = resultOptionDetail.OptionDetailsID;
+                                productDetails.ProductSkusID = productSkus.ProductSkusID;
+                                await productDetailRepo.InsertAsync(productDetails);
                             }
                         }
                     }
-                    ProductSkus productSkus = new ProductSkus();
-                    productSkus.ProductID = product.ProductID;
-                    productSkus.Sku = sku;
-                    productSkus.CapitalPrice = s.CapitalPrice;
-                    productSkus.Price = s.Price;
-                    productSkus.Quantity = s.Quantity;
-                    await productSkuRepo.InsertAsync(productSkus);
-                    for (int i = 0; i < stringID.Length; i++)
-                    {
-                        var resultValue = await optionValueRepo.GetByIdAsync(TextUtils.ToInt(stringID[i].Trim()));
-                        if (resultValue != null)
-                        {
-                            ProductDetails productDetails = new ProductDetails();
-                            productDetails.OptionValueID = resultValue.OptionValueID;
-                            var resultOptionDetail = optionDetailRepo.FindAsync(p => p.ProductID == product.ProductID && p.OptionID == resultValue.OptionID).Result.FirstOrDefault();
-                            productDetails.OptionDetailsID = resultOptionDetail.OptionDetailsID;
-                            productDetails.ProductSkusID = productSkus.ProductSkusID;
-                            await productDetailRepo.InsertAsync(productDetails);
-                        }
-                    }
                 }
+
                 return Json(1);
             }
             catch (Exception ex)

@@ -63,11 +63,10 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 check.PostsCode = postDTO.post.PostsCode;
                 check.Title = postDTO.post.Title;
                 check.Contents = postDTO.post.Contents;
-                check.Img = postDTO.post.Img;
+                if (!string.IsNullOrEmpty(postDTO.post.Img)) check.Img = postDTO.post.Img;
                 check.IsPublished = postDTO.post.IsPublished;
                 check.Tags = postDTO.post.Tags;
                 check.ShortContents = postDTO.post.ShortContents;
-                check.CreateDate = postDTO.post.CreateDate;
                 check.Author = postDTO.post.Author;
                 check.Alias = postDTO.post.Alias;
                 check.IsHot = postDTO.post.IsHot;

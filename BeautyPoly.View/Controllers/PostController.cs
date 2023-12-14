@@ -1,9 +1,5 @@
-﻿using BeautyPoly.Common;
-using BeautyPoly.Data.Models.DTO;
-using BeautyPoly.Data.Repositories;
+﻿using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
-using BeautyPoly.Models;
-using BeautyPoly.View.Helper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeautyPoly.View.Controllers

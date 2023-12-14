@@ -81,6 +81,10 @@ function removeImage(button) {
 
 }
 
+function removeImageOnClose() {
+    var image = document.getElementById('imagePreviewContainer');
+    image.parentNode.removeChild(image);
+}
 
 
 function createUpdate() {
@@ -161,7 +165,7 @@ function createUpdate() {
 
 function add() {
     $('#postid_post').val(0);
-    $('#post_code_post').val(0);
+    $('#post_code_post').val('');
     $('#post_title_post').val('');
     $('#post_content_post').val('');
     $('#post_isPublished_post').val(1);
@@ -173,14 +177,21 @@ function add() {
     $('#post_isHot_post').val(1);
     $('#post_isNewFeed_post').val(1);
     $('#post_status_post').val(1);
+    $('#imagePreviewContainer').empty();
     $('#modal_post').modal('show');
 }
 function editPost(id) {
-
+    $('#imagePreviewContainer').empty();
     $('#postid_post').val(id);
 
     var post = arrPost.find(p => p.postsID == parseInt(id));
 
+    var imgElement = $('<img>').attr('src', post.img).addClass('col-4 ps-1 pe-1 mb-4').css({
+        'max-height': '370px',
+        'position': 'relative'
+    });
+
+    $('#imagePreviewContainer').empty().append(imgElement);
 
 
     var formattedDate = formatDate(post.createDate);
