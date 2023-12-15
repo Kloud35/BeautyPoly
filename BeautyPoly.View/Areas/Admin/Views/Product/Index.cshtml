@@ -99,25 +99,33 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <input type="number" value="0" id="product_id_product" hidden />
+            <input type="number" value="0" id="product_id_cate" hidden />
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="product_code_product" placeholder="Mã sản phẩm">
                             <label for="product_code_product">Mã sản phẩm<span class="text-danger">(*)</span></label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="product_name_product" placeholder="Têm sản phẩm">
                             <label for="product_name_product">Tên sản phẩm<span class="text-danger">(*)</span></label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4">
-                        <div class="form-floating mb-3">
-                            <select class="form-select" id="cate_id_product" aria-label="Chọn danh mục sản phẩm" asp-items="@((List<SelectListItem>)ViewBag.Category)">
-                            </select>
-                            <label for="cate_id_product">Danh mục<span class="text-danger">(*)</span></label>
+                </div>
+                <div class="accordion mt-2" id="accordion_cate">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+                            <button class="accordion-button collapsed btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCate" aria-expanded="false" aria-controls="collapseCate">
+                                <p>Danh mục: <span class="text-danger" id="cate-name">(*)</span></p>
+                            </button>
+                        </h2>
+                        <div id="collapseCate" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion_cate" style="">
+                            <div class="accordion-body">
+                                <ul id="category-list"></ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -141,6 +149,8 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div id="sale-option">
                 </div>
             </div>
             <div class="modal-footer">
@@ -316,7 +326,7 @@
                         <input type="file" id="fileInput" style="display: none;" multiple>
                     </div>
                 </div>
-                <div class="row mt-3 imagePreviewContainer">
+                <div id="imagePreviewContainer_1" class="row mt-3 imagePreviewContainer">
                 </div>
             </div>
             <div class="modal-footer">

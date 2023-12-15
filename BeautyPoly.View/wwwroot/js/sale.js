@@ -358,7 +358,7 @@ function createUpdate() {
     var name = $('#sale_name_sale').val();
     var code = $('#sale_code_sale').val();
     var quantity = $('#sale_quantity_sale').val();
-    debugger
+    
     var start_date = $('#sale_start_date_sale').val();
     var end_date = $('#sale_end_date_sale').val();
     var type = $('#sale_type_sale').val();

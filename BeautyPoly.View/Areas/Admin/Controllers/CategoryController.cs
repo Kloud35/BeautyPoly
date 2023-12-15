@@ -56,6 +56,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             cate.ParentID = category.ParentID;
             cate.CateCode = category.CateCode;
             cate.CateName = category.CateName;
+            cate.IsDelete = false;
             if (category.CateId > 0)
             {
                 cate.CateId = category.CateId;
@@ -64,6 +65,17 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             else
             {
                 await categoryRepo.InsertAsync(cate);
+            }
+            return Json(1);
+        }
+        [HttpPost("admin/cate/delete")]
+        public async Task<IActionResult> Delete([FromBody] List<int> listCateID)
+        {
+            foreach (int cateID in listCateID)
+            {
+                var obj = await categoryRepo.GetByIdAsync(cateID);
+                obj.IsDelete = true;
+                await categoryRepo.UpdateAsync(obj);
             }
             return Json(1);
         }

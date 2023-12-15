@@ -13,6 +13,7 @@
     <None Include="Areas\Admin\Views\Product\Index.cshtml" />
     <None Include="Areas\Admin\Views\Sale\Index.cshtml" />
     <None Include="Areas\Admin\Views\Voucher\Index.cshtml" />
+    <None Include="Views\Shop\Index.cshtml" />
     <None Include="wwwroot\js\site.js" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />

@@ -350,5 +350,36 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             var list = new Tuple<IEnumerable<ProductDetails>, List<OptionDetailViewModel>>(productDetails, optionDetails);
             return Json(list, new JsonSerializerOptions());
         }
+        [HttpGet("admin/product/get-product-sale")]
+        public IActionResult GetProductSale(int productID)
+        {
+            List<Sale> sale = SQLHelper<Sale>.ProcedureToList("spGetSaleToAdminProduct", new string[] { "@ProductID" }, new object[] { productID });
+            return Json(sale, new JsonSerializerOptions());
+        }
+
+        [HttpPost("admin/product/change-product-sale")]
+        public async Task<IActionResult> ChangeProductSale(int productID, int saleID)
+        {
+            try
+            {
+                var product = await productRepo.GetByIdAsync(productID);
+                product.SaleID = saleID;
+                if (saleID > 0)
+                {
+                    product.IsSale = true;
+                }
+                else
+                {
+                    product.IsSale = false;
+                }
+                await productRepo.UpdateAsync(product);
+                return Json(1);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex);
+            }
+
+        }
     }
 }

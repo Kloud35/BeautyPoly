@@ -13,6 +13,8 @@
         public int CountOption { get; set; }
         public string? ProductSkuName { get; set; }
         public int QuantityCart { get; set; }
+        public double Subtotal { get; set; }
+        public double TotalPrice { get; set; }
         public string? ProductName { get; set; }
         public string? Image { get; set; }
     }

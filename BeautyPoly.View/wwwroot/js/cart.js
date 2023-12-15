@@ -16,7 +16,6 @@ function GetCart() {
                 if (!groupedData[productName]) {
                     groupedData[productName] = [];
                 }
-
                 groupedData[productName].push(item);
             });
 
@@ -26,7 +25,7 @@ function GetCart() {
             for (const productName in groupedData) {
                 if (groupedData.hasOwnProperty(productName)) {
                     const productList = groupedData[productName];
-                    const groupId = generateUniqueId(); // Function to generate a unique identifier
+                    const groupId = generateUniqueId(); 
 
                     // Hiển thị tên sản phẩm nhóm
                     html += `<tr class="tbody-item group-title" data-group-id="${groupId}">
@@ -56,7 +55,7 @@ function GetCart() {
                                 </td>
                                 <td class="product-quantity">
                                     <div class="pro-qty">
-                                        <input type="text" class="quantity" title="Quantity" value="${product.QuantityCart}">
+                                        <input type="text" class="quantity" title="Quantity" id="quantity_${index}" value="${product.QuantityCart}">
                                     </div>
                                 </td>
                                 <td class="product-subtotal">
@@ -69,7 +68,7 @@ function GetCart() {
             }
 
             $('#total_amount').text(formatCurrency.format(totalMoney));
-
+            $('#total_amount_cart').text(formatCurrency.format(totalMoney));
             $('#tbody_cart').html(html);
 
             $(document).on('click', '.group-title', function () {
@@ -83,7 +82,7 @@ function GetCart() {
     });
 }
 
-// Function to generate a unique identifier
 function generateUniqueId() {
     return Math.random().toString(36).substr(2, 9);
 }
+

@@ -10,21 +10,19 @@
         <br />
         <ul id="category-list" class="easyui-tree"></ul>
     </div>
-    <div class="d-flex justify-content-end mt-2 mr-2">
-        <button class="btn btn-primary btn-sm mr-auto" onclick="addCate()">
+    <div class="card-footer d-flex justify-content-between">
+        <button class="btn btn-primary btn-sm" onclick="addCate()">
             <i class="bx bx-plus"></i> Thêm
         </button>
-        <button class="btn btn-success btn-sm" onclick="editCate()">
-            <i class="bx bx-pencil"></i> Sửa
-        </button>
+        <div>
+            <button class="btn btn-success btn-sm" onclick="editCate()">
+                <i class="bx bx-pencil"></i> Sửa
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCate()">
+                <i class="bx bx-trash"></i> Xóa
+            </button>
+        </div>
     </div>
-</div>
-<div id="category-menu" class="easyui-menu" style="width:120px;">
-    <div onclick="append()">Append</div>
-    <div onclick="removeit()">Remove</div>
-    <div class="menu-sep"></div>
-    <div onclick="expand()">Expand</div>
-    <div onclick="collapse()">Collapse</div>
 </div>
 <div id="modal_cate" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-dialog-scrollable">
@@ -55,6 +53,8 @@
                             <input type="text" class="form-control" id="cate_name_cate" placeholder="Tên danh mục">
                             <label for="cate_name_cate">Tên danh mục<span class="text-danger">(*)</span></label>
                         </div>
+                    </div>
+                    <div id="category-edit-parentid">
                     </div>
                 </div>
             </div>

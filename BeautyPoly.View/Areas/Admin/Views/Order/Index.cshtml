@@ -1,0 +1,656 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<!-- Nội dung trang -->
+<div class="card-body p-1">
+    <div class="font-weight-bold row m-0">
+        <div class="col-12 col-md-3 col-lg-3 p-1">
+            <div class="form-group m-0">
+                <label>Từ khóa</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control form-control-sm" id="order_keyword" placeholder="Từ khóa ..." />
+                    <div class="input-group-append">
+                        <button class="btn btn-success btn-sm" onclick="return GetAll();">
+                            <i class="bx bx-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display order statuses horizontally as buttons -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trạng thái đơn hàng</h5>
+                    <div class="container">
+                        <!-- Bordered Tabs -->
+                        <ul class="nav nav-tabs nav-tabs-bordered" id="borderedTab" role="tablist">
+                            <li style="width:5%"><a class="btn btn-success btn-sm" id="btn_add_orderProduct" onclick="add()"><i class="bx bx-plus"></i></a></li>
+
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link " id="home-tab" data-status="1" data-bs-toggle="tab" data-bs-target="#bordered-home" type="button" role="tab" aria-controls="home" aria-selected="false" tabindex="-1">Đơn hàng chờ</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="profile-tab" data-status="2" data-bs-toggle="tab" data-bs-target="#bordered-profile" type="button" role="tab" aria-controls="profile" aria-selected="false" tabindex="-1">Đã duyệt</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="contact-tab" data-status="3" data-bs-toggle="tab" data-bs-target="#bordered-contact" type="button" role="tab" aria-controls="contact" aria-selected="true">Chờ giao hàng</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="home-tab1" data-status="4" data-bs-toggle="tab" data-bs-target="#bordered-home1" type="button" role="tab" aria-controls="home1" aria-selected="false" tabindex="-1">Hoàn đơn/hủy hàng</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="home-tab2" data-status="5" data-bs-toggle="tab" data-bs-target="#bordered-home2" type="button" role="tab" aria-controls="home2" aria-selected="false" tabindex="-1">Giao thành công</button>
+                            </li>
+                            <li>
+                                <button type="button" style="margin-left:50px" onclick="confirmOrder()" class="btn btn-success">Xác nhận</button>
+                            </li>
+                            <li>
+                                <button type="button" style="margin-left:20px" onclick="cancelOrder()" class="btn btn-danger">Hủy đơn</button>
+                            </li>
+                            <li>
+                                <button type="button" style="margin-left:20px" onclick="payOrder()" class="btn btn-primary">Thanh toán</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content pt-2" id="borderedTabContent">
+                        <div class="tab-pane fade" id="bordered-home" role="tabpanel" aria-labelledby="home-tab">
+                            <div class="table-responsive container">
+                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                                    <thead>
+                                        <tr>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_order_hc">
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="bordered-profile" role="tabpanel" aria-labelledby="profile-tab">
+                            <div class="table-responsive container">
+                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                                    <thead>
+                                        <tr>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_order_dd">
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="bordered-contact" role="tabpanel" aria-labelledby="contact-tab">
+                            <div class="table-responsive container">
+                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                                    <thead>
+                                        <tr>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_order_cgh">
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="bordered-home1" role="tabpanel" aria-labelledby="home-tab1">
+                            <div class="table-responsive container">
+                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                                    <thead>
+                                        <tr>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_order_hd">
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="bordered-home2" role="tabpanel" aria-labelledby="home-tab2">
+                            <div class="table-responsive container">
+                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                                    <thead>
+                                        <tr>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
+                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
+                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody_order_gtc">
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                        <tr>
+                                            <th style="vertical-align: top;">1</th>
+                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
+                                            <th style="vertical-align: top;">Admin</th>
+                                            <th style="vertical-align: top;">Trần Đức Duy</th>
+                                            <th style="vertical-align: top;">0987654321</th>
+                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
+                                            <th style="vertical-align: top;">3.500.000</th>
+                                            <th style="vertical-align: top;">10%</th>
+                                            <th style="vertical-align: top;">3.150.000</th>
+                                            <th style="vertical-align: top;">Thanh toán online</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;">11/11/2023</th>
+                                            <th style="vertical-align: top;">10/11/2023</th>
+                                            <th style="vertical-align: top;white-space: nowrap;"></th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                    </div><!-- End Bordered Tabs -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal_order" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo hóa đơn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                        <ul class="nav nav-tabs nav-tabs-bordered" id="borderedTab" role="tablist">
+                            @*                 <li>
+                            <button type="button" class="btn btn-success btn-sm" id="btn_add_orderProduct" onclick="addOrder()">
+                            <i class="bx bx-plus"></i>
+                            </button>
+                            </li> *@
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="home-tab22" data-bs-toggle="tab" data-bs-target="#bordered-home" type="button" role="tab" aria-controls="home" aria-selected="true">Hoán đơn 1</button>
+                            </li>
+
+                        </ul>
+
+                        <div class="tab-content pt-2" id="borderedTabContent">
+                            <div class="tab-pane fade show active" id="bordered-home" role="tabpanel" aria-labelledby="home-tab">
+                                <input type="number" value="0" id="orderid_order" hidden />
+
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="order_code" class="form-label">Mã đơn</label>
+                                                <input type="text" class="form-control" id="order_code" readonly style="background-color: #f9f4ee;">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="customer_phone" class="form-label">SĐT</label>
+                                                <input type="text" class="form-control" id="customer_phone">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="customer_name" class="form-label">Tên khách hàng</label>
+                                                <input type="text" class="form-control" id="customer_name">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="payment_method" class="form-label">Phương thức thanh toán</label>
+                                                <select class="form-control" id="payment_method">
+                                                    <option value="cash">Tiền mặt</option>
+                                                    <option value="credit_card">Thẻ tín dụng</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="address" class="form-label">Địa chỉ</label>
+                                                <input type="text" class="form-control" id="customer_address">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 col-md-6">
+                                            <label for="note" class="form-label">Ghi chú</label>
+                                            <textarea class="form-control" id="order_note"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <table class="table table-responsive">
+                                        <thead>
+                                            <tr class="text-center">
+                                                <th style="width:5%"><a class="btn btn-success btn-sm" id="btn_add_orderProduct" onclick="addSanPham()"><i class="bx bx-plus"></i></a></th>
+                                                <th style="width:50%">Sản phẩm</th>
+                                                <th style="width:20%">Số lượng</th>
+                                                <th style="width:25%">Giá bán</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody_product">
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div><!-- End Bordered Tabs -->
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn_save_order" onclick="createOrder()">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@* <div id="showHD2" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo hóa đơn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="invoice-header">
+                    <h2>Cửa hàng BeatyPoly</h2>
+                    <h4 class="invoice-date">Ngày: <span id="dateExport"></span></h4>
+                    <h4 class="invoice-number">Số hóa đơn: <span id="orderCodeExport"></span></h4>
+                    <h3 class="invoice-title">HÓA ĐƠN CHI TIẾT</h3>
+                </div>
+                <div class="customer-details">
+                    <h4>Tên thu ngân: Admin</h4>
+                    <h4>Tên khách hàng: <span id="customerNameExport"></span></h4>
+                    <h4>SĐT: <span id="customerPhoneExport"></span></h4>
+                    <h4>Địa chỉ: <span id="customerArdessExport"></span></h4>
+                </div>
+                <div class="invoice-items">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Sản Phẩm</th>
+                                <th>Số Lượng</th>
+                                <th>Đơn Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody class = "prodOrderExport">
+                            <tr>
+                                <td>Nước hoa 1</td>
+                                <td>1</td>
+                                <td>1.500.000</td>
+                            </tr>
+                            <tr>
+                                <td>Phấn phủ 1</td>
+                                <td>1</td>
+                                <td>500.000</td>
+                            </tr>
+                            <tr>
+                                <td>Kem dưỡng 1</td>
+                                <td>1</td>
+                                <td>1.500.000</td>
+                            </tr>
+                            <!-- Add more rows if needed -->
+                        </tbody>
+                    </table>
+                    <div class="invoice-summary">
+                        <h4>Tổng tiền hàng: <span id="totalPriceExport"></span></h4>
+                        <h4>Giảm giá: %</h4>
+                        <h4>Tổng tiền thanh toán: <span id="totalPayport"></span></h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> *@
+<div id="showHD" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo hóa đơn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="invoice-header">
+                    <h2>Cửa hàng BeatyPoly</h2>
+                    <h4 class="invoice-date">Ngày: <span id="dateExport"></span></h4>
+                    <h4 class="invoice-number">Số hóa đơn: <span id="orderCodeExport"></span></h4>
+                    <h3 class="invoice-title">HÓA ĐƠN CHI TIẾT</h3>
+                </div>
+                <div class="customer-details">
+                    <h4>Tên thu ngân: Admin</h4>
+                    <h4>Tên khách hàng: <span id="customerNameExport"></span></h4>
+                    <h4>SĐT: <span id="customerPhoneExport"></span></h4>
+                    <h4>Địa chỉ: <span id="customerArdessExport"></span></h4>
+                </div>
+                <div class="invoice-items">
+                    <table class="table table-bordered">
+                        <thead class="table">
+                            <tr>
+                                <th>Tên Sản Phẩm</th>
+                                <th>Số Lượng</th>
+                                <th>Đơn Giá</th>
+                            </tr>
+                        </thead>
+                        <tbody class="prodOrderExport">
+                            <!-- Your table rows will be dynamically populated here -->
+                        </tbody>
+                    </table>
+                    <div class="invoice-summary">
+                        <h4>Tổng tiền hàng: <span id="totalPriceExport"></span></h4>
+                        <h4>Giảm giá: %</h4>
+                        <h4>Tổng tiền thanh toán: <span id="totalPayport"></span></h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/order.js" asp-append-version="true"></script>
+}

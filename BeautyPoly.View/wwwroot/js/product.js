@@ -1,9 +1,10 @@
-﻿var arrCategory = [];
+﻿var arrCateToTree = [];
 var arrOption = [];
 var arrOptionValue = [];
 var arrProduct = [];
 var arrProductImage = [];
 var arrProductSku = [];
+var arrProductSale = [];
 var index = 1;
 class DynamicArrayCombiner {
     constructor() {
@@ -55,7 +56,7 @@ const arrayCombiner = new DynamicArrayCombiner();
 const arrayCombinerText = new DynamicArrayCombiner();
 
 $(document).ready(function () {
-    //GetCategory();
+    GetAllCateToTree();
     GetOption();
     GetAllOptionValue();
     GetProduct();
@@ -371,7 +372,8 @@ function saveImage() {
 }
 
 function GetProductImage(id) {
-    $('.imagePreviewContainer').empty();
+    $('#imagePreviewContainer').empty();
+    $('#imagePreviewContainer_1').empty();
     $.ajax({
         url: '/admin/product/get-product-image',
         type: 'GET',
@@ -388,7 +390,35 @@ function GetProductImage(id) {
                             <a class="btn text-danger" onclick="removeImage(this)" style="cursor:pointer; position: absolute; top: 4px; right: 4px;"><i class="bi bi-trash"></i></a>
                             <img src="${base64}" width="100%" height="100%" />
                         </div>`;
-                    $('.imagePreviewContainer').append(html);
+                    $('#imagePreviewContainer_1').append(html);
+                });
+            });
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}
+function GetProductImageEdit(id) {
+    $('#imagePreviewContainer').empty();
+    $('#imagePreviewContainer_1').empty();
+    $.ajax({
+        url: '/admin/product/get-product-image',
+        type: 'GET',
+        dataType: 'json',
+        //contentType: 'application/json;charset=utf-8',
+        data: { productID: id },
+        success: function (result) {
+            arrProductImage = result;
+            console.log(result)
+            $.each(arrProductImage, (key, item) => {
+                var stringPath = `/images/${item.Image}`;
+                convertImagePathToBase64(stringPath, function (base64) {
+                    var html = `<div class="col-4 ps-1 pe-1 mb-4 image-container" style="max-height:370px;position: relative;">
+                            <a class="btn text-danger" onclick="removeImage(this)" style="cursor:pointer; position: absolute; top: 4px; right: 4px;"><i class="bi bi-trash"></i></a>
+                            <img src="${base64}" width="100%" height="100%" />
+                        </div>`;
+                    $('#imagePreviewContainer').append(html);
                 });
             });
         },
@@ -422,8 +452,51 @@ function editProduct(id) {
             $('#product_id_product').val(result.ProductID);
             $('#product_code_product').val(result.ProductCode);
             $('#product_name_product').val(result.ProductName);
-            $('#cate_id_product').val(result.CateID);
-            GetProductImage(result.ProductID);
+            $('#product_id_cate').val(result.CateID);
+            GetProductImageEdit(result.ProductID);
+            $('#category-list').tree({
+                data: arrCateToTree,
+                onClick: function (node) {
+                    if (node) {
+                        $('#product_id_cate').val(node.id);
+                        $('#cate-name').text(node.text);
+                    }
+                },
+            });
+            var nodeToFind = $('#category-list').tree('find', result.CateID);
+            console.log(result.CateID);
+            console.log(nodeToFind);
+            $('#category-list').tree('select', nodeToFind.target);
+            $('#cate-name').text(nodeToFind.text);
+            GetProductSale(id);
+            html = `<div class="accordion mt-2" id="accordion_sale">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed btn-gradient" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSale" aria-expanded="false" aria-controls="collapseSale">
+                                    Chương trình Sale
+                                </button>
+                            </h2>
+                            <div id="collapseSale" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordion_sale" style="">
+                                <div class="accordion-body">
+                                    <table class="table">
+                                        <thead>
+                                            <tr class="table-info">
+                                                <th>STT</th>
+                                                <th>Tên chương trình</th>
+                                                <th>Giá trị Sale</th>    
+                                                <th>Thời gian còn lại</th>    
+                                                <th></th>
+                                            </tr>
+                                        </thead>                                            
+                                        <tbody id="list-sale">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            $('#sale-option').html(html);
             $('#modal_product').modal('show');
         },
         error: function (err) {
@@ -484,7 +557,17 @@ function addProduct() {
     $('#imagePreviewContainer').empty();
     $('#product_code_product').val('');
     $('#product_name_product').val('');
-    $('#cate_id_product').val(0);
+    $('#product_id_cate').val(0);
+    $('#category-list').tree({
+        data: arrCateToTree,
+        onClick: function (node) {
+            if (node) {
+                $('#product_id_cate').val(node.id);
+                $('#cate-name').text(node.text);
+            }
+        },
+    });
+    $('#cate-name').text('(*)');
     $('#product_id_product').val(0);
     $('#modal_product').modal('show');
 }
@@ -731,13 +814,12 @@ function validate() {
 function saveProduct() {
     var productCode = $('#product_code_product').val();
     var productName = $('#product_name_product').val();
-    var cateId = parseInt($('#cate_id_product').val());
+    var cateId = parseInt($('#product_id_cate').val());
     var selectedImages = [];
     var id = parseInt($('#product_id_product').val());
     $('.image-container').each(function () {
         var imageSource = $(this).find('img').attr('src');
         selectedImages.push(imageSource);
-
     });
     var objProduct = {
         ProductCode: productCode,
@@ -755,6 +837,7 @@ function saveProduct() {
         success: function (result) {
             $('#modal_product').modal('hide');
             GetProduct();
+            GetProductSku();
         },
         error: function (err) {
             console.log(err)
@@ -803,6 +886,7 @@ function save() {
             if (result == 1) {
                 $('#modal_product_sku').modal('hide');
                 GetProductSku();
+                GetProduct();
             }
         },
         error: function (err) {
@@ -845,6 +929,7 @@ function saveEdit() {
             if (result == 1) {
                 $('#modal_product_sku_edit').modal('hide');
                 GetProductSku();
+                GetProduct();
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -858,4 +943,128 @@ function saveEdit() {
             console.log(err)
         }
     });
+}
+function GetAllCateToTree() {
+    var keyword = $('#category_keyword').val();
+    $.ajax({
+        url: '/admin/category-to-tree/getall',
+        type: 'GET',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        data: { filter: keyword },
+        success: function (result) {
+            arrCateToTree = result;
+            $('#category-list').tree({
+                data: arrCateToTree,
+            });
+        },
+        error: function (err) {
+            console.log(err);
+        }
+    });
+}
+function GetProductSale(id) {
+    var enddate;
+    var product = arrProduct.find(p => p.ProductID == id);
+    $.ajax({
+        url: '/admin/product/get-product-sale',
+        type: 'GET',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        data: { productID: id },
+        success: function (result) {
+            arrProductSale = result;
+
+            var stt = 2;
+            var html = `<tr>
+                   <td>1</td>
+                   <td>Không áp dụng chương trình nào</td>
+                   <td>0</td>
+                   <td>0</td>
+                   <td>
+                       <div class="form-check form-switch">
+                         <input class="form-check-input" type="radio" role="switch" name="sale" onchange="ChangeProductSale(${id}, 0)" checked>  
+                       </div>
+                   </td>
+                </tr>`
+            $.each(arrProductSale, (key, item) => {
+                var value = item.SaleType == 0 ? `${item.DiscountValue}%` : formatCurrency(parseInt(item.DiscountValue));
+                enddate = item.EndDate;
+                var countdown = updateCountdown(enddate);
+                var disabled = countdown === '<span class="fw-bold" style="color: red;">Khuyến mãi đã kết thúc</span>' ? 'disabled' : '';
+                var checked = product.SaleID === item.SaleID ? 'checked' : ''
+                if (disabled === 'disabled' && checked === 'checked') {
+                    ChangeProductSale(id, 0);
+                    checked = '';
+                }
+                html += `<tr>
+                            <td>${stt++}</td>
+                            <td>${item.SaleName}</td>
+                            <td>${value}</td>
+                            <td>${countdown}</td>
+                            <td>
+                                <div class="form-check form-switch">
+                                  <input class="form-check-input" type="radio" role="switch" name="sale" onchange="ChangeProductSale(${id}, ${item.SaleID})" ${checked} ${disabled}>
+                                </div>
+                            </td>
+                         </tr>`;
+            });
+            $('#list-sale').html(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+    setInterval(function () {
+        GetProductSale(id);
+    }, 1000 * 60);
+}
+function formatCurrency(value) {
+    return value.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+function ChangeProductSale(productID, saleID) {
+    $.ajax({
+        url: '/admin/product/change-product-sale',
+        type: 'POST',
+        dataType: 'json',
+        /*contentType: 'application/json;charset=utf-8',*/
+        data: {
+            productID: productID,
+            saleID: saleID
+        },
+        success: function (result) {
+            GetProduct(productID)
+        }
+    })
+}
+function updateCountdown(endDate) {
+    var nowDate = new Date();
+    endDate = new Date(endDate);
+    var timeRemaining = endDate - nowDate;
+
+    if (timeRemaining <= 0) {
+        countdowntext = '<span class="fw-bold" style="color: red;">Khuyến mãi đã kết thúc</span>';
+        return countdowntext;
+    } else {
+        var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        var color = days >= 5 ? 'green' : (days > 3 ? '#e6b800' : 'red');
+        if (days > 0) {
+            countdowntext = `<span class="fw-bold" style="color: ${color};">${days}</span> ngày <span class="fw-bold" style="color: ${color};">${hours}</span> giờ `;
+        } else if (hours > 0) {
+            countdowntext = `<span class="fw-bold" style="color: ${color};">${hours}</span> giờ nữa`;
+        } else {
+            countdowntext = `Còn gần <span class="fw-bold" style="color: ${color};">1<span> giờ nữa`;
+        }
+        return countdowntext;
+        return countdowntext;
+    }
 }

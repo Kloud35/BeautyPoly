@@ -6,8 +6,6 @@ var range = document.getElementById('slider-range-shop');
 $(document).ready(function () {
     function formatCurrency(value) {
         return value.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'VND',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         });
@@ -23,8 +21,8 @@ $(document).ready(function () {
     });
     range.noUiSlider.on('update', function (values, handle) {
         var min = formatCurrency(parseInt(values[0]));
-        var max = formatCurrency(parseInt(values[1]));
-        formatCurrency(parseInt(values[1]));
+        var max = `${formatCurrency(parseInt(values[1]))} đ`;
+        /*formatCurrency(parseInt(values[1]));*/
         document.getElementById('filter-min-shop').innerHTML = min;
         document.getElementById('filter-max-shop').innerHTML = max;
         minValue = parseInt(values[0]);
@@ -53,11 +51,11 @@ $(document).ready(function () {
 });
 function GetAllCate() {
     $.ajax({
-        url: '/admin/cate/getall',
+        url: '/admin/category-to-tree/getall',
         type: 'GET',
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
-        data: { filter: 0 },
+        /*data: { filter: filter },*/
         success: function (result) {
             arrCate = result;
             $('#category-list-shop').tree({
@@ -86,6 +84,9 @@ function loadProductOfShop(value) {
             arrProduct = result
             var html = '';
             $.each(arrProduct, function (key, item) {
+                var price = item.SaleID === 0 ? `<span class="price fs-5">${item.PriceText} đ</span>` : `<span class="price  fs-5">${item.PriceTextNew} đ</span>
+                                                                                                        <br /><span class="price-old">${item.PriceText} đ</span>`;
+                var spanSale = item.SaleID === 0 ? '' : item.SaleType === 0 ? `<span class="flag-new">- ${item.DiscountValue} %</span>` : item.SaleType === 1 ? `<span class="flag-new">- ${item.DiscountValue.toLocaleString('en-US')} đ</span> ` : ''
                 html += `<div class="col-6 col-lg-4 col-xl-4 mb-4 mb-sm-8">
                 <div class="product-item product-st2-item">
                     <div class="product-thumb">
@@ -93,14 +94,13 @@ function loadProductOfShop(value) {
                         <img src="/images/${item.Image}" width="370" height="450" style="height: 450px !important;" alt="Image-HasTech">
 
                         </a>
-                        <span class="flag-new">new</span>
+                        ${spanSale}
                     </div>
                     <div class="product-info">
                         
                         <h4 class="title"><a href="product-details.html">${item.ProductName}</a></h4>
                         <div class="prices">
-                            <span class="price">${item.PriceText} đ</span>
-                            <span class="price-old">300.00</span>
+                            ${price}
                         </div>
                         <div class="product-action">
                             <button type="button" class="product-action-btn action-btn-cart" data-bs-toggle="modal" data-bs-target="#action-QuickViewModal" onclick="GetProductDetail(${item.ProductID})">

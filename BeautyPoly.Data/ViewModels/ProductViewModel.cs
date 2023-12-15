@@ -13,10 +13,14 @@
         public bool? IsSale { get; set; }
         public bool? IsDelete { get; set; }
         public string? PriceText { get; set; }
+        public string? PriceTextNew { get; set; }
+        public int? DiscountValue { get; set; }
+        public int? SaleType { get; set; }
         public string? CateName { get; set; }
         public string? Image { get; set; }
         public int? StatusInventory { get; set; }
         public string? StatusInventoryText { get; set; }
         public int? TotalQuantity { get; set; }
+        public int? SaleID { get; set; }
     }
 }

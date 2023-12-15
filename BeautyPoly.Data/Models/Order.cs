@@ -9,6 +9,7 @@
         public int? AccountID { get; set; }
         public string? AccountName { get; set; }
         public string? CustomerName { get; set; }
+        public string? CustomerPhone { get; set; }
         public DateTime? OrderDate { get; set; }
         public DateTime? ShipDate { get; set; }
         public string? OrderCode { get; set; }

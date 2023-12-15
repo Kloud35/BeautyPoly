@@ -11,6 +11,7 @@
         public int? Status { get; set; }
         public bool? IsSale { get; set; }
         public bool? IsDelete { get; set; }
+        public int? SaleID { get; set; }
 
         public virtual Category? Category { get; set; }
         public virtual IEnumerable<ProductImages>? ProductImages { get; set; }
