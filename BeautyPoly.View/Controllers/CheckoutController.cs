@@ -1,5 +1,9 @@
-﻿using BeautyPoly.Data.Repositories;
+﻿using BeautyPoly.Common;
+using BeautyPoly.Data.Models.DTO;
+using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
+using BeautyPoly.Models;
+using BeautyPoly.View.Helper;
 using BeautyPoly.View.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,14 +17,23 @@ namespace BeautyPoly.View.Controllers
         private readonly HttpClient _httpClient;
         CouponRepo couponRepo;
         VoucherRepo voucherRepo;
-
-        public CheckoutController(CouponRepo couponRepo, VoucherRepo voucherRepo)
+        PotentialCustomersRepo customersRepo;
+        OrderRepo orderRepo;
+        CartDetailsRepo cartDetailsRepo;
+        DetailOrderRepo detailOrderRepo;
+        ProductSkuRepo productSkuRepo;
+        public CheckoutController(CouponRepo couponRepo, VoucherRepo voucherRepo, PotentialCustomersRepo customersRepo, OrderRepo orderRepo, CartDetailsRepo cartDetailsRepo, DetailOrderRepo detailOrderRepo, ProductSkuRepo productSkuRepo)
         {
             this.couponRepo = couponRepo;
             this.voucherRepo = voucherRepo;
+            this.customersRepo = customersRepo;
+            this.orderRepo = orderRepo;
             _httpClient = new HttpClient();
 
             _httpClient.DefaultRequestHeaders.Add("token", "4984199c-febd-11ed-8a8c-6e4795e6d902");
+            this.cartDetailsRepo = cartDetailsRepo;
+            this.detailOrderRepo = detailOrderRepo;
+            this.productSkuRepo = productSkuRepo;
         }
         //Lấy địa chỉ quận huyện
         public JsonResult GetListDistrict(int idProvin)
@@ -75,7 +88,6 @@ namespace BeautyPoly.View.Controllers
                 queryString.Append($"&weight={shippingOrder.weight}");
                 queryString.Append($"&width={shippingOrder.width}");
                 queryString.Append($"&insurance_value={shippingOrder.insurance_value}");
-                queryString.Append($"&cod_failed_amount={2000}");
                 queryString.Append($"&coupon=");
 
                 // Add other parameters
@@ -247,6 +259,68 @@ namespace BeautyPoly.View.Controllers
 
                 return Json(null);
             }
+        }
+        [HttpPost("checkout/create-order")]
+        public async Task<IActionResult> CreateOrder([FromBody] CheckOutDTO checkOut)
+        {
+            var customerID = HttpContext.Session.GetInt32("CustommerID");
+            var listCart = new List<CartDetails>();
+            if (customerID == null)
+            {
+                listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
+            }
+            else
+            {
+                listCart = cartDetailsRepo.FindAsync(p => p.CartID == customerID).Result.ToList();
+            }
+            foreach (var item in listCart)
+            {
+                var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
+                var check = await productSkuRepo.FirstOrDefaultAsync(p => p.ProductSkusID == item.ProductSkusID && p.Quantity >= item.Quantity);
+                if (check != null) continue;
+                else return Json($"Sản phẩm [{model.ProductSkuName}] đã hết hàng! Vui lòng chọn sản phẩm khác.");
+            }
+
+            PotentialCustomer customer = await customersRepo.FirstOrDefaultAsync(p => p.Phone == checkOut.Phone || p.Email == checkOut.Email);
+            if (customer == null)
+            {
+                customer = new PotentialCustomer();
+                customer.FullName = checkOut.FullName;
+                customer.Phone = checkOut.Phone;
+                customer.Email = checkOut.Email;
+                customer.Password = MaHoaMD5.EncryptPassword("1");
+                await customersRepo.InsertAsync(customer);
+            }
+
+            Order order = new Order();
+            order.TransactStatusID = 1;
+            order.Address = checkOut.Address;
+            order.OrderCode = "HD_" + DateTime.Now.Ticks;
+            order.CustomerName = checkOut.FullName;
+            order.CustomerPhone = checkOut.Phone;
+            order.PotentialCustomerID = customer.PotentialCustomerID;
+            order.MedthodPayment = "cash";
+            order.OrderDate = DateTime.Now;
+            order.Note = checkOut.Note;
+            await orderRepo.InsertAsync(order);
+            List<ProductSkusViewModel> listSkuCart = new List<ProductSkusViewModel>();
+            double totalPrice = (double)HttpContext.Session.GetInt32("shiptotal"); ;
+            foreach (var item in listCart)
+            {
+                var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
+                OrderDetails orderDetails = new OrderDetails();
+                orderDetails.OrderID = order.OrderID;
+                orderDetails.ProductSkusID = model.ProductSkusID;
+                orderDetails.Quantity = model.Quantity;
+                orderDetails.Price = TextUtils.ToInt(model.Price);
+                orderDetails.TotalMoney = model.TotalPrice;
+                totalPrice += model.TotalPrice;
+                await detailOrderRepo.InsertAsync(orderDetails);
+            }
+            order.TotalMoney = totalPrice;
+            await orderRepo.UpdateAsync(order);
+            HttpContext.Session.Remove("CartDetail");
+            return Json(1);
         }
     }
 }

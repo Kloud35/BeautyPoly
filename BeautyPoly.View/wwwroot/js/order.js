@@ -8,7 +8,7 @@ $(document).ready(function () {
             if (result.length > 0) {
                 productList = result;
             }
-            console.log(result);
+           
         },
         error: function (err) {
             console.log(err)
@@ -36,7 +36,7 @@ $(document).ready(function () {
                 result.forEach(function (element) {
 
 
-                    // Create a Date object from the input string
+                    
                     var date = new Date(element.OrderDate);
                     var ShipDate = new Date(element.ShipDate);
 
@@ -85,7 +85,7 @@ $(document).ready(function () {
                 if (result.length > 0) {
                     var index = 0;
                     result.forEach(function (element) {
-                        // Create a Date object from the input string
+                        
                         var date = new Date(element.OrderDate);
                         var ShipDate = new Date(element.ShipDate);
 
@@ -116,9 +116,7 @@ $(document).ready(function () {
                                             </th>
                                         </tr>`;
                     });
-                } else {
-                    alert("Không tồn tại hóa đơn nào!");
-                }
+                } 
                 $("#tbody_order_dd").append(html);
             },
             error: function (err) {
@@ -431,7 +429,7 @@ function Edit(id) {
                 if (result.prods.length > 0) {
                     result.prods.forEach(function (ele) {
                         addSanPham();
-                        var newRow = $('#tbody_product').find('tr').last(); // Get the last added row
+                        var newRow = $('#tbody_product').find('tr').last(); 
                         $(newRow).find(".item-prod").val(ele.ProductID);
                         $(newRow).find(".item-quantity").val(ele.Quantity);
                         $(newRow).find(".item-price").val(ele.Price);

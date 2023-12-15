@@ -143,9 +143,9 @@ $(document).ready(function () {
                         to_ward_code: id_ward,
                         to_district_id: parseInt($('#district').val()),
                         weight: 200,
-                        length: 50,
-                        height: 50,
-                        width: 20,
+                        length: 15,
+                        height: 15,
+                        width: 15,
 
                     }
                     $.ajax({
@@ -163,7 +163,7 @@ $(document).ready(function () {
                             let adress = "," + $("#ward option:selected").text() + "," + $("#district option:selected").text() + "," + $("#provin option:selected").text();
                             //add địa chỉ
                             $("#adress_detail").val(adress);
-
+                          
                             //Id địa chỉ
                             //$("#WardID").val($("#ward option:selected").val());
                             //$("#ProvinID").val($("#provin option:selected").val());
@@ -367,4 +367,36 @@ function clearVoucher() {
         }
     });
 }
+
+
+function CreateOrder() {
+
+    var obj = {
+        FullName: $("#fullname_ck").val(),
+        Email: $("#email_ck").val(),
+        Phone: $("#phone_ck").val(),
+        Address: $("#adress_detail").val(),
+        Note: $("#note_ck").val(),
+        CouponID:0
+    }
+    $.ajax({
+        url: '/checkout/create-order',
+        type: 'POST',
+        dataType: "json",
+        contentType: 'application/json;charset=utf-8',
+        data: JSON.stringify(obj),
+
+        success: function (result) {
+            if (result == 1) {
+                MessageSuces("Thanh toán thành công!");
+            } else {
+                MessageError(result);
+            }
+        },
+        error: function () {
+            alert("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+        }
+    });
+}
+
 
