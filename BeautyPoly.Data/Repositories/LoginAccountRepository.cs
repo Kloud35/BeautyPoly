@@ -1,12 +1,6 @@
 ﻿using BeautyPoly.Common;
 using BeautyPoly.DBContext;
 using BeautyPoly.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 
@@ -17,7 +11,7 @@ namespace BeautyPoly.Data.Repositories
         BeautyPolyDbContext _dbContext;
         public LoginAccountRepository(BeautyPolyDbContext dbContext)
         {
-                _dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
         public Accounts LoginAccount(Accounts accounts)
@@ -49,8 +43,8 @@ namespace BeautyPoly.Data.Repositories
         {
             try
             {
-                string password = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(customer.Password);
-                string code = Common.MaHoaMD5.ShortenName(customer.FullName);
+                string password = string.IsNullOrEmpty(customer.Password) ? "" : MaHoaMD5.EncryptPassword(customer.Password);
+                string code = MaHoaMD5.ShortenName(customer.FullName);
                 var temp = _dbContext.PotentialCustomers.Where(c => c.Email == customer.Email.ToLower()).ToList();
                 var phone = _dbContext.PotentialCustomers.Where(c => c.Phone == customer.Phone).ToList();
                 if (temp.Count < 1 && phone.Count < 1)
@@ -82,7 +76,7 @@ namespace BeautyPoly.Data.Repositories
             PotentialCustomer temp = new PotentialCustomer();
             try
             {
-                string password = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(customer.Password);
+                string password = string.IsNullOrEmpty(customer.Password) ? "" : MaHoaMD5.EncryptPassword(customer.Password);
                 temp = _dbContext.PotentialCustomers.Where(c => c.Email == customer.Email && c.Password == password).FirstOrDefault();
                 if (temp != null)
                 {

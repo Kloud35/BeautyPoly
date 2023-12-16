@@ -10,7 +10,6 @@ namespace BeautyPoly.View.Controllers
         public IActionResult Index(int id)
         {
             var model = SQLHelper<ProductViewModel>.ProcedureToModel("spGetProductToView", new string[] { "@ProductID" }, new object[] { id });
-
             return View(model);
         }
     }

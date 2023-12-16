@@ -370,14 +370,15 @@ function clearVoucher() {
 
 
 function CreateOrder() {
-
+    var useVNPay = $("#flexRadioDefault2").is(":checked");
     var obj = {
         FullName: $("#fullname_ck").val(),
         Email: $("#email_ck").val(),
         Phone: $("#phone_ck").val(),
         Address: $("#adress_detail").val(),
         Note: $("#note_ck").val(),
-        CouponID:0
+        CouponID: 0,
+        UseVNPay: useVNPay
     }
     $.ajax({
         url: '/checkout/create-order',
@@ -385,12 +386,15 @@ function CreateOrder() {
         dataType: "json",
         contentType: 'application/json;charset=utf-8',
         data: JSON.stringify(obj),
-
         success: function (result) {
             if (result == 1) {
-                MessageSuces("Thanh toán thành công!");
+                MessageSucces("Thanh toán thành công!");
+                window.location.href = `https://localhost:44315/`
+            } else if (result == 0) {
+              
+                alert("Đã xảy ra lỗi. Vui lòng thử lại sau!");
             } else {
-                MessageError(result);
+                window.location.href = `${result}`;
             }
         },
         error: function () {

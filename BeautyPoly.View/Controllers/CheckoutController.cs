@@ -1,4 +1,5 @@
 ﻿using BeautyPoly.Common;
+using BeautyPoly.Data.Common;
 using BeautyPoly.Data.Models.DTO;
 using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
@@ -263,64 +264,179 @@ namespace BeautyPoly.View.Controllers
         [HttpPost("checkout/create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CheckOutDTO checkOut)
         {
-            var customerID = HttpContext.Session.GetInt32("CustommerID");
-            var listCart = new List<CartDetails>();
-            if (customerID == null)
+            try
             {
-                listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
+                var customerID = HttpContext.Session.GetInt32("CustommerID");
+                var listCart = new List<CartDetails>();
+                if (customerID == null)
+                {
+                    listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
+                }
+                else
+                {
+                    listCart = cartDetailsRepo.FindAsync(p => p.CartID == customerID).Result.ToList();
+                }
+                foreach (var item in listCart)
+                {
+                    var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
+                    var check = await productSkuRepo.FirstOrDefaultAsync(p => p.ProductSkusID == item.ProductSkusID && p.Quantity >= item.Quantity);
+                    if (check != null) continue;
+                    else return Json($"Sản phẩm [{model.ProductSkuName}] đã hết hàng! Vui lòng chọn sản phẩm khác.");
+                }
+
+                PotentialCustomer customer = await customersRepo.FirstOrDefaultAsync(p => p.Phone == checkOut.Phone || p.Email == checkOut.Email);
+                if (customer == null)
+                {
+                    customer = new PotentialCustomer();
+                    customer.FullName = checkOut.FullName;
+                    customer.Phone = checkOut.Phone;
+                    customer.Email = checkOut.Email;
+                    customer.Password = MaHoaMD5.EncryptPassword("1");
+                    await customersRepo.InsertAsync(customer);
+                }
+
+                Order order = new Order();
+                order.TransactStatusID = 1;
+                order.Address = checkOut.Address;
+                order.OrderCode = "HD_" + DateTime.Now.Ticks;
+                order.CustomerName = checkOut.FullName;
+                order.CustomerPhone = checkOut.Phone;
+                order.PotentialCustomerID = customer.PotentialCustomerID;
+                order.MedthodPayment = "cash";
+                order.OrderDate = DateTime.Now;
+                order.Note = checkOut.Note;
+                await orderRepo.InsertAsync(order);
+                List<ProductSkusViewModel> listSkuCart = new List<ProductSkusViewModel>();
+                double totalPrice = (double)HttpContext.Session.GetInt32("shiptotal"); ;
+                foreach (var item in listCart)
+                {
+                    var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
+                    OrderDetails orderDetails = new OrderDetails();
+                    orderDetails.OrderID = order.OrderID;
+                    orderDetails.ProductSkusID = model.ProductSkusID;
+                    orderDetails.Quantity = model.QuantityCart;
+                    orderDetails.Price = TextUtils.ToInt(model.Price);
+                    orderDetails.TotalMoney = model.TotalPrice;
+                    totalPrice += model.TotalPrice;
+                    await detailOrderRepo.InsertAsync(orderDetails);
+                }
+                order.TotalMoney = totalPrice;
+                await orderRepo.UpdateAsync(order);
+                if (checkOut.UseVNPay)
+                {
+                    return Json(Payment(order));
+                }
+                HttpContext.Session.Remove("CartDetail");
+                return Json(1);
             }
-            else
+            catch (Exception ex)
             {
-                listCart = cartDetailsRepo.FindAsync(p => p.CartID == customerID).Result.ToList();
-            }
-            foreach (var item in listCart)
-            {
-                var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
-                var check = await productSkuRepo.FirstOrDefaultAsync(p => p.ProductSkusID == item.ProductSkusID && p.Quantity >= item.Quantity);
-                if (check != null) continue;
-                else return Json($"Sản phẩm [{model.ProductSkuName}] đã hết hàng! Vui lòng chọn sản phẩm khác.");
+                return Json(0);
             }
 
-            PotentialCustomer customer = await customersRepo.FirstOrDefaultAsync(p => p.Phone == checkOut.Phone || p.Email == checkOut.Email);
-            if (customer == null)
-            {
-                customer = new PotentialCustomer();
-                customer.FullName = checkOut.FullName;
-                customer.Phone = checkOut.Phone;
-                customer.Email = checkOut.Email;
-                customer.Password = MaHoaMD5.EncryptPassword("1");
-                await customersRepo.InsertAsync(customer);
-            }
+        }
+        public string Payment(Order order)
+        {
+            string url = "http://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+            string returnUrl = $"https://localhost:44315/Checkout/PaymentConfirm?id={order.OrderID}";
+            string tmnCode = "6AV1KO3E";
+            string hashSecret = "UGHKKYGUTTLWWTQOJBECDFAMDHZDBLWW";
 
-            Order order = new Order();
-            order.TransactStatusID = 1;
-            order.Address = checkOut.Address;
-            order.OrderCode = "HD_" + DateTime.Now.Ticks;
-            order.CustomerName = checkOut.FullName;
-            order.CustomerPhone = checkOut.Phone;
-            order.PotentialCustomerID = customer.PotentialCustomerID;
-            order.MedthodPayment = "cash";
-            order.OrderDate = DateTime.Now;
-            order.Note = checkOut.Note;
-            await orderRepo.InsertAsync(order);
-            List<ProductSkusViewModel> listSkuCart = new List<ProductSkusViewModel>();
-            double totalPrice = (double)HttpContext.Session.GetInt32("shiptotal"); ;
-            foreach (var item in listCart)
+            PayLib pay = new PayLib();
+
+            pay.AddRequestData("vnp_Version", "2.1.0"); //Phiên bản api mà merchant kết nối. Phiên bản hiện tại là 2.1.0
+            pay.AddRequestData("vnp_Command", "pay"); //Mã API sử dụng, mã cho giao dịch thanh toán là 'pay'
+            pay.AddRequestData("vnp_TmnCode", tmnCode); //Mã website của merchant trên hệ thống của VNPAY (khi đăng ký tài khoản sẽ có trong mail VNPAY gửi về)
+            pay.AddRequestData("vnp_Amount", ((long)(order.TotalMoney * 100)).ToString());
+            // pay.AddRequestData("vnp_Amount", "1000000"); //số tiền cần thanh toán, công thức: số tiền * 100 - ví dụ 10.000 (mười nghìn đồng) --> 1000000
+            pay.AddRequestData("vnp_BankCode", ""); //Mã Ngân hàng thanh toán (tham khảo: https://sandbox.vnpayment.vn/apis/danh-sach-ngan-hang/), có thể để trống, người dùng có thể chọn trên cổng thanh toán VNPAY
+            pay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss")); //ngày thanh toán theo định dạng yyyyMMddHHmmss
+            pay.AddRequestData("vnp_CurrCode", "VND"); //Đơn vị tiền tệ sử dụng thanh toán. Hiện tại chỉ hỗ trợ VND
+            pay.AddRequestData("vnp_IpAddr", HttpContext.Connection.RemoteIpAddress?.ToString()); //Địa chỉ IP của khách hàng thực hiện giao dịch
+            pay.AddRequestData("vnp_Locale", "vn");//Ngôn ngữ giao diện hiển thị - Tiếng Việt (vn), Tiếng Anh (en)
+            pay.AddRequestData("vnp_OrderInfo", "Thanh toan don hang"); //Thông tin mô tả nội dung thanh toán
+            pay.AddRequestData("vnp_OrderType", "other"); //topup: Nạp tiền điện thoại - billpayment: Thanh toán hóa đơn - fashion: Thời trang - other: Thanh toán trực tuyến
+            pay.AddRequestData("vnp_ReturnUrl", returnUrl); //URL thông báo kết quả giao dịch khi Khách hàng kết thúc thanh toán
+            pay.AddRequestData("vnp_TxnRef", "HD_" + DateTime.Now.Ticks.ToString()); //mã hóa đơn
+
+            string paymentUrl = pay.CreateRequestUrl(url, hashSecret);
+
+
+            return paymentUrl;
+        }
+
+        public async Task<IActionResult> PaymentConfirm(int id)
+        {
+            var order = await orderRepo.GetByIdAsync(id);
+            if (Request.QueryString.Value != null)
             {
-                var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
-                OrderDetails orderDetails = new OrderDetails();
-                orderDetails.OrderID = order.OrderID;
-                orderDetails.ProductSkusID = model.ProductSkusID;
-                orderDetails.Quantity = model.Quantity;
-                orderDetails.Price = TextUtils.ToInt(model.Price);
-                orderDetails.TotalMoney = model.TotalPrice;
-                totalPrice += model.TotalPrice;
-                await detailOrderRepo.InsertAsync(orderDetails);
+
+                string hashSecret = "UGHKKYGUTTLWWTQOJBECDFAMDHZDBLWW"; //Chuỗi bí mật
+                var vnpayData = Request.Query;
+                PayLib pay = new PayLib();
+
+                var account = customersRepo.FirstOrDefaultAsync(c => c.PotentialCustomerID == order.PotentialCustomerID).Result.FullName;
+
+                //lấy toàn bộ dữ liệu được trả về
+                foreach (var (key, value) in vnpayData)
+                {
+                    if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_"))
+                    {
+                        pay.AddResponseData(key, value);
+                    }
+                }
+
+                string orderId = pay.GetResponseData("vnp_TxnRef"); //mã hóa đơn
+                string vnpayTranId = pay.GetResponseData("vnp_TransactionNo"); //mã giao dịch tại hệ thống VNPAY
+                string vnp_ResponseCode = pay.GetResponseData("vnp_ResponseCode"); //response code: 00 - thành công, khác 00 - xem thêm https://sandbox.vnpayment.vn/apis/docs/bang-ma-loi/
+                string vnp_SecureHash = Request.Query["vnp_SecureHash"]; //hash của dữ liệu trả về
+                bool checkSignature = pay.ValidateSignature(vnp_SecureHash, hashSecret); //check chữ ký đúng hay không?
+                if (checkSignature)
+                {
+                    if (vnp_ResponseCode == "00")
+                    {
+                        //Thanh toán thành công
+                        ViewBag.Message = "Thanh toán thành công hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId;
+
+                        if (order != null)
+                        {
+                            order.TransactStatusID = 1;
+                            order.MedthodPayment = "credit_card";
+                            await orderRepo.UpdateAsync(order);
+                        }
+                        var customerID = HttpContext.Session.GetInt32("CustommerID");
+                        var listCart = new List<CartDetails>();
+                        if (customerID == null)
+                        {
+                            HttpContext.Session.Remove("CartDetail");
+                        }
+                        else
+                        {
+                            listCart = cartDetailsRepo.FindAsync(p => p.CartID == customerID).Result.ToList();
+                            await cartDetailsRepo.DeleteRangeAsync(listCart);
+                        }
+                        return RedirectToAction("Index", "Home");
+
+                    }
+                    else
+                    {
+                        await detailOrderRepo.DeleteRangeAsync(await detailOrderRepo.FindAsync(p => p.OrderDetailsID == order.OrderID));
+                        await orderRepo.DeleteAsync(order);
+                        //Thanh toán không thành công. Mã lỗi: vnp_ResponseCode
+                        ViewBag.Message = "Có lỗi xảy ra trong quá trình xử lý hóa đơn " + orderId + " | Mã giao dịch: " + vnpayTranId + " | Mã lỗi: " + vnp_ResponseCode;
+
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    await detailOrderRepo.DeleteRangeAsync(await detailOrderRepo.FindAsync(p => p.OrderDetailsID == order.OrderID));
+                    await orderRepo.DeleteAsync(order);
+
+                    return RedirectToAction("Index");
+                }
             }
-            order.TotalMoney = totalPrice;
-            await orderRepo.UpdateAsync(order);
-            HttpContext.Session.Remove("CartDetail");
-            return Json(1);
+            return RedirectToAction("Index");
         }
     }
 }
