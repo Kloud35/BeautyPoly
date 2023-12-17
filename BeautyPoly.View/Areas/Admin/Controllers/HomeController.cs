@@ -23,8 +23,8 @@ namespace BeautyPoly.Areas.Admin.Controllers
         [Route("admin", Name = "index")]
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("AccountID") == null)
-                return RedirectToRoute("Login");
+            //if (HttpContext.Session.GetString("AccountID") == null)
+            //    return RedirectToAction("AdminLogin", "Account");
             return View();
         }
         [Route("admin/login", Name = "Login")]
@@ -60,11 +60,10 @@ namespace BeautyPoly.Areas.Admin.Controllers
                     }
                     //đăng nhập thành công
 
+                    var taikhoanID = HttpContext.Session.GetString("AccountID");
                     //identity
                     //luuw seccion Makh
                     HttpContext.Session.SetString("AccountID", tk.AccountID.ToString());
-                    var taikhoanID = HttpContext.Session.GetString("AccountID");
-
                     //identity
                     var userClaims = new List<Claim>
                     {
@@ -102,16 +101,12 @@ namespace BeautyPoly.Areas.Admin.Controllers
             {
                 HttpContext.SignOutAsync();
                 HttpContext.Session.Remove("AccountId");
-                return RedirectToRoute("Login");
+                return RedirectToAction("AdminLogin", "Home", new { Area = "Admin" });
             }
             catch
             {
-                return RedirectToRoute("Login");
+                return RedirectToAction("AdminLogin", "Home", new { Area = "Admin" });
             }
-        }
-        public IActionResult DashBoard()
-        {
-            return View();
         }
     }
 }

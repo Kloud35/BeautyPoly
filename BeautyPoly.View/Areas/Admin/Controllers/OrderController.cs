@@ -68,8 +68,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     order.prods = prodPick;
                 }
             }
-
-
             return Json(order, new System.Text.Json.JsonSerializerOptions());
         }
         [HttpGet("admin/order/status/{statusId}")]
@@ -100,15 +98,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 if (orderDTO != null)
                 {
 
-                    //if (!string.IsNullOrEmpty(orderDTO.CustomerName) && !string.IsNullOrEmpty(orderDTO.CustomerPhone) && !string.IsNullOrEmpty(orderDTO.Address))
-                    //{
-                    //    var user = await customerRepository.FirstOrDefaultAsync(x => x.Phone == orderDTO.CustomerPhone.Trim());
-                    //    if (user != null)
-                    //    {
-                    //        user.FullName = orderDTO.CustomerName;
-                    //        await customerRepository.UpdateAsync(user);
-                    //    }
-                    //}
                     if (orderDTO.prods.Count() < 0)
                     {
 
@@ -156,7 +145,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
 
                     }
                     var checkExistCode = await orderRepo.FirstOrDefaultAsync(p => p.OrderCode == order.OrderCode);
-
                     if (checkExistCode != null)
                     {
                         foreach (var prod in orderDTO.prods)
@@ -188,7 +176,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     {
                         return Json(0);
                     }
-
 
                     return Json(1);
                 }
@@ -222,12 +209,10 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
 
                 }
                 return Json(1);
-
             }
             else
             {
                 return Json(2);
-
             }
         }
         [HttpPost("admin/order/confirm")]
@@ -244,7 +229,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                         if (statusCurrent == 4)
                         {
                             order.TransactStatusID = 1;
-
                         }
                         else
                         {

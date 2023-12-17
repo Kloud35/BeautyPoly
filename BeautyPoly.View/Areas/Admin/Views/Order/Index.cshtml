@@ -58,77 +58,29 @@
                     </div>
                     <div class="tab-content pt-2" id="borderedTabContent">
                         <div class="tab-pane fade" id="bordered-home" role="tabpanel" aria-labelledby="home-tab">
-                            <div class="table-responsive container">
-                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                            <div class=" table-responsive container" style="max-height:70vh !important;" >
+                                <table class="table table-striped table-hover table-bordered " id="table_order" style="width:150%">
                                     <thead>
                                         <tr>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
+                                            <th class="bg-primary text-center" style="width:5%"></th>
+                                            <th class="bg-primary text-center" style="width:7%">STT</th>
+                                            <th class="bg-primary text-center" style="width:20%">Mã đơn</th>
+                                            <th class="bg-primary text-center" style="width:10%">Tên nhân viên</th>
+                                            <th class="bg-primary text-center" style="width:20%">Tên khách hàng</th>
+                                            <th class="bg-primary text-center" style="width:10%">SĐT</th>
+                                            <th class="bg-primary text-center" style="width:35%">Địa chỉ</th>
+                                            <th class="bg-primary text-center" style="width:15%">Đơn giá</th>
+                                            <th class="bg-primary text-center" style="width:15%">Giảm giá</th>
+                                            <th class="bg-primary text-center" style="width:15%">Tổng tiền</th>
+                                            <th class="bg-primary text-center" style="width:5%">Phương thức thanh toán</th>
+                                            <th class="bg-primary text-center" style="width:12%">Ngày đặt hàng</th>
+                                            <th class="bg-primary text-center" style="width:12%">Ngày giao hàng</th>
+                                            <th class="bg-primary text-center" style="width:12%">Ngày thanh toán</th>
+                                            <th class="bg-primary text-center" style="width:10%">Ghi chú</th>
+                                            <th class="bg-primary text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody_order_hc">
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -136,312 +88,116 @@
 
                         <div class="tab-pane fade" id="bordered-profile" role="tabpanel" aria-labelledby="profile-tab">
                             <div class="table-responsive container">
-                                <table class="table table-striped table-hover table-bordered" id="table_order">
+                                <table class="table table-striped table-hover table-bordered" id="table_order" style="max-height:70vh !important">
                                     <thead>
                                         <tr>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
-
+                                            <th class="bg-primary text-center"></th>
+                                            <th class="bg-primary text-center">STT</th>
+                                            <th class="bg-primary text-center">Mã đơn</th>
+                                            <th class="bg-primary text-center">Tên nhân viên</th>
+                                            <th class="bg-primary text-center">Tên khách hàng</th>
+                                            <th class="bg-primary text-center">SĐT</th>
+                                            <th class="bg-primary text-center">Địa chỉ</th>
+                                            <th class="bg-primary text-center">Đơn giá</th>
+                                            <th class="bg-primary text-center">Giảm giá</th>
+                                            <th class="bg-primary text-center">Tổng tiền</th>
+                                            <th class="bg-primary text-center">Phương thức thanh toán</th>
+                                            <th class="bg-primary text-center">Ngày đặt hàng</th>
+                                            <th class="bg-primary text-center">Ngày giao hàng</th>
+                                            <th class="bg-primary text-center">Ngày thanh toán</th>
+                                            <th class="bg-primary text-center">Ghi chú</th>
+                                            <th class="bg-primary text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody_order_dd">
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="bordered-contact" role="tabpanel" aria-labelledby="contact-tab">
-                            <div class="table-responsive container">
+                            <div class="table-responsive container" style="max-height:70vh !important">
                                 <table class="table table-striped table-hover table-bordered" id="table_order">
                                     <thead>
                                         <tr>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
-
+                                            <th class="bg-primary text-center"></th>
+                                            <th class="bg-primary text-center">STT</th>
+                                            <th class="bg-primary text-center">Mã đơn</th>
+                                            <th class="bg-primary text-center">Tên nhân viên</th>
+                                            <th class="bg-primary text-center">Tên khách hàng</th>
+                                            <th class="bg-primary text-center">SĐT</th>
+                                            <th class="bg-primary text-center">Địa chỉ</th>
+                                            <th class="bg-primary text-center">Đơn giá</th>
+                                            <th class="bg-primary text-center">Giảm giá</th>
+                                            <th class="bg-primary text-center">Tổng tiền</th>
+                                            <th class="bg-primary text-center">Phương thức thanh toán</th>
+                                            <th class="bg-primary text-center">Ngày đặt hàng</th>
+                                            <th class="bg-primary text-center">Ngày giao hàng</th>
+                                            <th class="bg-primary text-center">Ngày thanh toán</th>
+                                            <th class="bg-primary text-center">Ghi chú</th>
+                                            <th class="bg-primary text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody_order_cgh">
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="bordered-home1" role="tabpanel" aria-labelledby="home-tab1">
-                            <div class="table-responsive container">
+                            <div class="table-responsive container" style="max-height:70vh !important">
                                 <table class="table table-striped table-hover table-bordered" id="table_order">
                                     <thead>
                                         <tr>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
-
+                                            <th class="bg-primary text-center"></th>
+                                            <th class="bg-primary text-center">STT</th>
+                                            <th class="bg-primary text-center">Mã đơn</th>
+                                            <th class="bg-primary text-center">Tên nhân viên</th>
+                                            <th class="bg-primary text-center">Tên khách hàng</th>
+                                            <th class="bg-primary text-center">SĐT</th>
+                                            <th class="bg-primary text-center">Địa chỉ</th>
+                                            <th class="bg-primary text-center">Đơn giá</th>
+                                            <th class="bg-primary text-center">Giảm giá</th>
+                                            <th class="bg-primary text-center">Tổng tiền</th>
+                                            <th class="bg-primary text-center">Phương thức thanh toán</th>
+                                            <th class="bg-primary text-center">Ngày đặt hàng</th>
+                                            <th class="bg-primary text-center">Ngày giao hàng</th>
+                                            <th class="bg-primary text-center">Ngày thanh toán</th>
+                                            <th class="bg-primary text-center">Ghi chú</th>
+                                            <th class="bg-primary text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody_order_hd">
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="bordered-home2" role="tabpanel" aria-labelledby="home-tab2">
-                            <div class="table-responsive container">
+                            <div class="table-responsive container" style="max-height:70vh !important">
                                 <table class="table table-striped table-hover table-bordered" id="table_order">
                                     <thead>
                                         <tr>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary"></th>
-                                            <th style="vertical-align: top; width: 100%; white-space: nowrap;" class="bg-primary">STT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Mã đơn</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên nhân viên</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tên khách hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">SĐT</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Địa chỉ</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Đơn giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Giảm giá</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Tổng tiền</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Phương thức thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày đặt hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày giao hàng</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ngày thanh toán</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Ghi chú</th>
-                                            <th style="vertical-align: top; white-space: nowrap;" class="bg-primary">Thao tác</th>
-
+                                            <th class="bg-primary text-center"></th>
+                                            <th class="bg-primary text-center">STT</th>
+                                            <th class="bg-primary text-center">Mã đơn</th>
+                                            <th class="bg-primary text-center">Tên nhân viên</th>
+                                            <th class="bg-primary text-center">Tên khách hàng</th>
+                                            <th class="bg-primary text-center">SĐT</th>
+                                            <th class="bg-primary text-center">Địa chỉ</th>
+                                            <th class="bg-primary text-center">Đơn giá</th>
+                                            <th class="bg-primary text-center">Giảm giá</th>
+                                            <th class="bg-primary text-center">Tổng tiền</th>
+                                            <th class="bg-primary text-center">Phương thức thanh toán</th>
+                                            <th class="bg-primary text-center">Ngày đặt hàng</th>
+                                            <th class="bg-primary text-center">Ngày giao hàng</th>
+                                            <th class="bg-primary text-center">Ngày thanh toán</th>
+                                            <th class="bg-primary text-center">Ghi chú</th>
+                                            <th class="bg-primary text-center">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tbody_order_gtc">
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
-                                        <tr>
-                                            <th style="vertical-align: top;">1</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder()" class="card-link">HD_114410112023</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">Trần Đức Duy</th>
-                                            <th style="vertical-align: top;">0987654321</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">Mỹ Đình - Hà Nội - Việt Nam</th>
-                                            <th style="vertical-align: top;">3.500.000</th>
-                                            <th style="vertical-align: top;">10%</th>
-                                            <th style="vertical-align: top;">3.150.000</th>
-                                            <th style="vertical-align: top;">Thanh toán online</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;">11/11/2023</th>
-                                            <th style="vertical-align: top;">10/11/2023</th>
-                                            <th style="vertical-align: top;white-space: nowrap;"></th>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
-                            
+
                         </div>
                     </div><!-- End Bordered Tabs -->
 

@@ -4,6 +4,7 @@ using BeautyPoly.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BeautyPoly.Data.Migrations
 {
     [DbContext(typeof(BeautyPolyDbContext))]
-    partial class BeautyPolyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231217173551_updatelocation")]
+    partial class updatelocation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

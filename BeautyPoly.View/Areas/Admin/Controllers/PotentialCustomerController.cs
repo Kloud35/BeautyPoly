@@ -1,7 +1,6 @@
 ﻿using BeautyPoly.Data.Models.DTO;
 using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
-using BeautyPoly.Helper;
 using BeautyPoly.Models;
 using BeautyPoly.View.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +28,24 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             this._locationCustomerRepo = locationRepo;
             GetDataCache();
         }
+
+        //[HttpGet("admin/potentialcustomer/getlistprovin")]
+        //public JsonResult GetProvin() 
+        //{
+        //    HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;
+        //    Provin lstprovin = new Provin();
+
+        //    if (responseProvin.IsSuccessStatusCode)
+        //    {
+        //        string jsonData2 = responseProvin.Content.ReadAsStringAsync().Result;
+
+
+        //        lstprovin = JsonConvert.DeserializeObject<Provin>(jsonData2);
+        //    }
+        //    return Json(lstprovin, new System.Text.Json.JsonSerializerOptions());
+
+        //}
+
 
         [HttpGet("admin/potentialcustomer/getlistprovin")]
         public JsonResult GetProvin(int locationIndex)
@@ -82,8 +99,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/potentialcustomer")]
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("AccountID") == null)
-                return RedirectToRoute("Login");
             //Lấy địa chỉ tỉnh thành
             HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;
 
@@ -115,34 +130,11 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             locations = locations.Where(p => p.PotentialCustomerID == CustomerID).ToList();
             return Json(locations);
         }
-        [HttpPut("admin/potentialcustomer/update-default-location")]
-        public async Task<IActionResult> UpdateDefaultLocation(int id)
-        {
-            var checkExists = await _locationCustomerRepo.FirstOrDefaultAsync(entity => entity.LocationCustomerID == id);
-            if (checkExists == null)
-            {
-                return Json(0);
-            }
-            else
-            {
-                var checkCurrDefault = await _locationCustomerRepo.FirstOrDefaultAsync(entity => entity.PotentialCustomerID == checkExists.PotentialCustomerID && entity.IsDefault == true);
-                if (checkCurrDefault == null)
-                {
-                    return Json(0);
-                }
-                else
-                {
-                    checkCurrDefault.IsDefault = false;
-                    await _locationCustomerRepo.UpdateAsync(checkCurrDefault);
-                }
-                checkExists.IsDefault = true;
-                await _locationCustomerRepo.UpdateAsync(checkExists);
-                return Json(1);
-            }
-        }
+
         [HttpPost("admin/potentialcustomer/create")]
-        public async Task<IActionResult> CreateOrUpdate([FromBody] CustomerDTO customerDTO, IFormFile avatar)
+        public async Task<IActionResult> CreateOrUpdate([FromBody] CustomerDTO customerDTO)
         {
+
             var checkExists = await _potentialCustomerRepo.FirstOrDefaultAsync(p => p.PotentialCustomerCode.Trim() == customerDTO.PotentialCustomer.PotentialCustomerCode.Trim() && p.PotentialCustomerID != customerDTO.PotentialCustomer.PotentialCustomerID);
             if (checkExists != null)
             {
@@ -154,6 +146,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             if (customerDTO.PotentialCustomer.PotentialCustomerID > 0)
             {
                 customer = customerDTO.PotentialCustomer;
+                customerDTO.PotentialCustomer.CreateDate = customer.CreateDate;
                 await _potentialCustomerRepo.UpdateAsync(customer);
                 foreach (var item in customerDTO.LocationCustomers)
                 {
@@ -167,8 +160,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     }
                     else
                     {
-                        locationCustomer.ProvinID = item.ProvinID;
-                        locationCustomer.DistricID = item.DistricID;
+                        locationCustomer.ProvinceID = item.ProvinceID;
+                        locationCustomer.DistrictID = item.DistrictID;
                         locationCustomer.WardID = item.WardID;
                         locationCustomer.Address = item.Address;
                         locationCustomer.IsDefault = item.IsDefault;
@@ -183,18 +176,18 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 customer.PotentialCustomerCode = customerDTO.PotentialCustomer.PotentialCustomerCode;
                 customer.FullName = customerDTO.PotentialCustomer.FullName;
                 customer.Birthday = customerDTO.PotentialCustomer.Birthday;
-                if (avatar != null)
-                {
-                    string extension = Path.GetExtension(avatar.FileName);
-                    string imageName = Utilities.SEOUrl(customer.FullName) + extension;
-                    customer.Avatar = await Utilities.UploadFile(avatar, @"avatarCustomer", imageName.ToLower());
-                }
-                if (string.IsNullOrEmpty(customer.Avatar)) customer.Avatar = "default.jpg";
+                //if (avatar != null)
+                //{
+                //    string extension = Path.GetExtension(avatar.FileName);
+                //    string imageName = Utilities.SEOUrl(customer.FullName) + extension;
+                //    customer.Avatar = await Utilities.UploadFile(avatar, @"avatarCustomer", imageName.ToLower());
+                //}
+                //if (string.IsNullOrEmpty(customer.Avatar)) customer.Avatar = "default.jpg";
                 // customer.Avatar = customerDTO.potentialCustomer.Avatar;
                 customer.Email = customerDTO.PotentialCustomer.Email;
                 customer.Phone = customerDTO.PotentialCustomer.Phone;
                 customer.CreateDate = DateTime.Now;
-                customer.Password = "1";
+                customer.Password = "MQAyADMANAA1ADYA"; //=123456
                 customer.IsActive = customerDTO.PotentialCustomer.IsActive;
                 customer.IsDelete = customerDTO.PotentialCustomer.IsDelete;
                 await _potentialCustomerRepo.InsertAsync(customer);
@@ -213,8 +206,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     }
                     else
                     {
-                        location.ProvinID = item.ProvinID;
-                        location.DistricID = item.DistricID;
+                        location.ProvinceID = item.ProvinceID;
+                        location.DistrictID = item.DistrictID;
                         location.WardID = item.WardID;
                         location.Address = item.Address;
                         location.IsDefault = item.IsDefault;
@@ -278,8 +271,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             data.PotentialCustomerID = locationCustomerDTO.PotentialCustomerID;
             data.Address = locationCustomerDTO.Address;
             data.WardID = locationCustomerDTO.WardID;
-            data.DistricID = locationCustomerDTO.DistrictID;
-            data.ProvinID = locationCustomerDTO.ProvinceID;
+            data.DistrictID = locationCustomerDTO.DistrictID;
+            data.ProvinceID = locationCustomerDTO.ProvinceID;
             data.IsDefault = locationCustomerDTO.IsDefault;
             data.IsDelete = locationCustomerDTO.IsDelete;
             await _locationCustomerRepo.InsertAsync(data);
@@ -293,8 +286,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             data.PotentialCustomerID = locationCustomerDTO.PotentialCustomerID;
             data.Address = locationCustomerDTO.Address;
             data.WardID = locationCustomerDTO.WardID;
-            data.DistricID = locationCustomerDTO.DistrictID;
-            data.ProvinID = locationCustomerDTO.ProvinceID;
+            data.DistrictID = locationCustomerDTO.DistrictID;
+            data.ProvinceID = locationCustomerDTO.ProvinceID;
             data.IsDefault = locationCustomerDTO.IsDefault;
             data.IsDelete = locationCustomerDTO.IsDelete;
             await _locationCustomerRepo.UpdateAsync(data);
@@ -310,17 +303,17 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             locations.ForEach(p =>
             {
                 var data = new LocationCustomerViewModel();
-                data.ProvinceID = p.ProvinID;
-                data.DistrictID = p.DistricID;
+                data.ProvinceID = p.ProvinceID;
+                data.DistrictID = p.DistrictID;
                 data.WardID = p.WardID;
                 data.Address = p.Address;
                 data.IsDefault = p.IsDefault;
                 data.IsDelete = p.IsDelete;
                 data.LocationCustomerID = p.LocationCustomerID;
                 data.PotentialCustomerID = (int)p.PotentialCustomerID;
-                data.ProvinceName = _lstprovin.data.FirstOrDefault(x => x.ProvinceID == p.ProvinID).ProvinceName;
-                data.DistrictName = _lstDistrict.data.FirstOrDefault(x => x.DistrictID == p.DistricID).DistrictName;
-                HttpResponseMessage responseWard = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + p.DistricID).Result;
+                data.ProvinceName = _lstprovin.data.FirstOrDefault(x => x.ProvinceID == p.ProvinceID).ProvinceName;
+                data.DistrictName = _lstDistrict.data.FirstOrDefault(x => x.DistrictID == p.DistrictID).DistrictName;
+                HttpResponseMessage responseWard = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + p.DistrictID).Result;
                 Ward lstWard = new Ward();
                 if (responseWard.IsSuccessStatusCode)
                 {

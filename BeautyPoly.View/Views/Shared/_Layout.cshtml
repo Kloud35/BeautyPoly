@@ -49,6 +49,10 @@
     <!---->
     <link href="~/assets/css/plugins/range-slider.css" rel="stylesheet" />
     <script src="~/assets/js/plugins/range-slider.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.31/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.31/dist/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
 
 <body>
@@ -70,7 +74,7 @@
                             <ul class="main-nav justify-content-start">
                                 <li class="has-submenu">
                                     <a href="/">home</a>
-                                  
+
                                 </li>
                                 <li><a href="about-us.html">about</a></li>
                                 <li class="has-submenu position-static">
@@ -78,7 +82,7 @@
                                 </li>
                                 <li class="has-submenu">
                                     <a asp-action="Index" asp-controller="Post">Blog</a>
-                                    
+
                                 </li>
                                 <li class="has-submenu">
                                     <a href="account-login.html">Pages</a>
@@ -121,20 +125,26 @@
                                     </svg>
                                 </span>
                             </button>
-
-                            <a class="header-action-btn" href="account-login.html">
-                                <span class="icon">
-                                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                        <rect class="icon-rect" width="30" height="30" fill="url(#pattern3)" />
-                                        <defs>
-                                            <pattern id="pattern3" patternContentUnits="objectBoundingBox" width="1" height="1">
-                                                <use xlink:href="#image0_504:10" transform="scale(0.0333333)" />
-                                            </pattern>
-                                            <image id="image0_504:10" width="30" height="30" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wD/AP+gvaeTAAABEUlEQVRIie3UMUoDYRDF8Z8psqUpLBRrBS+gx7ATD6E5iSjeQQ/gJUzEwmChnZZaKZiQ0ljsLkhQM5/5Agr74DX7DfOfgZ1Hoz+qAl30Marcx2H1thCtY4DJN76parKqmAH9DM+6eTcArX2QE3yVAO7lBA8TwMNIw6UgeJI46My+rWCjUQL0LVIUBd8lgEO1UfBZAvg8oXamCuWNRu64nRNMmUo/wReSXLXayoDoKc9miMvqW/ZNG2VRNLla2MYudrCFTvX2intlnl/gGu/zDraGYzyLZ/UTjrD6G2AHpxgnAKc9xgmWo9BNPM4BnPYDNiLg24zQ2oNpyFdZvRKZLlGhnvvKPzXXti/Yy7hEo3+iD9EHtgdqxQnwAAAAAElFTkSuQmCC" />
-                                        </defs>
-                                    </svg>
-                                </span>
-                            </a>
+                            <ul class="main-nav p-0 m-0">
+                                <li class="has-submenu">
+                                    <a class="ms-10">
+                                        <span class="icon">
+                                            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                                <rect class="icon-rect" width="30" height="30" fill="url(#pattern3)" />
+                                                <defs>
+                                                    <pattern id="pattern3" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                                        <use xlink:href="#image0_504:10" transform="scale(0.0333333)" />
+                                                    </pattern>
+                                                    <image id="image0_504:10" width="30" height="30" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wD/AP+gvaeTAAABEUlEQVRIie3UMUoDYRDF8Z8psqUpLBRrBS+gx7ATD6E5iSjeQQ/gJUzEwmChnZZaKZiQ0ljsLkhQM5/5Agr74DX7DfOfgZ1Hoz+qAl30Marcx2H1thCtY4DJN76parKqmAH9DM+6eTcArX2QE3yVAO7lBA8TwMNIw6UgeJI46My+rWCjUQL0LVIUBd8lgEO1UfBZAvg8oXamCuWNRu64nRNMmUo/wReSXLXayoDoKc9miMvqW/ZNG2VRNLla2MYudrCFTvX2intlnl/gGu/zDraGYzyLZ/UTjrD6G2AHpxgnAKc9xgmWo9BNPM4BnPYDNiLg24zQ2oNpyFdZvRKZLlGhnvvKPzXXti/Yy7hEo3+iD9EHtgdqxQnwAAAAAElFTkSuQmCC" />
+                                                </defs>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                    <ul id="user_info">
+                                    </ul>
+                                  
+                                </li>
+                            </ul>
 
                             <button class="header-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#AsideOffcanvasMenu" aria-controls="AsideOffcanvasMenu">
                                 <span></span>
@@ -338,7 +348,7 @@
             </div>
             <div class="offcanvas-body">
                 <ul class="aside-cart-product-list" id="ul_modal_cart">
-                    
+
                     <li class="aside-product-list-item">
                         <span class="product-title">Quickiin Mens shoes</span>
                         <ul>
@@ -438,15 +448,16 @@
         <!--== End Aside Menu ==-->
 
     </div>
-    <!-- Modal đăng nhập -->
     <div class="modal fade" id="modallogin" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Login</h5>
                     <button b-axll56s2yi="" type="button" class="btn-close" data-bs-dismiss="modal">
-                        X
                     </button>
+                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button> *@
                 </div>
                 <div class="modal-body">
                     <form>
@@ -461,6 +472,7 @@
                             <input type="password" class="form-control " id="login_password">
 
                         </div>
+                        <a asp-action="ForgotPassword" asp-controller="Accounts" class="float-left mb-1"><span>Quên mật khẩu?</span></a><br />
                         <button type="button" class="btn text-white bg-dark" id="btn-login">Login</button>
                     </form>
                 </div>
@@ -476,7 +488,6 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Register</h5>
                     <button b-axll56s2yi="" type="button" class="btn-close" data-bs-dismiss="modal">
-                        X
                     </button>
                 </div>
                 <div class="modal-body">
@@ -541,8 +552,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Đổi mật khẩu</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button b-axll56s2yi="" type="button" class="btn-close" data-bs-dismiss="modal">
                     </button>
                 </div>
                 <div class="modal-body">
@@ -569,14 +579,11 @@
             </div>
         </div>
     </div>
-
-    <!--== Wrapper End ==-->
-    <!-- JS Vendor, Plugins & Activation Script Files -->
-    <!-- Vendors JS -->
     <script src="~/js/common.js"></script>
     <script src="~/js/home_view.js"></script>
+    <script src="~/js/login.js"></script>
 </body>
 
 </html>
 
-                                
+

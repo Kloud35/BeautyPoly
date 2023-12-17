@@ -1,6 +1,7 @@
 ﻿var arrRole = [];
 $(document).ready(function () {
     GetAll();
+    //setupRoleCheckboxEvents();
 
 });
 
@@ -17,8 +18,9 @@ function GetAll() {
             var html = '';
             $.each(result, function (key, item) {
                 var isDelete = item.isDelete ? "checked" : ""
-                html += `<tr>
-                           <td class="text-center">
+
+                html += `<tr >
+                           <td>
                                <button class="btn btn-success btn-sm" onclick="edit(${item.roleID})">
                                     <i class="bx bx-pencil"></i>
                                </button>
@@ -26,14 +28,15 @@ function GetAll() {
                                     <i class="bx bx-trash"></i>
                                 </button>
                             </td>
-                            <td class="text-center">${item.roleCode}</td>
+                            <td>${item.roleCode}</td>
                             <td>${item.roleName}</td>
                             <td>${item.description}</td>
-                            <td style="width:10%">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" ${isDelete}>
+                           <td >
+                                <div class="form-check form-switch d-flex justify-content-center align-items-center" style="height: 100%;">
+                                    <input class="form-check-input" onclick="onchangeStt(${item.roleID})"  type="checkbox" id="${item.roleID}" ${isDelete}>
                                 </div>
                             </td>
+
                         </tr>`;
             });
             $('#tbody_role').html(html);
@@ -77,6 +80,17 @@ function validate() {
         })
         return false;
     }
+    var regex = /\d/; // Biểu thức này sẽ kiểm tra xem có chữ số nào trong chuỗi hay không
+    if (regex.test(roleName)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Tên chức vụ không hợp lệ',
+            showConfirmButton: false,
+            timer: 1000
+        })
+        return false;
+    }
     return true;
 }
 
@@ -88,7 +102,7 @@ function create() {
     var roleDescription = $('#role_description_role').val();
     var isdelete = $('#isdelete_role').prop('checked');
 
-    
+
     var obj = {
         RoleID: id,
         RoleCode: roleCode,
@@ -142,33 +156,7 @@ function edit(id) {
     $('#isdelete_role').prop('checked', role.isDelete).trigger('change');
     $('#modal_role').modal('show');
 }
-//Hiện tại chưa check điều kiện đã có hàng mua đợi sau khi làm xong luông bán hàng sẽ check lại
-//function Delete(id) {
-//    Swal.fire({
-//        title: 'Bạn có chắc muốn xóa chức vụ này không?',
-//        showDenyButton: true,
-//        confirmButtonText: 'Yes',
 
-//    }).then((result) => {
-//        if (result.isConfirmed) {
-//            $.ajax({
-//                url: '/admin/role/delete',
-//                type: 'DELETE',
-//                dataType: 'json',
-//                contentType: 'application/json;charset=utf-8',
-//                data: JSON.stringify(id),
-//                success: function (result) {
-//                    Swal.fire('Chức vụ đã được xóa !', '', 'success')
-//                    GetAll();
-//                },
-//                error: function (err) {
-//                    disableRole(id);
-//                    console.log(err)
-//                }
-//            });
-//        }
-//    })
-//}
 function disableRole(roleID) {
     Swal.fire({
         title: 'Chức vụ này đã được sử dụng, chỉ được phép tắt. Bạn muốn tắt không?',
@@ -194,7 +182,7 @@ function disableRole(roleID) {
             });
         }
     })
-    
+
 }
 
 function Delete(id) {
@@ -204,7 +192,7 @@ function Delete(id) {
         dataType: 'json',
         success: function (result) {
             if (result) {
-               
+
                 disableRole(id);
             } else {
                 Swal.fire({
@@ -233,6 +221,38 @@ function Delete(id) {
         },
         error: function (err) {
             console.log(err);
+        }
+    });
+}
+
+function onchangeStt(id) {
+    // Lấy roleId từ id của checkbox
+
+    // Hiển thị cửa sổ xác nhận
+    Swal.fire({
+        title: 'Bạn có chắc muốn thay đổi trạng thái không ?',
+        showDenyButton: true,
+        confirmButtonText: 'Yes',
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            // Nếu người dùng xác nhận, gửi yêu cầu AJAX để cập nhật trạng thái hoạt động
+            $.ajax({
+                url: '/admin/role/updateStatus',
+                type: 'PUT',
+                dataType: 'json',
+                contentType: 'application/json;charset=utf-8',
+                data: JSON.stringify(id),
+                success: function (result) {
+                    Swal.fire('Thay đổi thành công!', '', 'success')
+                },
+                error: function (err) {
+                    Swal.fire('Thay đổi thất bại!', '', 'error')
+                }
+            });
+        } else {
+            // Nếu người dùng không xác nhận, thay đổi trạng thái checkbox ngược lại
+            $(this).prop('checked', !isDelete);
         }
     });
 }

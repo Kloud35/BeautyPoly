@@ -35,9 +35,7 @@ function GetAll() {
                                 <button class="btn btn-success btn-sm" onclick="edit(${item.potentialCustomerID})">
                                 <i class="bx bx-pencil"></i>
                             </button>
-                                <button class="btn btn-danger btn-sm" onclick="Delete(${item.potentialCustomerID})">
-                                    <i class="bx bx-trash"></i>
-                                </button>
+                               
                             </td>
 
                             <td>${item.potentialCustomerCode}</td>
@@ -229,13 +227,12 @@ function GenarateWard(id_ward, index) {
 }
 function validate() {
     var count = 0;
-    var customerCode = $('#customer_code_customer').val();
     var customerName = $('#customer_name_customer').val();
     var customerEmail = $('#customer_email_customer').val();
     var customerPhone = $('#customer_phone_customer').val();
     var customerBirthday = $('#customer_birthday_customer').val();
     var provin = parseInt($(`provin_location_${locationIndex}`).val());
-    if (customerCode == '' || customerName == '' || customerEmail == '' || customerPhone == '' || provin == '' || customerBirthday == '') {
+    if ( customerName == '' || customerEmail == '' || customerPhone == '' || provin == '' || customerBirthday == '') {
         count++;
     }
     if (count > 0) {
@@ -243,6 +240,42 @@ function validate() {
             icon: 'error',
             title: 'Lỗi...',
             text: 'Không được để trống cái trường có dấu (*)',
+            showConfirmButton: false,
+            timer: 1000
+        })
+        return false;
+    }
+   
+    // Validate email field
+    var emailPattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    if (!emailPattern.test(customerEmail)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Email không hợp lệ',
+            showConfirmButton: false,
+            timer: 1000
+        })
+        return false;
+    }
+    // Validate phone field
+    let phonePattern = /(03|05|07|08|09)+([0-9]{8})\b/g;
+    if (!phonePattern.test(customerPhone)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Số điện thoại không hợp lệ',
+            showConfirmButton: false,
+            timer: 1000
+        })
+        return false;
+    }
+    var regex = /\d/; // Biểu thức này sẽ kiểm tra xem có chữ số nào trong chuỗi hay không
+    if (regex.test(customerName)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Tên khách hàng không hợp lệ',
             showConfirmButton: false,
             timer: 1000
         })
@@ -273,14 +306,14 @@ function create() {
     for (var i = 0; i < locationIndex; i++) {
         var provin = parseInt($(`#provin_location_${i}`).val());
         var distric = parseInt($(`#district_location_${i}`).val());
-        var ward = parseInt($(`#ward_location_${i}`).val());
+        var ward =$(`#ward_location_${i}`).val();
         var addss = $(`#customer_address_location_${i}`).val();
         var lon = {
             LocationCustomerID: 0,
             ProvinceID: provin,
             DistrictID: distric,
             WardID: ward,
-            address: addss,
+            Address: addss,
             IsDefault: true,
             IsDelete: true
         }

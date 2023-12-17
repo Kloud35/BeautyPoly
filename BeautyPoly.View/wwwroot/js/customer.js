@@ -7,9 +7,10 @@ var index = 2;
 $(document).ready(function () {
     $("#user_name").text(GetUserName());
     $("#user_name_manager").text(GetUserName());
+    $("#user_name_managers").text(GetUserName());
     GetProvin();
     GetDistrict();
-    getDetailAccount();
+
 });
 
 function GetProvin() {
@@ -44,6 +45,7 @@ function GetDistrict() {
         }
     });
 }
+
 function GetAllLocation() {
     $.ajax({
         url: `/admin/potentialcustomer/locations?CustomerID=${GetUserId()}`,
@@ -58,17 +60,16 @@ function GetAllLocation() {
                 locationIndex = key;
                 var html = `
                     <tr>
-                        <td><input ${item.isDefault ? 'checked' : ''} type="radio" onclick="setNewDefaultAddres(${item.locationCustomerID})"/></td>    
                         <td>${item.provinceName}</td>    
                         <td>${item.districtName}</td>    
                         <td>${item.wardName}</td>    
                         <td>${item.address}</td>
                         <td>
                             <button class="btn btn-success" onclick="UpdateLocation(${item.locationCustomerID})">
-                                <i class="fa fa-pencil-square-o" ></i>
+                                <i class="bx bx-pencil"></i>
                             </button>
                             <button class="btn btn-danger" onclick="deleteLocation(${item.locationCustomerID})">
-                                 <i class="fa fa-trash-o"></i>
+                                    <i class="bx bx-trash"></i>
                             </button>
                         </td>
                     </tr>
@@ -81,11 +82,12 @@ function GetAllLocation() {
         }
     });
 }
+
 function addLocation() {
     $("#locationContainer div").remove();
     locationIndex++;
     var html = `
-                 <div class="card border border-end-0 border-bottom-0 border-start-0 border-danger mt-2">
+                 <div class="card border border-end-0 border-bottom-0 border-start-0 border-success mt-2">
                     <div class="row p-1 m-1">
                         <div class="col-md-4 col-12">
                             <span>Tỉnh thành</span><span class="text-danger">(*)</span>
@@ -126,16 +128,14 @@ function addLocation() {
     $("#locationContainer").append(html);
     locationIndex++; // Tăng index cho việc tạo ID và Name duy nhất
 }
-
-
 function UpdateLocation(id) {
-    console.log("ID: ", id);
+    console.log("ID: ",id);
     $("#locationContainer div").remove();
     locationIndex++;
     arrLocationCustomer.forEach(item => {
         if (item.locationCustomerID == id) {
             var html = `
-                 <div class="card border border-end-0 border-bottom-0 border-start-0 border-danger mt-2">
+                 <div class="card border border-end-0 border-bottom-0 border-start-0 border-success mt-2">
                     <input id="locationCustomerID" value="${id}" hidden />
                     <div class="row p-1 m-1">
                         <div class="col-md-4 col-12">
@@ -355,38 +355,7 @@ function createLocation() {
         success: function (result) {
             if (result == 1) {
                 GetAllLocation();
-                Swal.fire('Thành công !', '', 'success')
-                $('#modal_customer').modal('hide');
-            } else {
-                Swal.fire('Thất bại !', '', 'danger')
-            }
-        },
-        error: function (err) {
-            console.log(err)
-        }
-    });
-}
-function getDetailAccount() {
-    $("#full-name").val("");
-    $("#date-of-birth").val("");
-    $("#phone-number").val("");
-    $("#email-address").val("");
-    $("#full-name").val(GetUserName());
-    $("#date-of-birth").val(GetUserDateOfBirth());
-    $("#phone-number").val(GetUserPhone());
-    $("#email-address").val(GetUserEmail());
-}
-function setNewDefaultAddres(id) {
-    var getUrl = window.location;
-    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/";
-    $.ajax({
-        url: baseUrl + 'admin/potentialcustomer/update-default-location?id=' + id,
-        type: 'PUT',
-        dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
-        success: function (result) {
-            if (result == 1) {
-                GetAllLocation();
+                //Swal.fire('Thành công !', '', 'success')
                 $('#modal_customer').modal('hide');
             } else {
                 Swal.fire({
@@ -396,13 +365,12 @@ function setNewDefaultAddres(id) {
                     showConfirmButton: false,
                     timer: 1000
                 })
-
             }
         },
         error: function (err) {
             console.log(err)
         }
-    })
+    });
 }
 
 /// JWT 
@@ -417,35 +385,22 @@ function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
+
 function GetUserName() {
     const token = localStorage.getItem("Token");
     const decodedToken = parseJwt(token);
     var userName = decodedToken['Name'];
     return userName;
 }
-function GetUserPhone() {
-    const token = localStorage.getItem("Token");
-    const decodedToken = parseJwt(token);
-    var phone = decodedToken['Phone'];
-    return phone;
-}
-function GetUserDateOfBirth() {
-    const token = localStorage.getItem("Token");
-    const decodedToken = parseJwt(token);
-    var dateOfBirth = decodedToken['DateOfBirth'];
-    if (dateOfBirth != null && dateOfBirth != "") {
-        dateOfBirth = dateOfBirth.split(" ")[0]
-    }
-    return dateOfBirth;
-}
-function GetUserEmail() {
-    const token = localStorage.getItem("Token");
-    const decodedToken = parseJwt(token);
-    var email = decodedToken['Email'];
-    return email;
-}
 
 function GetUserId() {
+    const token = localStorage.getItem("Token");
+    const decodedToken = parseJwt(token);
+    var userId = decodedToken['Id'];
+    return userId;
+}
+
+function GetUserEmail() {
     const token = localStorage.getItem("Token");
     const decodedToken = parseJwt(token);
     var userId = decodedToken['Id'];

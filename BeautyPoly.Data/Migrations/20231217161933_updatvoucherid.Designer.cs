@@ -4,6 +4,7 @@ using BeautyPoly.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BeautyPoly.Data.Migrations
 {
     [DbContext(typeof(BeautyPolyDbContext))]
-    partial class BeautyPolyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231217161933_updatvoucherid")]
+    partial class updatvoucherid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,7 +204,7 @@ namespace BeautyPoly.Data.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DistrictID")
+                    b.Property<int?>("DistricID")
                         .HasColumnType("int");
 
                     b.Property<bool?>("IsDefault")
@@ -214,11 +216,11 @@ namespace BeautyPoly.Data.Migrations
                     b.Property<int?>("PotentialCustomerID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProvinceID")
+                    b.Property<int?>("ProvinID")
                         .HasColumnType("int");
 
-                    b.Property<string>("WardID")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("WardID")
+                        .HasColumnType("int");
 
                     b.HasKey("LocationCustomerID");
 
@@ -507,9 +509,6 @@ namespace BeautyPoly.Data.Migrations
 
                     b.Property<string>("PotentialCustomerCode")
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ResetPasswordcode")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PotentialCustomerID");
 

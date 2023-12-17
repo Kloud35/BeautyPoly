@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
     GetCart();
 });
-
+var arrProductSku = []
 function GetCart() {
     $.ajax({
         url: '/Cart/GetProductInCart',
@@ -9,6 +9,7 @@ function GetCart() {
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
         success: function (result) {
+            arrProductSku = result;
             var groupedData = {};
             $.each(result, function (key, item) {
                 const productName = item.ProductName;
@@ -25,7 +26,7 @@ function GetCart() {
             for (const productName in groupedData) {
                 if (groupedData.hasOwnProperty(productName)) {
                     const productList = groupedData[productName];
-                    const groupId = generateUniqueId(); 
+                    const groupId = generateUniqueId();
 
                     // Hiển thị tên sản phẩm nhóm
                     html += `<tr class="tbody-item group-title" data-group-id="${groupId}">
@@ -38,7 +39,7 @@ function GetCart() {
                     $.each(productList, function (index, product) {
                         html += `<tr class="tbody-item group-content ${groupId}" >
                                 <td class="product-remove">
-                                    <a class="remove" href="javascript:void(0)">×</a>
+                                    <a class="remove"  onclick="deleteProductSku(${product.ProductSkusID})">×</a>
                                 </td>
                                 <td class="product-thumbnail">
                                     <div class="thumb">
@@ -55,7 +56,7 @@ function GetCart() {
                                 </td>
                                 <td class="product-quantity">
                                     <div class="pro-qty">
-                                        <input type="text" class="quantity" title="Quantity" id="quantity_${index}" value="${product.QuantityCart}">
+                                        <input type="text" class="quantity" title="Quantity" id="quantity_${product.ProductSkusID}" onchange="ChangeQuantity(${product.ProductSkusID})" value="${product.QuantityCart}">
                                     </div>
                                 </td>
                                 <td class="product-subtotal">
@@ -66,7 +67,6 @@ function GetCart() {
                     });
                 }
             }
-
             $('#total_amount').text(formatCurrency.format(totalMoney));
             $('#total_amount_cart').text(formatCurrency.format(totalMoney));
             $('#tbody_cart').html(html);
@@ -86,3 +86,49 @@ function generateUniqueId() {
     return Math.random().toString(36).substr(2, 9);
 }
 
+
+function ChangeQuantity(id) {
+    var qty = $(`#quantity_${id}`).val();
+    $.ajax({
+        url: '/cart/change-quantity',
+        type: 'GET',
+        dataType: "json",
+        //contentType: 'application/json;charset=utf-8',
+        data: { productSkuID: id, quantity: qty },
+        success: function (result) {
+            GetCart();
+        },
+        error: function () {
+            alert("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+        }
+    });
+}
+
+function deleteProductSku(id) {
+    var sku = arrProductSku.find(p => p.ProductSkusID == id);
+    Swal.fire({
+        title: `Bạn có chắc muốn xóa sản phẩm [${sku.ProductSkuName}] ra khỏi giỏ hàng?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Xóa"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/cart/delete',
+                type: 'DELETE',
+                dataType: "json",
+                data: { productSkuID: id },
+                success: function (result) {
+                    if (result == 1) {
+                        GetCart();
+                    }
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+                }
+            });
+        }
+    });
+}

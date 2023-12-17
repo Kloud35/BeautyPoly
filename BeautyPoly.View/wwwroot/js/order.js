@@ -17,13 +17,11 @@ $(document).ready(function () {
         if (event.target.classList.contains('bx-trash')) {
             var clickedTrashButton = event.target;
             var parentRow = clickedTrashButton.closest('.pick-prod');
-
             if (parentRow) {
                 parentRow.remove();
             }
         }
     });
-    
     $("#home-tab").on("click", function () {
         $.ajax({
             url: '/admin/order/status/1',
@@ -33,40 +31,33 @@ $(document).ready(function () {
                 var html = ``;
                 var index = 0;
                 result.forEach(function (element) {
+                    var date = new Date();
+                    var ShipDate = new Date();
 
-
-                    
-                    var date = new Date(element.OrderDate);
-                    var ShipDate = new Date(element.ShipDate);
-
-                    // Format the date to 'dd/MM/yyyy'
-                    var OrderDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-                    var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
+                 
                     html += `
-                    <tr>
-                                            <th style="vertical-align: top;"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></th>
-                                            <th style="vertical-align: top;">${++index}</th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">${element.CustomerName}</th>
-                                            <th style="vertical-align: top;">${element.CustomerPhone}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Address}</th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;">${element.TotalMoney}</th>
-                                            <th style="vertical-align: top;">${element.MedthodPayment}</th>
-                                            <th style="vertical-align: top;">${OrderDate}</th>
-                                            <th style="vertical-align: top;">${_shipDate}</th>
-                                            <th style="vertical-align: top;">${element.PaymentDate}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Note}</th>
-                                            <th style="vertical-align: top;">
-                                               <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                               <button type="button" style="margin-left:50px" onclick="removeOrder(${element.OrderID})" class="btn btn-danger">Xóa</button>
-                                            </th>
-                                        </tr>`;
+                                <tr>
+                                    <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                    <td class="text-center">${++index}</td>
+                                    <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                    <td class="text-center">Admin</td>
+                                    <td class="text-left">${element.CustomerName}</td>
+                                    <td class="text-center">${element.CustomerPhone}</td>
+                                    <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center">${formatCurrency.format(element.TotalMoney)}</td>
+                                    <td class="text-center">${element.MedthodPayment}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.OrderDate)}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
+                                    <td class="text-left">${element.Note}</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-info" onclick="Edit(${element.OrderID})"><i class="bx bx-pencil"></i></button>
+                                    </td>
+                                </tr>`;
                 });
                 $("#tbody_order_hc").append(html);
-                console.log(result);
             },
             error: function (err) {
                 console.log(err)
@@ -84,7 +75,7 @@ $(document).ready(function () {
                 if (result.length > 0) {
                     var index = 0;
                     result.forEach(function (element) {
-                        
+
                         var date = new Date(element.OrderDate);
                         var ShipDate = new Date(element.ShipDate);
 
@@ -93,29 +84,29 @@ $(document).ready(function () {
                         var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
 
                         html += `
-                                        <tr>
-                                            <th style="vertical-align: top;"><input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"> </th>
-                                            <th style="vertical-align: top;">${++index}  </th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">${element.CustomerName}</th>
-                                            <th style="vertical-align: top;">${element.CustomerPhone}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Address}</th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;">${element.TotalMoney}</th>
-                                            <th style="vertical-align: top;">${element.MedthodPayment}</th>
-                                            <th style="vertical-align: top;">${OrderDate}</th>
-                                            <th style="vertical-align: top;">${_shipDate}</th>
-                                            <th style="vertical-align: top;">${element.PaymentDate}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Note}</th>
-                                            <th style="vertical-align: top;">
-                                               <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                               <button type="button" style="margin-left:50px" onclick="removeOrder(${element.OrderID})" class="btn btn-danger">Xóa</button>
-                                            </th>
-                                        </tr>`;
+                                  <tr>
+                                    <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                    <td class="text-center">${++index}</td>
+                                    <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                    <td class="text-center">Admin</td>
+                                    <td class="text-left">${element.CustomerName}</td>
+                                    <td class="text-center">${element.CustomerPhone}</td>
+                                    <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center">${element.TotalMoney}</td>
+                                    <td class="text-center">${element.MedthodPayment}</td>
+                                    <td class="text-center">${OrderDate}</td>
+                                    <td class="text-center">${_shipDate}</td>
+                                    <td class="text-center">${element.PaymentDate}</td>
+                                    <td class="text-left">${element.Note}</td>
+                                    <td class="text-center">
+                                        <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
+                                  
+                                    </td>
+                                </tr>`;
                     });
-                } 
+                }
                 $("#tbody_order_dd").append(html);
             },
             error: function (err) {
@@ -141,27 +132,27 @@ $(document).ready(function () {
                     var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
 
                     html += `
-                    <tr>
-                                            <th style="vertical-align: top;"><input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></th>
-                                            <th style="vertical-align: top;">${++index} </th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">${element.CustomerName}</th>
-                                            <th style="vertical-align: top;">${element.CustomerPhone}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Address}</th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;">${element.TotalMoney}</th>
-                                            <th style="vertical-align: top;">${element.MedthodPayment}</th>
-                                            <th style="vertical-align: top;">${OrderDate}</th>
-                                            <th style="vertical-align: top;">${_shipDate}</th>
-                                            <th style="vertical-align: top;">${element.PaymentDate}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Note}</th>
-                                            <th style="vertical-align: top;">
-                                               <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                               <button type="button" style="margin-left:50px" onclick="removeOrder(${element.OrderID})" class="btn btn-danger">Xóa</button>
-                                            </th>
-                                        </tr>`;
+                          <tr>
+                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                <td class="text-center">${++index}</td>
+                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                <td class="text-center">Admin</td>
+                                <td class="text-left">${element.CustomerName}</td>
+                                <td class="text-center">${element.CustomerPhone}</td>
+                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center">${element.TotalMoney}</td>
+                                <td class="text-center">${element.MedthodPayment}</td>
+                                <td class="text-center">${OrderDate}</td>
+                                <td class="text-center">${_shipDate}</td>
+                                <td class="text-center">${element.PaymentDate}</td>
+                                <td class="text-left">${element.Note}</td>
+                                <td class="text-center">
+                                    <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
+                                 
+                                </td>
+                            </tr>`;
                 });
                 $("#tbody_order_cgh").append(html);
             },
@@ -188,27 +179,27 @@ $(document).ready(function () {
                     var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
 
                     html += `
-                    <tr>
-                                            <th style="vertical-align: top;"><input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></th>
-                                            <th style="vertical-align: top;">${++index} </th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">${element.CustomerName}</th>
-                                            <th style="vertical-align: top;">${element.CustomerPhone}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Address}</th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;">${element.TotalMoney}</th>
-                                            <th style="vertical-align: top;">${element.MedthodPayment}</th>
-                                            <th style="vertical-align: top;">${OrderDate}</th>
-                                            <th style="vertical-align: top;">${_shipDate}</th>
-                                            <th style="vertical-align: top;">${element.PaymentDate}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Note}</th>
-                                            <th style="vertical-align: top;">
-                                               <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                               <button type="button" style="margin-left:50px" onclick="removeOrder(${element.OrderID})" class="btn btn-danger">Xóa</button>
-                                            </th>
-                                        </tr>`;
+                            <tr>
+                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                <td class="text-center">${++index}</td>
+                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                <td class="text-center">Admin</td>
+                                <td class="text-left">${element.CustomerName}</td>
+                                <td class="text-center">${element.CustomerPhone}</td>
+                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center">${element.TotalMoney}</td>
+                                <td class="text-center">${element.MedthodPayment}</td>
+                                <td class="text-center">${OrderDate}</td>
+                                <td class="text-center">${_shipDate}</td>
+                                <td class="text-center">${element.PaymentDate}</td>
+                                <td class="text-left">${element.Note}</td>
+                                <td class="text-center">
+                                    <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
+                                   
+                                </td>
+                            </tr>`;
                 });
                 $("#tbody_order_hd").append(html);
             },
@@ -235,27 +226,26 @@ $(document).ready(function () {
                     var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
 
                     html += `
-                    <tr>
-                                            <th style="vertical-align: top;"><input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></th>
-                                            <th style="vertical-align: top;">${++index} </th>
-                                            <th style="vertical-align: top;"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></th>
-                                            <th style="vertical-align: top;">Admin</th>
-                                            <th style="vertical-align: top;">${element.CustomerName}</th>
-                                            <th style="vertical-align: top;">${element.CustomerPhone}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Address}</th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;"></th>
-                                            <th style="vertical-align: top;">${element.TotalMoney}</th>
-                                            <th style="vertical-align: top;">${element.MedthodPayment}</th>
-                                            <th style="vertical-align: top;">${OrderDate}</th>
-                                            <th style="vertical-align: top;">${_shipDate}</th>
-                                            <th style="vertical-align: top;">${element.PaymentDate}</th>
-                                            <th style="vertical-align: top;white-space: nowrap;">${element.Note}</th>
-                                            <th style="vertical-align: top;">
-                                               <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                               <button type="button" style="margin-left:50px" onclick="removeOrder(${element.OrderID})" class="btn btn-danger">Xóa</button>
-                                            </th>
-                                        </tr>`;
+                            <tr>
+                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                <td class="text-center">${++index}</td>
+                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                <td class="text-center">Admin</td>
+                                <td class="text-left">${element.CustomerName}</td>
+                                <td class="text-center">${element.CustomerPhone}</td>
+                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center">${element.TotalMoney}</td>
+                                <td class="text-center">${element.MedthodPayment}</td>
+                                <td class="text-center">${OrderDate}</td>
+                                <td class="text-center">${_shipDate}</td>
+                                <td class="text-center">${element.PaymentDate}</td>
+                                <td class="text-left">${element.Note}</td>
+                                <td class="text-center">
+                                    <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
+                                </td>
+                            </tr>`;
                 });
                 $("#tbody_order_gtc").append(html);
             },
@@ -275,8 +265,7 @@ $(document).ready(function () {
         $("#payment_method").val("");
     });
 });
-function confirmOrder()
-{
+function confirmOrder() {
     var ids = [];
     $(".gridCheck:checked").each(function () {
         // Perform actions on each checked element with class 'gridCheck'
@@ -413,8 +402,7 @@ function Edit(id) {
         url: '/admin/order/' + id,
         type: 'get',
         success: function (result) {
-            if (result)
-            {
+            if (result) {
                 $('#orderid_order').val(result.OrderID);
                 $('#order_code').val(result.OrderCode);
                 $('#customer_name').val(result.CustomerName);
@@ -426,14 +414,14 @@ function Edit(id) {
                 if (result.prods.length > 0) {
                     result.prods.forEach(function (ele) {
                         addSanPham();
-                        var newRow = $('#tbody_product').find('tr').last(); 
+                        var newRow = $('#tbody_product').find('tr').last();
                         $(newRow).find(".item-prod").val(ele.ProductID);
                         $(newRow).find(".item-quantity").val(ele.Quantity);
                         $(newRow).find(".item-price").val(ele.Price);
                     });
                 }
             }
-          
+
             console.log(result);
         },
         error: function (err) {
@@ -638,10 +626,9 @@ function addSanPham() {
 //    index++;
 //}
 
-function removeOrder(id)
-{
+function removeOrder(id) {
     $.ajax({
-        url: '/admin/order/delete/'+ id,
+        url: '/admin/order/delete/' + id,
         type: 'Post',
         success: function (result) {
             if (result == 1) {
@@ -674,7 +661,7 @@ function changeProd(element) {
     var selectedPrice = parentCurrent.find('option:selected').data('price'); // Get the data-price attribute of the selected option
     console.log("Selected price: " + selectedPrice);
     var quantity = parentCurrent.find(".item-quantity").val();
-    if (quantity > 0 && selectedPrice >0) {
+    if (quantity > 0 && selectedPrice > 0) {
         parentCurrent.find(".item-price").val(quantity * selectedPrice);
     }
 }

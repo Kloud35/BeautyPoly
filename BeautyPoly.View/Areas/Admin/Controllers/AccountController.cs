@@ -1,8 +1,10 @@
-﻿using BeautyPoly.Common;
-using BeautyPoly.Data.Repositories;
+﻿using BeautyPoly.Data.Repositories;
+using BeautyPoly.DBContext;
 using BeautyPoly.Models;
 using BeautyPoly.View.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace BeautyPoly.View.Areas.Admin.Controllers
 {
@@ -22,8 +24,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/account")]
         public IActionResult Index()
         {
-            //if (HttpContext.Session.GetString("AccountID") == null)
-            //    return RedirectToRoute("Login");
             return View();
         }
 
@@ -60,7 +60,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 obj.CreateDate = DateTime.Now;
                 obj.Status = accounts.Status;
                 obj.IsActive = accounts.IsActive;
-                obj.Password = MaHoaMD5.EncryptPassword("1");
+                obj.Password = "1";
                 await accountRepo.InsertAsync(obj);
             }
             return Json(1);
@@ -71,6 +71,23 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         {
             await accountRepo.DeleteAsync(await accountRepo.GetByIdAsync(accountID));
             return Json(1);
+        }
+
+        [HttpPut("admin/account/updateStatus")]
+        public async Task<IActionResult> ChangeStatus([FromBody] int accountID)
+        {
+            try
+            {
+                var account = await accountRepo.GetByIdAsync(accountID);
+                account.IsActive = !account.IsActive;
+                await accountRepo.UpdateAsync(account);
+                // Trả về kết quả thành công cho client
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Có lỗi xảy ra: " + ex.Message);
+            }
         }
 
     }

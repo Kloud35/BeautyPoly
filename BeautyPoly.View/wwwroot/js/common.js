@@ -70,6 +70,9 @@ function MessageWarning(text, timer) {
 
 //Format date dd/MM/yyyy
 function getFormattedDateDMY(date) {
+    if (!date) {
+        return ''; // return an empty string if the date is null
+    }
 
     date = new Date(date);
     var year = date.getFullYear();

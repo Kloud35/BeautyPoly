@@ -1,5 +1,6 @@
 using BeautyPoly.Data.Repositories;
 using BeautyPoly.DBContext;
+using BeautyPoly.View.Extension;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,13 @@ builder.Services.AddScoped<ProductImagesRepo>();
 builder.Services.AddScoped<PostRepo>();
 builder.Services.AddScoped<OrderRepo>();
 builder.Services.AddScoped<DetailOrderRepo>();
+builder.Services.AddScoped<CartRepo>();
+var sendmail = builder.Configuration.GetSection("SendEmail");
+builder.Services.Configure<SendEmail>(sendmail);
+builder.Services.AddSingleton<ISendEmail, SendEmailServices>();
+builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
+
 builder.Services.AddSession(p => p.IdleTimeout = TimeSpan.FromHours(8));
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie
 (
@@ -37,8 +45,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
    {
        p.Cookie.Name = "MyCookies";
        p.ExpireTimeSpan = TimeSpan.FromDays(15);
-       //p.LoginPath = "/dang-nhap.html";
-       // p.LogoutPath = "/dang-xuat.html";
        p.AccessDeniedPath = "/not-found.html";
    }
 );

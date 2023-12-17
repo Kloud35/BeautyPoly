@@ -1,7 +1,7 @@
 ﻿
 $(document).ready(function () {
     checkUser()
-    //var prevScrollpos = window.pageYOffset;
+    var prevScrollpos = window.pageYOffset;
     $("#btn-register").click(function () {
         let name = $('#r_nameCustomer').val();
         let phone = $('#r_phoneNumber').val();
@@ -67,7 +67,7 @@ $(document).ready(function () {
         //}
 
         // Validate date of birth field
-        if (dateOfBirth == '') {
+        if (dateOfBirth == "") {
             $("#datebirthHelp").html("Vui lòng chọn ngày sinh của bạn");
             $("#datebirthHelp").removeClass("d-none");
             return false;
@@ -91,7 +91,7 @@ $(document).ready(function () {
             Phone: phone,
             Email: email,
             Password: password1,
-            Birthday: dateOfBirth,
+            DateBirth: dateOfBirth,
             //Sex: sex == 'true' ? true : false,
             //Address: address,
         };
@@ -108,9 +108,9 @@ $(document).ready(function () {
                         text: "Chúc mừng bạn đã đăng ký thành công",
                         icon: "success",
                     });
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1500); // 5000 milliseconds = 5 seconds
+                    //setTimeout(function () {
+                    //    location.reload();
+                    //}, 1500); // 5000 milliseconds = 5 seconds
 
                 } else {
                     swal({
@@ -118,9 +118,9 @@ $(document).ready(function () {
                         text: "Tài khoản đã tồn tại",
                         icon: "error",
                     });
-                    setTimeout(function () {
-                        location.reload();
-                    }, 1500); // 5000 milliseconds = 5 seconds
+                    //setTimeout(function () {
+                    //    location.reload();
+                    //}, 1500); // 5000 milliseconds = 5 seconds
 
                 }
 
@@ -181,7 +181,6 @@ $(document).ready(function () {
         var password_old = $('#password-old').val();
         var password_new = $('#password-new').val();
         var password_new2 = $('#password-new2').val();
-
 
         // Validate name field
         if (password_old == '') {
@@ -260,13 +259,16 @@ function checkUser() {
     }
     else {
         let html = `
-
             <ul id="user_info_option" class="submenu-nav">
                 <li>
-                    <a class="dropdown-item" onclick="openmodallogin()">Login</a>
+                    <button type="button" class="dropdown-item" onclick="openmodallogin()">
+                        Login
+                    </button>
                 </li>
                 <li>
-                    <a class="dropdown-item" onclick="openmodalregister()">Register </a>
+                    <button type="button" class="dropdown-item" onclick="openmodalregister()">
+                        Register
+                    </button>
                 </li>
             </ul>
         `
@@ -301,5 +303,6 @@ function GetUserName() {
     const token = localStorage.getItem("Token");
     const decodedToken = parseJwt(token);
     var userName = decodedToken['Name'];
+    console.log(userName)
     return userName;
 }

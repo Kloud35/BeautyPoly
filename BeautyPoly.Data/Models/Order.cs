@@ -6,6 +6,7 @@
         public int? PotentialCustomerID { get; set; }
         public int? TransactStatusID { get; set; }
         public int? CouponID { get; set; }
+        public int? VoucherID { get; set; }
         public int? AccountID { get; set; }
         public string? AccountName { get; set; }
         public string? CustomerName { get; set; }

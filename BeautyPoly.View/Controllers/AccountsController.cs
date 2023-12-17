@@ -1,5 +1,8 @@
 ﻿using BeautyPoly.Data.Repositories;
+using BeautyPoly.DBContext;
 using BeautyPoly.Models;
+using BeautyPoly.View.Extension;
+using BeautyPoly.View.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace BeautyPoly.View.Controllers
 {
@@ -15,9 +19,15 @@ namespace BeautyPoly.View.Controllers
 
 
         LoginAccountRepository _loginRepository;
-        public AccountsController(LoginAccountRepository loginRepository)
+        private readonly ISendEmail _sendEmail;
+
+        private readonly BeautyPolyDbContext _context;
+
+        public AccountsController(LoginAccountRepository loginRepository, ISendEmail sendEmail)
         {
             _loginRepository = loginRepository;
+            _sendEmail = sendEmail;
+            _context = new BeautyPolyDbContext();
         }
         [HttpPost("account/register")]
         public IActionResult Register([FromBody] PotentialCustomer model)
@@ -73,7 +83,9 @@ namespace BeautyPoly.View.Controllers
 
                 // Serialize the token to a string
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                Console.WriteLine(tokenString);
+                Response.Headers.Add("Authorization", $"Bearer {tokenString}");
+                //HttpContext.Session.SetInt32("CustommerID", check.PotentialCustomerID);
+
                 return Json(new { success = true, token = tokenString });
                 //return RedirectToAction("Index", "Customer");
             }
@@ -82,6 +94,39 @@ namespace BeautyPoly.View.Controllers
                 return Json(new { success = false, token = "" });
             }
         }
+
+        //[HttpPost]
+        //public IActionResult ChangePassword(string passwordold, string passwordnew)
+        //{
+        //    var customerId = HttpContext.User.FindFirst("CustomerId").Value;
+        //    if (customerId != null && passwordnew != null && passwordold != null)
+        //    {
+        //        try
+        //        {
+        //            var customer = _customerRepo.GetByIdAsync(Convert.ToInt64(customerId));
+
+        //            string password_old = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(passwordold);
+        //            string password_new = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(passwordnew);
+        //            if (customer.Password != password_old)
+        //            {
+        //                return Json(3);
+        //            }
+        //            if (customer.Password == password_new)
+        //            {
+        //                return Json(2);
+        //            }
+        //            customer.Password = password_new;
+        //            _customerRepo.Update(customer);
+        //            return Json(1);
+        //        }
+        //        catch
+        //        {
+
+        //            return Json(0);
+        //        }
+        //    }
+        //    return Json(0);
+        //}
         [Authorize]
 
         public IActionResult Logout()
@@ -90,5 +135,92 @@ namespace BeautyPoly.View.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+        [HttpPost, AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(ResetPass resetPass)
+        {
+            if (string.IsNullOrWhiteSpace(resetPass.Email))
+            {
+                ViewData["ErrorMessage"] = "Email is required!";
+                return View(resetPass);
+
+            }
+            var user = _context.PotentialCustomers.FirstOrDefault(u => u.Email == resetPass.Email);
+
+            if (user != null)
+            {
+                var resetToken = RandomCode.GenerateRandomCode(6);
+                user.ResetPasswordcode = resetToken;
+                await _context.SaveChangesAsync();
+
+                // Send reset link  email
+                var resetLink = Url.Action("ResetPass", "Accounts", new { }, Request.Scheme);
+                var emailSubject = "Password Reset Request";
+                var emailBody = $"Hi {user.FullName}, <br/> You recently requested to reset your password for your account. This is your request code: <b>{resetToken}</b> Please click on the following link to reset your password: <a href='{HtmlEncoder.Default.Encode(resetLink)}'>Reset Password</a>";
+
+                await _sendEmail.SendEmailAsync(user.Email, emailSubject, emailBody);
+
+                ViewData["Sucsess"] = "Reset password code has been sent to your email , Check your email now.";
+                return View(resetPass);
+            }
+            else
+            {
+                ViewData["ErrorMessage"] = "Email not found!";
+                return View(resetPass);
+            }
+
+        }
+
+
+        public IActionResult ResetPass()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ResetPass(ResetPasswordVm obj)
+        {
+            if (string.IsNullOrWhiteSpace(obj.ConfirmCode) || string.IsNullOrWhiteSpace(obj.ConfirmPassword) || string.IsNullOrWhiteSpace(obj.NewPassword))
+            {
+                ViewData["ErrorMessage"] = "Please enter your Confirm code and New password!";
+                return View(obj);
+
+            }
+            if (obj.NewPassword != obj.ConfirmPassword)
+            {
+                ViewData["ErrorMessage"] = "Your new password or confirm password are wrong, try again!";
+                return View(obj);
+            }
+            else
+            {
+                var user = _context.PotentialCustomers.FirstOrDefault(s => s.Email == obj.Email);
+                if (user != null)
+                {
+                    if (obj.ConfirmCode != user.ResetPasswordcode)
+                    {
+                        ViewData["ErrorMessage"] = " Confirm code is wrong,try again!";
+                        return View(obj);
+                    }
+                    else
+                    {
+                        user.Password = Common.MaHoaMD5.EncryptPassword(obj.NewPassword);
+                        user.ResetPasswordcode = null;
+                        await _context.SaveChangesAsync();
+                        ViewData["Sucsess"] = " Your password is changed,return to the login!";
+                        return View(obj);
+                    }
+
+                }
+                else
+                {
+                    ViewData["ErrorMessage"] = "Email not found!";
+                    return View(obj);
+                }
+
+            }
+
+        }
     }
 }

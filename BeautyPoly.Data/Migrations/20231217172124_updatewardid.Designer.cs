@@ -4,6 +4,7 @@ using BeautyPoly.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BeautyPoly.Data.Migrations
 {
     [DbContext(typeof(BeautyPolyDbContext))]
-    partial class BeautyPolyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231217172124_updatewardid")]
+    partial class updatewardid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,7 +204,7 @@ namespace BeautyPoly.Data.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DistrictID")
+                    b.Property<int?>("DistricID")
                         .HasColumnType("int");
 
                     b.Property<bool?>("IsDefault")
@@ -214,7 +216,7 @@ namespace BeautyPoly.Data.Migrations
                     b.Property<int?>("PotentialCustomerID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProvinceID")
+                    b.Property<int?>("ProvinID")
                         .HasColumnType("int");
 
                     b.Property<string>("WardID")

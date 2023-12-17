@@ -24,7 +24,7 @@ function GetAll() {
                 var isActive = item.isActive ? "checked" : ""
                 var formattedDate = formatDate(item.createDate);
                 html += `<tr>
-                           <td>
+                           <td class="text-center">
                                <button class="btn btn-success btn-sm" onclick="edit(${item.accountID})">
                                     <i class="bx bx-pencil"></i>
                                </button>
@@ -37,10 +37,10 @@ function GetAll() {
                             <td>${item.roleName}</td>
                             <td>${item.email}</td>
                             <td>${item.phone}</td>
-                            <td>${formattedDate}</td> <!-- Thay đổi ở đây -->
+                            <td>${formattedDate}</td> 
                             <td>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" ${isActive}>
+                                <div class="form-check form-switch d-flex justify-content-center align-items-center" style="height: 100%;">
+                                    <input class="form-check-input" type="checkbox" onclick="onchangeStt(${item.accountID})" id="${item.accountID}"  ${isActive}>
                                 </div>
                             </td>
                         </tr>`;
@@ -78,33 +78,51 @@ function GetRole() {
 }
 
 function validate() {
-    var count = 0;
     var fullName = $('#account_fullname_account').val();
     var accountCode = $('#account_code_account').val();
-    if (fullName == '') {
-
-        count++;
-    }
-    if (count > 0) {
+    var email = $('#account_email_account').val();
+    var phone = $('#account_phone_account').val();
+    var role = $('id_roleaccount').val();
+    if (fullName == '' || email == '' || phone == '' || accountCode == ''|| role == '') {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Không được để trống tên tài khoản',
+            text: 'Không được để trống các trường có (*)',
             showConfirmButton: false,
             timer: 1000
         })
         return false;
     }
-
-    if (accountCode == '') {
-
-        count++;
-    }
-    if (count > 0) {
+    // Validate phone field
+    let phonePattern = /(03|05|07|08|09)+([0-9]{8})\b/g;
+    if (!phonePattern.test(phone)) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Không được để trống mã tài khoản',
+            text: 'Số điện thoại không hợp lệ',
+            showConfirmButton: false,
+            timer: 1000
+        })
+        return false;
+    }
+    // Validate email field
+    var emailPattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    if (!emailPattern.test(email)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Email không hợp lệ',
+            showConfirmButton: false,
+            timer: 1000
+        })
+        return false;
+    }
+    var regex = /\d/; // Biểu thức này sẽ kiểm tra xem có chữ số nào trong chuỗi hay không
+    if (regex.test(fullName)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Tên nhân viên không hợp lệ',
             showConfirmButton: false,
             timer: 1000
         })
@@ -144,9 +162,9 @@ function create() {
         data: JSON.stringify(obj),
         success: function (result) {
             if (result == 1) {
-                Swal.fire('Success', '', 'success')
+                Swal.fire('Thành công', '', 'success')
                 GetAll();
-                $('#modal_role').modal('hide');
+                $('#modal_account').modal('hide');
             }
             else {
                 Swal.fire({
@@ -165,7 +183,6 @@ function create() {
 }
 
 //Hiện tại chưa check điều kiện đã có hàng mua đợi sau khi làm xong luông bán hàng sẽ check lại
-
 function add() {
     $('#accountid_account').val(0)
     $('#id_roleaccount').val(0)
@@ -215,6 +232,38 @@ function Delete(id) {
             });
         }
     })
+}
 
+function onchangeStt(id) {
+    // Lấy roleId từ id của checkbox
 
+    // Hiển thị cửa sổ xác nhận
+    Swal.fire({
+        title: 'Bạn có chắc muốn thay đổi trạng thái không ?',
+        showDenyButton: true,
+        confirmButtonText: 'Yes',
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            // Nếu người dùng xác nhận, gửi yêu cầu AJAX để cập nhật trạng thái hoạt động
+            $.ajax({
+                url: '/admin/account/updateStatus',
+                type: 'PUT',
+                dataType: 'json',
+                contentType: 'application/json;charset=utf-8',
+                data: JSON.stringify(id),
+                success: function (result) {
+                    Swal.fire('Thay đổi thành công!', '', 'success')
+
+                },
+                error: function (err) {
+                    Swal.fire('Thay đổi thất bại!', '', 'error')
+
+                }
+            });
+        } else {
+            // Nếu người dùng không xác nhận, thay đổi trạng thái checkbox ngược lại
+            $(this).prop('checked', !isDelete);
+        }
+    });
 }

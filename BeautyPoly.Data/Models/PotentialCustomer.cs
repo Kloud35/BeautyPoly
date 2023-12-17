@@ -13,6 +13,7 @@
         public string? Password { get; set; }
         public bool? IsActive { get; set; }
         public bool? IsDelete { get; set; }
+        public string? ResetPasswordcode { get; set; } //Duy update 17/12/2023
         public virtual Cart? Cart { get; set; }
         public virtual IEnumerable<LocationCustomer>? LocationCustomers { get; set; }
         public virtual IEnumerable<Order>? Orders { get; set; }
