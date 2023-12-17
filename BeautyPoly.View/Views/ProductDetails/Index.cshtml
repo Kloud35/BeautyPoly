@@ -1,5 +1,6 @@
 ﻿@using BeautyPoly.Data.ViewModels;
-@model ProductViewModel
+@using BeautyPoly.Models;
+@model Tuple<ProductViewModel, List<ProductImages>>
 <section class="page-header-area pt-10 pb-9" data-bg-color="#FFF3DA">
     <div class="container">
         <div class="row">
@@ -23,201 +24,63 @@
     <div class="container">
         <div class="row product-details">
             <div class="col-lg-6">
-                <div class="product-details-thumb">
-                    <img src="assets/images/shop/product-details/1.webp" width="570" height="693" alt="Image">
-                    <span class="flag-new">new</span>
+                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner" style="height:693px !important">
+                        <input id="product_sku_id" type="number" hidden />
+                        @foreach(var image in Model.Item2)
+                        {
+                            if (image.Image.Split('_')[1].Replace(".png","") == "1")
+                            {
+                                <div class="carousel-item active">
+                                    <img src="~/images/@image.Image" class="d-block" style="width:570px !important;height:693px !important" alt="@image.Image">
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="carousel-item">
+                                    <img src="~/images/@image.Image" class="d-block" style="width:570px !important;height:693px !important" alt="@image.Image">
+                                </div>
+                            }
+
+                        }
+                       
+                   
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 </div>
+               
             </div>
             <div class="col-lg-6">
                 <div class="product-details-content">
                     <h5 class="product-details-collection">Premioum collection</h5>
-                    <h3 class="product-details-title">@Model.ProductName</h3>
-                   
-                    <div class="product-details-qty-list">
-                        <div class="qty-list-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="qtyList1" checked>
-                            <label class="form-check-label" for="qtyList1">15 ml bottol <b>$250.00</b></label>
-                        </div>
-
-                        <div class="qty-list-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="qtyList2">
-                            <label class="form-check-label" for="qtyList2">25 ml bottol <b>$350.00</b> <span class="extra-offer">extra 25%</span></label>
-                        </div>
+                    <h3 class="product-details-title">@Model.Item1.ProductName</h3>
+                    <h5 id="price_text">@Model.Item1.PriceText ₫</h5>
+                    <div class="product-details-qty-list" id="product_option">
                     </div>
                     <div class="product-details-pro-qty">
+                        <span id="inventory_productsku"></span>
+                        <input id="product_sku_inventory" value="0" hidden/>
                         <div class="pro-qty">
                             <input type="text" title="Quantity" value="01">
                         </div>
                     </div>
-                    <div class="product-details-shipping-cost">
-                        <input class="form-check-input" type="checkbox" value="" id="ShippingCost" checked>
-                        <label class="form-check-label" for="ShippingCost">Shipping from USA, Shipping Fees $4.22</label>
-                    </div>
                     <div class="product-details-action">
-                        <h4 class="price">$254.22</h4>
+                        <h4 class="price" id="price_product_detail"></h4>
                         <div class="product-details-cart-wishlist">
-                            <button type="button" class="btn-wishlist" data-bs-toggle="modal" data-bs-target="#action-WishlistModal"><i class="fa fa-heart-o"></i></button>
-                            <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#action-CartAddModal">Add to cart</button>
+                            <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#action-CartAddModal" onclick="addToCart()">Add to cart</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-7">
-                <div class="nav product-details-nav" id="product-details-nav-tab" role="tablist">
-                    <button class="nav-link" id="specification-tab" data-bs-toggle="tab" data-bs-target="#specification" type="button" role="tab" aria-controls="specification" aria-selected="false">Specification</button>
-                    <button class="nav-link active" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab" aria-controls="review" aria-selected="true">Review</button>
-                </div>
-                <div class="tab-content" id="product-details-nav-tabContent">
-                    <div class="tab-pane" id="specification" role="tabpanel" aria-labelledby="specification-tab">
-                        <ul class="product-details-info-wrap">
-                            <li>
-                                <span>Weight</span>
-                                <p>250 g</p>
-                            </li>
-                            <li>
-                                <span>Dimensions</span>
-                                <p>10 x 10 x 15 cm</p>
-                            </li>
-                            <li>
-                                <span>Materials</span>
-                                <p>60% cotton, 40% polyester</p>
-                            </li>
-                            <li>
-                                <span>Other Info</span>
-                                <p>American heirloom jean shorts pug seitan letterpress</p>
-                            </li>
-                        </ul>
-
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius velit corporis quo voluptate culpa soluta, esse accusamus, sunt quia omnis amet temporibus sapiente harum quam itaque libero tempore. Ipsum, ducimus. lorem</p>
-                    </div>
-
-                    <div class="tab-pane fade show active" id="review" role="tabpanel" aria-labelledby="review-tab">
-                        <!--== Start Reviews Content Item ==-->
-                        <div class="product-review-item">
-                            <div class="product-review-top">
-                                <div class="product-review-thumb">
-                                    <img src="assets/images/shop/product-details/comment1.webp" alt="Images">
-                                </div>
-                                <div class="product-review-content">
-                                    <span class="product-review-name">Tomas Doe</span>
-                                    <span class="product-review-designation">Delveloper</span>
-                                    <div class="product-review-icon">
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-half-o"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed viverra amet, sodales faucibus nibh. Vivamus amet potenti ultricies nunc gravida duis. Nascetur scelerisque massa sodales.</p>
-                            <button type="button" class="review-reply"><i class="fa fa fa-undo"></i></button>
-                        </div>
-                        <!--== End Reviews Content Item ==-->
-                        <!--== Start Reviews Content Item ==-->
-                        <div class="product-review-item product-review-reply">
-                            <div class="product-review-top">
-                                <div class="product-review-thumb">
-                                    <img src="assets/images/shop/product-details/comment2.webp" alt="Images">
-                                </div>
-                                <div class="product-review-content">
-                                    <span class="product-review-name">Tomas Doe</span>
-                                    <span class="product-review-designation">Delveloper</span>
-                                    <div class="product-review-icon">
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-half-o"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed viverra amet, sodales faucibus nibh. Vivamus amet potenti ultricies nunc gravida duis. Nascetur scelerisque massa sodales.</p>
-                            <button type="button" class="review-reply"><i class="fa fa fa-undo"></i></button>
-                        </div>
-                        <!--== End Reviews Content Item ==-->
-                        <!--== Start Reviews Content Item ==-->
-                        <div class="product-review-item mb-0">
-                            <div class="product-review-top">
-                                <div class="product-review-thumb">
-                                    <img src="assets/images/shop/product-details/comment3.webp" alt="Images">
-                                </div>
-                                <div class="product-review-content">
-                                    <span class="product-review-name">Tomas Doe</span>
-                                    <span class="product-review-designation">Delveloper</span>
-                                    <div class="product-review-icon">
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-o"></i>
-                                        <i class="fa fa-star-half-o"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <p class="desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed viverra amet, sodales faucibus nibh. Vivamus amet potenti ultricies nunc gravida duis. Nascetur scelerisque massa sodales.</p>
-                            <button type="button" class="review-reply"><i class="fa fa fa-undo"></i></button>
-                        </div>
-                        <!--== End Reviews Content Item ==-->
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="product-reviews-form-wrap">
-                    <h4 class="product-form-title">Leave a replay</h4>
-                    <div class="product-reviews-form">
-                        <form action="#">
-                            <div class="form-input-item">
-                                <textarea class="form-control" placeholder="Enter you feedback"></textarea>
-                            </div>
-                            <div class="form-input-item">
-                                <input class="form-control" type="text" placeholder="Full Name">
-                            </div>
-                            <div class="form-input-item">
-                                <input class="form-control" type="email" placeholder="Email Address">
-                            </div>
-                            <div class="form-input-item">
-                                <div class="form-ratings-item">
-                                    <select id="product-review-form-rating-select" class="select-ratings">
-                                        <option value="1">01</option>
-                                        <option value="2">02</option>
-                                        <option value="3">03</option>
-                                        <option value="4">04</option>
-                                        <option value="5">05</option>
-                                    </select>
-                                    <span class="title">Provide Your Ratings</span>
-                                    <div class="product-ratingsform-form-wrap">
-                                        <div class="product-ratingsform-form-icon">
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                        </div>
-                                        <div id="product-review-form-rating" class="product-ratingsform-form-icon-fill">
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="reviews-form-checkbox">
-                                    <input class="form-check-input" type="checkbox" value="" id="ReviewsFormCheckbox" checked>
-                                    <label class="form-check-label" for="ReviewsFormCheckbox">Provide ratings anonymously.</label>
-                                </div>
-                            </div>
-                            <div class="form-input-item mb-0">
-                                <button type="submit" class="btn">SUBMIT</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        
 </section>
 <!--== End Product Details Area Wrapper ==-->
 <!--== Start Product Banner Area Wrapper ==-->
@@ -362,7 +225,7 @@
                                     </div>
                                 </div>
                             </div>
-                       
+
                         </div>
                     </div>
                 </div>
@@ -370,3 +233,7 @@
         </div>
     </div>
 </section>
+<script>
+    var productId = @Model.Item1.ProductID;
+</script>
+<script src="~/js/product_detail_view.js" asp-append-version="true"></script>

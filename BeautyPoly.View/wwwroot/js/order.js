@@ -8,7 +8,6 @@ $(document).ready(function () {
             if (result.length > 0) {
                 productList = result;
             }
-           
         },
         error: function (err) {
             console.log(err)
@@ -20,7 +19,7 @@ $(document).ready(function () {
             var parentRow = clickedTrashButton.closest('.pick-prod');
 
             if (parentRow) {
-                parentRow.remove(); // Remove the entire row
+                parentRow.remove();
             }
         }
     });
@@ -367,8 +366,6 @@ function cancelOrder() {
 function payOrder() {
     var ids = [];
     $(".gridCheck:checked").each(function () {
-        // Perform actions on each checked element with class 'gridCheck'
-        // For example, you can access attributes or perform operations
         var checkedElement = $(this); // 'checkedElement' refers to the current checked element in the loop
 
         // Accessing attributes or performing operations on the checked element

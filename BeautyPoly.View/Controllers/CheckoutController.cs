@@ -294,7 +294,6 @@ namespace BeautyPoly.View.Controllers
                     customer.Password = MaHoaMD5.EncryptPassword("1");
                     await customersRepo.InsertAsync(customer);
                 }
-
                 Order order = new Order();
                 order.TransactStatusID = 1;
                 order.Address = checkOut.Address;

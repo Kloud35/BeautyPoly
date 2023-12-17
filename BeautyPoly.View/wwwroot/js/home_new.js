@@ -18,7 +18,6 @@ function loadProduct() {
                     <div class="product-thumb">
                         <a class="d-block" href="/product-detail/${item.ProductID}">
                         <img src="/images/${item.Image}" width="370" height="450" style="height: 450px !important;" alt="">
-
                         </a>
                         <span class="flag-new">new</span>
                     </div>
