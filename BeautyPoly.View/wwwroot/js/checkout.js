@@ -1,7 +1,9 @@
 ﻿var countdowntext = '';
 var coupon = [];
 var voucher = [];
+var couponID = 0;
 var voucherID = 0;
+var enddate;
 //function formatCurrency(value) {
 //    return value.toLocaleString('en-US', {
 //        style: 'currency',
@@ -19,6 +21,7 @@ function GetCartCheckOut() {
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
         success: function (result) {
+            totalMoney = 0;
             var html = '';
             $.each(result, (key, item) => {
                 html += `<tr class="cart-item">
@@ -30,6 +33,7 @@ function GetCartCheckOut() {
             $('#tbody_checkout_product').html(html);
             $('#subtotal_checkout').text(formatCurrency.format(totalMoney));
             $('#total_value').text(formatCurrency.format(totalMoney));
+            $('#total_hidden').val(totalMoney);
         },
         error: function (err) {
             console.log(err);
@@ -37,16 +41,17 @@ function GetCartCheckOut() {
     });
 }
 $(document).ready(function () {
-    var customerID = 1;
-    if (customerID != undefined) {
-        GetVoucher(customerID);
 
-        var enddate;
-        setInterval(function () {
-            updateCountdown(enddate);
-            GetVoucher(customerID);
-        }, 1000 * 60 * 60);
-    }
+    //var customerID = 1;
+    //if (customerID != undefined) {
+    //    GetVoucher(customerID);
+
+    //    var enddate;
+    //    setInterval(function () {
+    //        updateCountdown(enddate);
+    //        GetVoucher(customerID);
+    //    }, 1000 * 60 * 60);
+    //}
     GetCartCheckOut();
     $('#provin').change(function () {
         //loadTotal();
@@ -163,7 +168,13 @@ $(document).ready(function () {
                             let adress = "," + $("#ward option:selected").text() + "," + $("#district option:selected").text() + "," + $("#provin option:selected").text();
                             //add địa chỉ
                             $("#adress_detail").val(adress);
-                          
+                            $("#total_hidden").val(result.data.total + totalMoney);
+                            if (couponID > 0) {
+                                addCoupon();
+                            }
+                            if (voucherID > 0) {
+                                addVoucher();
+                            }
                             //Id địa chỉ
                             //$("#WardID").val($("#ward option:selected").val());
                             //$("#ProvinID").val($("#provin option:selected").val());
@@ -177,6 +188,7 @@ $(document).ready(function () {
 
         }
     });
+    GetCartCheckOut();
 });
 function updateCountdown(endDate) {
     var nowDate = new Date();
@@ -203,6 +215,8 @@ function updateCountdown(endDate) {
 }
 function addCoupon() {
     var code = $('#coupon_code').val();
+    var total = $('#total_hidden').val();
+    var phone = $("#phone_ck").val();
     if (voucher.length > 0) {
         alert("Bạn chỉ áp dụng được 1 chương trình khuyến mãi. Đơn hàng của bạn đã áp dụng Voucher!");
         return;
@@ -212,7 +226,11 @@ function addCoupon() {
         type: 'GET',
         dataType: "json",
         contentType: 'application/json;charset=utf-8',
-        data: { couponCode: code },
+        data: {
+            couponCode: code,
+            total: total,
+            phone: phone
+        },
 
         success: function (result) {
             if (result !== null) {
@@ -221,9 +239,15 @@ function addCoupon() {
                 } else {
                     coupon = [];
                 }
-                var value = result.value === 0 ? '0' : `-${result.value.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ`;
+                var value = result.value === 0 ? '0' : `-${result.value.toLocaleString({ style: 'currency', currency: 'VND' })} ₫`;
                 $('#value').text(value);
-                $('#total_value').text(`${result.totalValue.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ`);
+                $('#discount_hidden').val(result.value);
+                if (result.coupon === null) {
+                    couponID = 0;
+                } else {
+                    couponID = result.coupon.couponID;
+                }
+                $('#total_value').text(`${result.totalValue.toLocaleString({ style: 'currency', currency: 'VND' })} ₫`);
                 $('#coupon_note').html(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     ${result.note}
                                 </div>`);
@@ -237,8 +261,6 @@ function addCoupon() {
     });
 }
 function GetVoucher(customerID) {
-    var total = 500000;
-
     $.ajax({
         url: '/checkout/getvoucher-by-customer',
         type: 'GET',
@@ -248,14 +270,15 @@ function GetVoucher(customerID) {
 
         success: function (result) {
             var html = '';
+            var total = $('#total_hidden').val();
             $.each(result, function (key, item) {
                 var disabled = '';
                 if (customerID === 0 || total <= 0 || total < item.minValue) {
                     disabled = 'disabled';
                 }
-                var notifi = customerID === 0 ? 'Vui lòng đăng nhập để áp dụng Voucher!' : (total <= 0 ? 'Vui lòng mua sản phẩm để áp dụng Voucher!' : (total < item.minValue ? `<a href="#">Mua thêm <span class="fw-bold">${(item.minValue - total).toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ</span> để áp dụng được Voucher!</a>` : ''));
-                var discount = item.voucherType === 0 ? `Giảm ${item.discountValue} %` : `Giảm ${item.discountValue.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ`;
-                var condition = item.voucherType === 0 ? `Đơn tối thiểu ${item.minValue.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ, giảm tối đa ${item.maxValue.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ` : `Đơn tối thiểu ${item.minValue.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ`;
+                var notifi = customerID === 0 ? 'Vui lòng đăng nhập để áp dụng Voucher!' : (total <= 0 ? 'Vui lòng mua sản phẩm để áp dụng Voucher!' : (total < item.minValue ? `<a href="#">Mua thêm <span class="fw-bold">${(item.minValue - total).toLocaleString({ style: 'currency', currency: 'VND' })} ₫</span> để áp dụng được Voucher!</a>` : ''));
+                var discount = item.voucherType === 0 ? `Giảm ${item.discountValue} %` : `Giảm ${item.discountValue.toLocaleString({ style: 'currency', currency: 'VND' })} ₫`;
+                var condition = item.voucherType === 0 ? `Đơn tối thiểu ${item.minValue.toLocaleString({ style: 'currency', currency: 'VND' })} ₫, giảm tối đa ${item.maxValue.toLocaleString({ style: 'currency', currency: 'VND' })} ₫` : `Đơn tối thiểu ${item.minValue.toLocaleString({ style: 'currency', currency: 'VND' })} ₫`;
                 var percentuse = item.useQuantity / item.quantity * 100;
                 var endDate = new Date(item.endDate);
                 enddate = item.endDate;
@@ -291,11 +314,19 @@ function GetVoucher(customerID) {
     });
 }
 function onVoucher() {
+    GetVoucher(customerID);
+
+    setInterval(function () {
+        updateCountdown(enddate);
+        GetVoucher(customerID);
+    }, 1000 * 60 * 60);
+
     $('input[name="voucher"]').prop('checked', false);
     $(`#input_voucher_${voucherID}`).prop('checked', true);
     $('#modal_voucher').modal('show');
 }
 function addVoucher() {
+    var total = $('#total_hidden').val();
     if (coupon.length > 0) {
         alert("Bạn chỉ áp dụng được 1 chương trình khuyến mãi. Đơn hàng của bạn đã áp dụng Coupon!");
         $('#modal_voucher').modal('hide');
@@ -310,7 +341,10 @@ function addVoucher() {
         type: 'GET',
         dataType: "json",
         contentType: 'application/json;charset=utf-8',
-        data: { voucherID: voucherID },
+        data: {
+            voucherID: voucherID,
+            total: total
+        },
 
         success: function (result) {
             if (result !== null) {
@@ -319,9 +353,10 @@ function addVoucher() {
                 } else {
                     voucher = [];
                 }
-                var value = result.value === 0 ? '0' : `-${result.value.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ`;
+                var value = result.value === 0 ? '0' : `-${result.value.toLocaleString({ style: 'currency', currency: 'VND' })} ₫`;
                 $('#value').text(value);
-                $('#total_value').text(`${result.totalValue.toLocaleString({ style: 'currency', currency: 'VND' })} VNĐ`);
+                $('#discount_hidden').val(result.value);
+                $('#total_value').text(`${result.totalValue.toLocaleString({ style: 'currency', currency: 'VND' })} ₫`);
                 $('#voucher_note').html(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
                                             ${result.note}
                                         </div>`);
@@ -344,18 +379,18 @@ function clearVoucher() {
         return;
     }
     voucherID = 0;
+    var total = $('#total_hidden').val();
     $.ajax({
         url: '/checkout/addvoucher',
         type: 'GET',
         dataType: "json",
         contentType: 'application/json;charset=utf-8',
-        data: { voucherID: voucherID },
-
+        data: { voucherID: voucherID, total: total },
         success: function (result) {
             if (result !== null) {
                 voucher = [];
                 $('#value').text(result.value);
-                $('#total_value').text(`${result.totalValue} VNĐ`);
+                $('#total_value').text(`${result.totalValue} ₫`);
                 $('#voucher_note').hide();
                 $('#modal_voucher').modal('hide');
             } else {
@@ -369,6 +404,7 @@ function clearVoucher() {
 }
 
 
+
 function CreateOrder() {
     var useVNPay = $("#flexRadioDefault2").is(":checked");
     var obj = {
@@ -377,8 +413,10 @@ function CreateOrder() {
         Phone: $("#phone_ck").val(),
         Address: $("#adress_detail").val(),
         Note: $("#note_ck").val(),
-        CouponID: 0,
-        UseVNPay: useVNPay
+        UseVNPay: useVNPay,
+        CouponID: parseInt(couponID),
+        VoucherID: parseInt(voucherID),
+        Discount: parseInt(discount),
     }
     $.ajax({
         url: '/checkout/create-order',
@@ -389,7 +427,7 @@ function CreateOrder() {
         success: function (result) {
             if (result == 1) {
                 MessageSucces("Thanh toán thành công!");
-                window.location.href = `https://localhost:44315/`
+                window.location.href = `/`
             } else if (result == 0) {
               
                 alert("Đã xảy ra lỗi. Vui lòng thử lại sau!");

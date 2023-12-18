@@ -10,7 +10,6 @@ var formatCurrency = new Intl.NumberFormat('vi-VN', {
 
 $(document).ready(function () {
     CheckDisabledUserWorkPlan();
-
     var origin = window.location.origin;
     _URL = origin + '/';
 

@@ -61,6 +61,15 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     product.ProductName = productDTO.ProductName;
                     product.ProductCode = productDTO.ProductCode;
                     product.CateID = productDTO.CateID;
+                    product.SaleID = productDTO.SaleID;
+                    if (productDTO.SaleID > 0)
+                    {
+                        product.IsSale = true;
+                    }
+                    else
+                    {
+                        product.IsSale = false;
+                    }
                     await productRepo.UpdateAsync(product);
 
                     await productImagesRepo.DeleteRangeAsync(await productImagesRepo.FindAsync(p => p.ProductID == product.ProductID));

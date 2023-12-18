@@ -23,7 +23,8 @@ namespace BeautyPoly.View.Controllers
         CartDetailsRepo cartDetailsRepo;
         DetailOrderRepo detailOrderRepo;
         ProductSkuRepo productSkuRepo;
-        public CheckoutController(CouponRepo couponRepo, VoucherRepo voucherRepo, PotentialCustomersRepo customersRepo, OrderRepo orderRepo, CartDetailsRepo cartDetailsRepo, DetailOrderRepo detailOrderRepo, ProductSkuRepo productSkuRepo)
+        VoucherDetailsRepo voucherDetailsRepo;
+        public CheckoutController(CouponRepo couponRepo, VoucherRepo voucherRepo, PotentialCustomersRepo customersRepo, OrderRepo orderRepo, CartDetailsRepo cartDetailsRepo, DetailOrderRepo detailOrderRepo, ProductSkuRepo productSkuRepo, VoucherDetailsRepo voucherDetailsRepo)
         {
             this.couponRepo = couponRepo;
             this.voucherRepo = voucherRepo;
@@ -35,15 +36,13 @@ namespace BeautyPoly.View.Controllers
             this.cartDetailsRepo = cartDetailsRepo;
             this.detailOrderRepo = detailOrderRepo;
             this.productSkuRepo = productSkuRepo;
+            this.voucherDetailsRepo = voucherDetailsRepo;
         }
         //Lấy địa chỉ quận huyện
         public JsonResult GetListDistrict(int idProvin)
         {
-
             HttpResponseMessage responseDistrict = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=" + idProvin).Result;
-
             District lstDistrict = new District();
-
             if (responseDistrict.IsSuccessStatusCode)
             {
                 string jsonData2 = responseDistrict.Content.ReadAsStringAsync().Result;
@@ -91,7 +90,6 @@ namespace BeautyPoly.View.Controllers
                 queryString.Append($"&insurance_value={shippingOrder.insurance_value}");
                 queryString.Append($"&coupon=");
 
-                // Add other parameters
 
                 var fullUrl = $"{apiUrl}?{queryString}";
 
@@ -104,7 +102,7 @@ namespace BeautyPoly.View.Controllers
 
                     HttpContext.Session.SetInt32("shiptotal", shipping.data.total);
 
-                    // Update the total order value
+
                     shipping.data.totaloder = shipping.data.total + 10;
 
                     return Json(shipping, new System.Text.Json.JsonSerializerOptions());
@@ -120,8 +118,6 @@ namespace BeautyPoly.View.Controllers
             }
             catch (Exception ex)
             {
-                // Log or handle the exception
-                Console.WriteLine(ex.Message);
 
                 return Json(new { error = "An error occurred while processing the request." });
             }
@@ -145,13 +141,11 @@ namespace BeautyPoly.View.Controllers
         }
 
         [HttpGet("checkout/addcoupon")]
-        public async Task<IActionResult> AddCoupon(string couponCode)
+        public async Task<IActionResult> AddCoupon(string couponCode, int total, string phone)
         {
             try
             {
                 CheckoutViewModel _couponViewModel = new CheckoutViewModel();
-                //Tổng tiền của Cart tạm thời fix cứng
-                var total = 500000;
                 var coupons = await couponRepo.GetAllAsync();
                 if (couponCode == null)
                 {
@@ -166,6 +160,17 @@ namespace BeautyPoly.View.Controllers
                     {
                         _couponViewModel.TotalValue = total;
                         _couponViewModel.Value = 0;
+                        if (phone == null)
+                        {
+                            _couponViewModel.Note = "Vui lòng nhập SDT trước khi áp dụng!";
+                            return Json(_couponViewModel);
+                        }
+                        var existCustomer = orderRepo.GetAllAsync().Result.FirstOrDefault(p => p.CouponID == item.CouponID && p.CustomerPhone == phone);
+                        if (existCustomer != null)
+                        {
+                            _couponViewModel.Note = $"Tài khoản với SDT: [{phone}] đã sử dụng mã giảm giá!";
+                            return Json(_couponViewModel);
+                        }
                         if (item.EndDate < DateTime.Now)
                         {
                             _couponViewModel.Note = "Mã giảm giá đã hết hạn!";
@@ -216,13 +221,11 @@ namespace BeautyPoly.View.Controllers
             return Json(list);
         }
         [HttpGet("checkout/addvoucher")]
-        public async Task<IActionResult> AddVoucher(int voucherID)
+        public async Task<IActionResult> AddVoucher(int voucherID, int total)
         {
             try
             {
                 CheckoutViewModel _voucherViewModel = new CheckoutViewModel();
-                //Tổng tiền của Cart tạm thời fix cứng
-                var total = 500000;
                 var voucher = await voucherRepo.GetByIdAsync(voucherID);
                 _voucherViewModel.TotalValue = total;
                 _voucherViewModel.Value = 0;
@@ -304,6 +307,7 @@ namespace BeautyPoly.View.Controllers
                 order.MedthodPayment = "cash";
                 order.OrderDate = DateTime.Now;
                 order.Note = checkOut.Note;
+
                 await orderRepo.InsertAsync(order);
                 List<ProductSkusViewModel> listSkuCart = new List<ProductSkusViewModel>();
                 double totalPrice = (double)HttpContext.Session.GetInt32("shiptotal"); ;
@@ -318,6 +322,35 @@ namespace BeautyPoly.View.Controllers
                     orderDetails.TotalMoney = model.TotalPrice;
                     totalPrice += model.TotalPrice;
                     await detailOrderRepo.InsertAsync(orderDetails);
+                }
+                if (checkOut.CouponID > 0)
+                {
+                    var coupon = await couponRepo.GetByIdAsync(checkOut.CouponID);
+                    if (coupon != null)
+                    {
+                        coupon.Quantity--;
+                        await couponRepo.UpdateAsync(coupon);
+                        order.CouponID = coupon.CouponID;
+                        order.Discount = checkOut.Discount;
+                        totalPrice = totalPrice - checkOut.Discount;
+                    }
+                }
+                if (checkOut.VoucherID > 0)
+                {
+                    var voucher = await voucherRepo.GetByIdAsync(checkOut.VoucherID);
+                    if (voucher != null)
+                    {
+                        voucher.Quantity--;
+                        await voucherRepo.UpdateAsync(voucher);
+                        var voucherCustomer = voucherDetailsRepo.GetAllAsync().Result.FirstOrDefault(p => p.VoucherID == voucher.VoucherID && p.PotentialCustomerID == customerID);
+                        if (voucherCustomer != null)
+                        {
+                            await voucherDetailsRepo.DeleteAsync(voucherCustomer);
+                        }
+                        order.VoucherID = voucher.VoucherID;
+                        order.Discount = checkOut.Discount;
+                        totalPrice = totalPrice - checkOut.Discount;
+                    }
                 }
                 order.TotalMoney = totalPrice;
                 await orderRepo.UpdateAsync(order);

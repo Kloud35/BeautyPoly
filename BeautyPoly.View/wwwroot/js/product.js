@@ -485,7 +485,7 @@ function editProduct(id) {
                                                 <th>Tên chương trình</th>
                                                 <th>Giá trị Sale</th>    
                                                 <th>Thời gian còn lại</th>    
-                                                <th></th>
+                                                <th class="d-flex justify-content-center"><a href="/admin/sale" class="btn btn-primary">Thêm Sale</a></th>
                                             </tr>
                                         </thead>                                            
                                         <tbody id="list-sale">
@@ -569,6 +569,7 @@ function addProduct() {
     });
     $('#cate-name').text('(*)');
     $('#product_id_product').val(0);
+    $('#sale-option').html('');
     $('#modal_product').modal('show');
 }
 
@@ -982,8 +983,8 @@ function GetProductSale(id) {
                    <td>0</td>
                    <td>0</td>
                    <td>
-                       <div class="form-check form-switch">
-                         <input class="form-check-input" type="radio" role="switch" name="sale" onchange="ChangeProductSale(${id}, 0)" checked>  
+                       <div class="form-check form-switch d-flex justify-content-center">
+                         <input class="form-check-input" type="radio" role="switch" name="sale" value="0" checked>  
                        </div>
                    </td>
                 </tr>`
@@ -1003,8 +1004,8 @@ function GetProductSale(id) {
                             <td>${value}</td>
                             <td>${countdown}</td>
                             <td>
-                                <div class="form-check form-switch">
-                                  <input class="form-check-input" type="radio" role="switch" name="sale" onchange="ChangeProductSale(${id}, ${item.SaleID})" ${checked} ${disabled}>
+                                <div class="form-check form-switch d-flex justify-content-center">
+                                  <input class="form-check-input" type="radio" role="switch" name="sale" value="${item.SaleID}" ${checked} ${disabled}>
                                 </div>
                             </td>
                          </tr>`;
@@ -1064,7 +1065,6 @@ function updateCountdown(endDate) {
         } else {
             countdowntext = `Còn gần <span class="fw-bold" style="color: ${color};">1<span> giờ nữa`;
         }
-        return countdowntext;
         return countdowntext;
     }
 }

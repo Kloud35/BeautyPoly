@@ -32,6 +32,7 @@ builder.Services.AddScoped<PostRepo>();
 builder.Services.AddScoped<OrderRepo>();
 builder.Services.AddScoped<DetailOrderRepo>();
 builder.Services.AddScoped<CartRepo>();
+builder.Services.AddScoped<VoucherDetailsRepo>();
 var sendmail = builder.Configuration.GetSection("SendEmail");
 builder.Services.Configure<SendEmail>(sendmail);
 builder.Services.AddSingleton<ISendEmail, SendEmailServices>();

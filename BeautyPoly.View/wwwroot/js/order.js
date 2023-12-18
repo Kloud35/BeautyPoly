@@ -1,40 +1,76 @@
 ﻿var productList = [];
 var orderList = [];
-$(document).ready(function () {
+
+function GetProduct() {
     $.ajax({
         url: '/admin/order/get-product',
         type: 'Get',
         success: function (result) {
+            //  console.log(result);
             if (result.length > 0) {
                 productList = result;
+
             }
         },
         error: function (err) {
             console.log(err)
         }
     });
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('bx-trash')) {
-            var clickedTrashButton = event.target;
-            var parentRow = clickedTrashButton.closest('.pick-prod');
-            if (parentRow) {
-                parentRow.remove();
-            }
+}
+
+
+function GetHDC() {
+    $.ajax({
+        url: '/admin/order/status/1',
+        type: 'Get',
+        success: function (result) {
+            $("#tbody_order_hc").empty();
+            var html = ``;
+            var index = 0;
+            result.forEach(function (element) {
+                var payment = element.MedthodPayment == "cash" ? "Tiền mặt" : "Chuyển khoản"
+                html += `
+                            <tr>
+                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                <td class="text-center">${++index}</td>
+                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                <td class="text-center">Admin</td>
+                                <td class="text-left">${element.CustomerName}</td>
+                                <td class="text-center">${element.CustomerPhone}</td>
+                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center">${formatCurrency.format(element.TotalMoney)}</td>
+                                <td class="text-center">${payment}</td>
+                                <td class="text-center">${getFormattedDateDMY(element.OrderDate)}</td>
+                                <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
+                                <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
+                                <td class="text-left">${element.Note}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-info" onclick="Edit(${element.OrderID})"><i class="bx bx-pencil"></i></button>
+                                </td>
+                            </tr>`;
+            });
+            $("#tbody_order_hc").append(html);
+        },
+        error: function (err) {
+            console.log(err)
         }
     });
-    $("#home-tab").on("click", function () {
-        $.ajax({
-            url: '/admin/order/status/1',
-            type: 'Get',
-            success: function (result) {
-                $("#tbody_order_hc").empty();
-                var html = ``;
+}
+
+function GetCLH() {
+    $.ajax({
+        url: '/admin/order/status/2',
+        type: 'Get',
+        success: function (result) {
+            $("#tbody_order_dd").empty();
+            var html = ``;
+
+            if (result.length > 0) {
                 var index = 0;
                 result.forEach(function (element) {
-                    var date = new Date();
-                    var ShipDate = new Date();
 
-                 
                     html += `
                                 <tr>
                                     <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
@@ -57,34 +93,63 @@ $(document).ready(function () {
                                     </td>
                                 </tr>`;
                 });
-                $("#tbody_order_hc").append(html);
-            },
-            error: function (err) {
-                console.log(err)
             }
-        });
+            $("#tbody_order_dd").append(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
     });
-    $("#profile-tab").on("click", function () {
-        $.ajax({
-            url: '/admin/order/status/2',
-            type: 'Get',
-            success: function (result) {
-                $("#tbody_order_dd").empty();
-                var html = ``;
+}
 
-                if (result.length > 0) {
-                    var index = 0;
-                    result.forEach(function (element) {
+function GetDGH() {
+    $.ajax({
+        url: '/admin/order/status/3',
+        type: 'Get',
+        success: function (result) {
+            $("#tbody_order_cgh").empty();
+            var html = ``;
+            var index = 0;
+            result.forEach(function (element) {
+                html += `
+                            <tr>
+                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                <td class="text-center">${++index}</td>
+                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                <td class="text-center">Admin</td>
+                                <td class="text-left">${element.CustomerName}</td>
+                                <td class="text-center">${element.CustomerPhone}</td>
+                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center">${formatCurrency.format(element.TotalMoney)}</td>
+                                <td class="text-center">${element.MedthodPayment}</td>
+                                <td class="text-center">${getFormattedDateDMY(element.OrderDate)}</td>
+                                <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
+                                <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
+                                <td class="text-left">${element.Note}</td>
+                                    
+                            </tr>`;
+            });
+            $("#tbody_order_cgh").append(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}
+function GetHD() {
+    $.ajax({
+        url: '/admin/order/status/4',
+        type: 'Get',
+        success: function (result) {
+            $("#tbody_order_hd").empty();
+            var html = ``;
+            var index = 0;
 
-                        var date = new Date(element.OrderDate);
-                        var ShipDate = new Date(element.ShipDate);
-
-                        // Format the date to 'dd/MM/yyyy'
-                        var OrderDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-                        var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
-
-                        html += `
-                                  <tr>
+            result.forEach(function (element) {
+                html += `
+                                <tr>
                                     <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
                                     <td class="text-center">${++index}</td>
                                     <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
@@ -94,165 +159,80 @@ $(document).ready(function () {
                                     <td class="text-left"hite-space: nowrap;">${element.Address}</td>
                                     <td class="text-center"></td>
                                     <td class="text-center"></td>
-                                    <td class="text-center">${element.TotalMoney}</td>
+                                    <td class="text-center">${formatCurrency.format(element.TotalMoney)}</td>
                                     <td class="text-center">${element.MedthodPayment}</td>
-                                    <td class="text-center">${OrderDate}</td>
-                                    <td class="text-center">${_shipDate}</td>
-                                    <td class="text-center">${element.PaymentDate}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.OrderDate)}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
                                     <td class="text-left">${element.Note}</td>
                                     <td class="text-center">
-                                        <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                  
+                                        <button type="button" class="btn btn-info" onclick="Edit(${element.OrderID})"><i class="bx bx-pencil"></i></button>
                                     </td>
                                 </tr>`;
-                    });
-                }
-                $("#tbody_order_dd").append(html);
-            },
-            error: function (err) {
-                console.log(err)
-            }
-        });
+            });
+            $("#tbody_order_hd").append(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}
+
+function GetTC() {
+    $.ajax({
+        url: '/admin/order/status/5',
+        type: 'Get',
+        success: function (result) {
+            $("#tbody_order_gtc").empty();
+            var html = ``;
+            var index = 0;
+            result.forEach(function (element) {
+                html += `
+                                <tr>
+                                    <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
+                                    <td class="text-center">${++index}</td>
+                                    <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
+                                    <td class="text-center">Admin</td>
+                                    <td class="text-left">${element.CustomerName}</td>
+                                    <td class="text-center">${element.CustomerPhone}</td>
+                                    <td class="text-left"hite-space: nowrap;">${element.Address}</td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center"></td>
+                                    <td class="text-center">${formatCurrency.format(element.TotalMoney)}</td>
+                                    <td class="text-center">${element.MedthodPayment}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.OrderDate)}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
+                                    <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
+                                    <td class="text-left">${element.Note}</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-info" onclick="Edit(${element.OrderID})"><i class="bx bx-pencil"></i></button>
+                                    </td>
+                                </tr>`;
+            });
+            $("#tbody_order_gtc").append(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}
+$(document).ready(function () {
+    GetProduct();
+    GetHDC();
+    $("#home-tab").on("click", function () {
+        GetHDC();
+    });
+    $("#profile-tab").on("click", function () {
+        GetCLH();
     });
     $("#contact-tab").on("click", function () {
-        $.ajax({
-            url: '/admin/order/status/3',
-            type: 'Get',
-            success: function (result) {
-                $("#tbody_order_cgh").empty();
-                var html = ``;
-                var index = 0;
-                result.forEach(function (element) {
-                    // Create a Date object from the input string
-                    var date = new Date(element.OrderDate);
-                    var ShipDate = new Date(element.ShipDate);
-
-                    // Format the date to 'dd/MM/yyyy'
-                    var OrderDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-                    var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
-
-                    html += `
-                          <tr>
-                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
-                                <td class="text-center">${++index}</td>
-                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
-                                <td class="text-center">Admin</td>
-                                <td class="text-left">${element.CustomerName}</td>
-                                <td class="text-center">${element.CustomerPhone}</td>
-                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center">${element.TotalMoney}</td>
-                                <td class="text-center">${element.MedthodPayment}</td>
-                                <td class="text-center">${OrderDate}</td>
-                                <td class="text-center">${_shipDate}</td>
-                                <td class="text-center">${element.PaymentDate}</td>
-                                <td class="text-left">${element.Note}</td>
-                                <td class="text-center">
-                                    <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                 
-                                </td>
-                            </tr>`;
-                });
-                $("#tbody_order_cgh").append(html);
-            },
-            error: function (err) {
-                console.log(err)
-            }
-        });
+        GetDGH();
     });
     $("#home-tab1").on("click", function () {
-        $.ajax({
-            url: '/admin/order/status/4',
-            type: 'Get',
-            success: function (result) {
-                $("#tbody_order_hd").empty();
-                var html = ``;
-                var index = 0;
-                result.forEach(function (element) {
-                    // Create a Date object from the input string
-                    var date = new Date(element.OrderDate);
-                    var ShipDate = new Date(element.ShipDate);
-
-                    // Format the date to 'dd/MM/yyyy'
-                    var OrderDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-                    var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
-
-                    html += `
-                            <tr>
-                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
-                                <td class="text-center">${++index}</td>
-                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
-                                <td class="text-center">Admin</td>
-                                <td class="text-left">${element.CustomerName}</td>
-                                <td class="text-center">${element.CustomerPhone}</td>
-                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center">${element.TotalMoney}</td>
-                                <td class="text-center">${element.MedthodPayment}</td>
-                                <td class="text-center">${OrderDate}</td>
-                                <td class="text-center">${_shipDate}</td>
-                                <td class="text-center">${element.PaymentDate}</td>
-                                <td class="text-left">${element.Note}</td>
-                                <td class="text-center">
-                                    <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                   
-                                </td>
-                            </tr>`;
-                });
-                $("#tbody_order_hd").append(html);
-            },
-            error: function (err) {
-                console.log(err)
-            }
-        });
+        GetHD();
     });
     $("#home-tab2").on("click", function () {
-        $.ajax({
-            url: '/admin/order/status/5',
-            type: 'Get',
-            success: function (result) {
-                $("#tbody_order_gtc").empty();
-                var html = ``;
-                var index = 0;
-                result.forEach(function (element) {
-                    // Create a Date object from the input string
-                    var date = new Date(element.OrderDate);
-                    var ShipDate = new Date(element.ShipDate);
-
-                    // Format the date to 'dd/MM/yyyy'
-                    var OrderDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-                    var _shipDate = `${ShipDate.getDate().toString().padStart(2, '0')}/${(ShipDate.getMonth() + 1).toString().padStart(2, '0')}/${ShipDate.getFullYear()}`;
-
-                    html += `
-                            <tr>
-                                <td class="text-center"> <input class="form-check-input gridCheck" type="checkbox" data-id="${element.OrderID}"></td>
-                                <td class="text-center">${++index}</td>
-                                <td class="text-center"><a href="#" onclick="addHDOrder(${element.OrderID})" class="card-link">${element.OrderCode}</a></td>
-                                <td class="text-center">Admin</td>
-                                <td class="text-left">${element.CustomerName}</td>
-                                <td class="text-center">${element.CustomerPhone}</td>
-                                <td class="text-left"hite-space: nowrap;">${element.Address}</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center">${element.TotalMoney}</td>
-                                <td class="text-center">${element.MedthodPayment}</td>
-                                <td class="text-center">${OrderDate}</td>
-                                <td class="text-center">${_shipDate}</td>
-                                <td class="text-center">${element.PaymentDate}</td>
-                                <td class="text-left">${element.Note}</td>
-                                <td class="text-center">
-                                    <button type="button" style="margin-left:50px" class="btn btn-info" onclick="Edit(${element.OrderID})">Sửa</button>
-                                </td>
-                            </tr>`;
-                });
-                $("#tbody_order_gtc").append(html);
-            },
-            error: function (err) {
-                console.log(err)
-            }
-        });
+        GetTC();
     });
     $("#modal_order").on("hidden.bs.modal", function () {
         $('#tbody_product').empty();
@@ -268,15 +248,22 @@ $(document).ready(function () {
 function confirmOrder() {
     var ids = [];
     $(".gridCheck:checked").each(function () {
-        // Perform actions on each checked element with class 'gridCheck'
-        // For example, you can access attributes or perform operations
-        var checkedElement = $(this); // 'checkedElement' refers to the current checked element in the loop
-
-        // Accessing attributes or performing operations on the checked element
-        var elementId = checkedElement.data('id'); // Get the ID of the checked element
+        var checkedElement = $(this);
+        var elementId = checkedElement.data('id');
         ids.push(elementId);
 
     });
+
+    if (ids.length < 0) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'Vui lòng chọn Hóa đơn muốn Xác nhận!',
+            text: `Thất bại`,
+            showConfirmButton: false,
+            timer: 1000
+        })
+    }
+
     $.ajax({
         url: '/admin/order/confirm',
         type: 'Post',
@@ -292,7 +279,6 @@ function confirmOrder() {
                     timer: 1000
                 });
                 $("#borderedTab").find(".active").click();
-
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -311,15 +297,21 @@ function confirmOrder() {
 function cancelOrder() {
     var ids = [];
     $(".gridCheck:checked").each(function () {
-        // Perform actions on each checked element with class 'gridCheck'
-        // For example, you can access attributes or perform operations
-        var checkedElement = $(this); // 'checkedElement' refers to the current checked element in the loop
-
-        // Accessing attributes or performing operations on the checked element
-        var elementId = checkedElement.data('id'); // Get the ID of the checked element
+        var checkedElement = $(this);
+        var elementId = checkedElement.data('id');
         ids.push(elementId);
-
     });
+
+    if (ids.length <= 0) {
+        return Swal.fire({
+            icon: 'error',
+            title: 'Vui lòng chọn hóa đơn muốn hủy!',
+            text: ``,
+            showConfirmButton: false,
+            timer: 2000
+        })
+    }
+
     var dataToSend = JSON.stringify({ orderIDs: ids });
     $.ajax({
         url: '/admin/order/cancel',
@@ -395,6 +387,10 @@ function payOrder() {
     });
 }
 function add() {
+    const currentDate = new Date();
+    const currentTick = currentDate.getTime();
+    var code = "HD_" + currentTick;
+    $("#order_code").val(code);
     $('#modal_order').modal('show');
 }
 function Edit(id) {
@@ -415,20 +411,20 @@ function Edit(id) {
                     result.prods.forEach(function (ele) {
                         addSanPham();
                         var newRow = $('#tbody_product').find('tr').last();
-                        $(newRow).find(".item-prod").val(ele.ProductID);
+                        $(newRow).find(".item-prod").val(ele.ProductID).trigger('change');
+                        console.log(ele);
                         $(newRow).find(".item-quantity").val(ele.Quantity);
                         $(newRow).find(".item-price").val(ele.Price);
+                        $(newRow).find(".item-total").val(ele.Quantity * ele.Price);
                     });
                 }
             }
-
             console.log(result);
         },
         error: function (err) {
             console.log(err)
         }
     });
-
     $('#modal_order').modal('show');
 }
 function addHDOrder(id) {
@@ -437,7 +433,7 @@ function addHDOrder(id) {
         type: 'get',
         success: function (result) {
             if (result) {
-                // Create a Date object from the input string
+                
                 var date = new Date(result.OrderDate);
 
                 // Format the date to 'dd/MM/yyyy'
@@ -494,16 +490,7 @@ function validate() {
     if (orderCode == '') {
         count++;
     }
-    //if (count > 0) {
-    //    Swal.fire({
-    //        icon: 'error',
-    //        title: 'Oops...',
-    //        text: 'Không thể lưu',
-    //        showConfirmButton: false,
-    //        timer: 1000
-    //    })
-    //    return false;
-    //}
+   
     return true;
 }
 
@@ -516,17 +503,45 @@ function createOrder() {
         Note: $('#order_note').val(),
         CustomerPhone: $('#customer_phone').val(),
         MedthodPayment: $("#payment_method").val(),
+        OrderCode: $("#order_code").val()
     }
     var prods = [];
+    //$(".pick-prod").each(function (index) {
+    //    prods.push({
+    //        ProductID: parseInt($(this).find(".item-prod").val()),
+    //        Quantity: parseInt($(this).find(".item-quantity").val().replace(/[^0-9]/g, '')),
+    //        Price: parseInt($(this).find(".item-price").val().replace(/[^0-9]/g, ''))
+    //    });
+    //});
+    //order.prods = prods;
     $(".pick-prod").each(function (index) {
+        const productID = parseInt($(this).find(".item-prod").val());
+        const quantity = parseInt($(this).find(".item-quantity").val().replace(/[^0-9]/g, ''));
+        const price = parseInt($(this).find(".item-price").val().replace(/[^0-9]/g, ''));
+
+        
+        const existingProduct = prods.find(item => item.ProductID === productID);
+
+        if (existingProduct) {
+            Swal.fire({
+                icon: 'error',
+                title: '',
+                text: ``,
+                showConfirmButton: false,
+                timer: 1000
+            })
+            return; 
+        }
+
         prods.push({
-            ProductID: $(this).find(".item-prod").val(),
-            Quantity: $(this).find(".item-quantity").val(),
-            Price: $(this).find(".item-price").val()
+            ProductID: productID,
+            Quantity: quantity,
+            Price: price
         });
     });
+
     order.prods = prods;
-    console.log(prods);
+
     $.ajax({
         url: '/admin/order/create',
         type: 'POST',
@@ -559,72 +574,62 @@ function createOrder() {
         }
     });
 }
-function remove(event) {
-    //// Get the element that was clicked
-    //var clickedElement = event.target;
-    //console.log($(event).parent().parent());
 
-    //// Perform actions on the clicked element
-    //// For instance, you can remove the parent element of the clicked button
-    ////$(clickedElement.parentNode.parentNode).parent().remove();
-    //clickedElement.parentNode.parentNode.remove();
+function remove(index) {
+    $(`#tr_${index}`).remove();
 }
+
+var index = 0;
 function addSanPham() {
-    // Tạo HTML cho sản phẩm mới
-    var htmlOption = '<option value="0" selected disabled>--Chọn sản phẩm--</option>';
-    var select2Prod = "";
+    var select2Prod = `<option value="0" selected disabled>--Chọn sản phẩm--</option>`;
+   
     if (productList.length > 0) {
         productList.forEach(function (element) {
-            select2Prod += ` <option value="${element.ProductSkuID}" data-price="${element.Price}" >${element.ProductName} | ${element.Sku}| ${element.Price}</option>`;
+            select2Prod += ` <option value="${element.ProductSkusID}"  >${element.ProductSkuName}</option>`;
         });
     }
     var html = `
-     <tr class="pick-prod">
-        <td class="text-center" onclick="remove(event)"><a class="btn btn-sm btn-danger trash-button" ><i class="bx bx-trash"></i></a></td>
+     <tr class="pick-prod" id="tr_${index}">
+        <td class="text-center" ><a class="btn btn-sm btn-danger trash-button" onclick="remove(${index})"><i class="bx bx-trash"></i></a></td>
         <td class="text-start">
-            <select class="form-control item-prod" onchange="changeProd(this)">
-            ${select2Prod}
+            <select class="form-control item-prod select-product" id="product_select_${index}" onchange="changeProd(this,${index})">
+                ${select2Prod}
             </select>
         </td>
         <td class="text-end ">
-            <input type="number" class="form-control item-quantity" onchange="changeProd(this)"/>
+             <input type="text" class="form-control item-price"id="product_price_${index}" oninput="formatNumberInput(this)" onchange="onChangePrice(this,${index})"/>
+         </td>
+        <td class="text-end ">
+            <input type="text" class="form-control item-quantity" id="product_quantity_${index}" oninput="formatNumberInputQuantity(this,${index})" onchange="onChangeQuantity(this,${index})"/>
         </td>
         <td class="text-end ">
-            <input type="number" class="form-control item-price" readonly style="background-color: #f9f4ee;" />
+            <input type="text" class="form-control item-total" readonly style="background-color: #f9f4ee;"  id="product_total_${index}"/>
         </td>
-
     </tr>`;
 
-    // Thêm HTML sản phẩm mới vào tbody_product
     $('#tbody_product').append(html);
 
-    // Thêm option vào select2
-    $(`#abc`).html(htmlOption);
-    $(`#abc`).select2({
+
+    $(`.select-product`).select2({
         dropdownParent: $("#modal_order"),
         theme: "bootstrap-5",
     });
 
-    // Tăng giá trị index
-    // index++;
+    index++;
 }
 
-//function addOrder() {
-//    // Tạo HTML cho sản phẩm mới
-//    var htmlOption = '<option value="0" selected disabled>--Chọn sản phẩm--</option>';
+function onChangePrice(input, index) {
+    var price = parseInt(input.value.replace(/[^0-9]/g, ''));
+    var quantity = parseInt($(`#product_quantity_${index}`).val().replace(/[^0-9]/g, ''))
+    $(`#product_total_${index}`).val(formatCurrency.format(price * quantity));
+}
 
-//    var html = `
-//     <th><button class="nav-link active" id="home-tabs" data-bs-toggle="tab" data-bs-target="#bordered-home" type="button" role="tab" aria-controls="home" aria-selected="true">Hoán đơn 1</button></th>`;
+function onChangeQuantity(input, index) {
+    var quantity = parseInt(input.value.replace(/[^0-9]/g, ''));
+    var price = parseInt($(`#product_price_${index}`).val().replace(/[^0-9]/g, ''))
+    $(`#product_total_${index}`).val(formatCurrency.format(price * quantity));
+}
 
-//    // Thêm HTML sản phẩm mới vào tbody_product
-//    $('#tbody_add_order').append(html);
-
-//    // Thêm option vào select2
-
-
-//    // Tăng giá trị index
-//    index++;
-//}
 
 function removeOrder(id) {
     $.ajax({
@@ -656,14 +661,27 @@ function removeOrder(id) {
         }
     });
 }
-function changeProd(element) {
-    var parentCurrent = $(element).parent().parent();
-    var selectedPrice = parentCurrent.find('option:selected').data('price'); // Get the data-price attribute of the selected option
-    console.log("Selected price: " + selectedPrice);
-    var quantity = parentCurrent.find(".item-quantity").val();
-    if (quantity > 0 && selectedPrice > 0) {
-        parentCurrent.find(".item-price").val(quantity * selectedPrice);
-    }
+function changeProd(element, index) {
+    var id = element.value;
+    var check = [];
+    $(".pick-prod").each(function (index) {
+        const productID = parseInt($(this).find(".item-prod").val());
+        const existingProduct = check.includes(productID);
+        if (existingProduct) {
+            $(element).val(0).trigger('change');
+            $(`#product_price_${index}`).val('');
+            $(`#product_quantity_${index}`).val('');
+            $(`#product_total_${index}`).val('');
+            return;
+        }
+        check.push(productID);
+    });
+
+    var product = productList.find(p => p.ProductSkusID == id);
+   
+    $(`#product_price_${index}`).val(product.Price);
+    $(`#product_quantity_${index}`).val(1);
+    $(`#product_total_${index}`).val(product.Price);
 }
 // Function to populate the invoice details
 function populateInvoiceDetails(data) {
@@ -672,10 +690,8 @@ function populateInvoiceDetails(data) {
     document.getElementById('customerNameExport').textContent = data.customerName;
     document.getElementById('customerPhoneExport').textContent = data.customerPhone;
     document.getElementById('customerArdessExport').textContent = data.customerAddress;
-
     var prodTable = document.querySelector('.prodOrderExport');
     prodTable.innerHTML = ''; // Clear existing rows
-
     data.products.forEach(function (product) {
         var row = document.createElement('tr');
         row.innerHTML = `
@@ -685,10 +701,27 @@ function populateInvoiceDetails(data) {
         `;
         prodTable.appendChild(row);
     });
-
     document.getElementById('totalPriceExport').textContent = data.totalPrice;
     document.getElementById('totalPayport').textContent = data.totalPayment;
 }
-setTimeout(function () {
-    $("#home-tab").click();
-}, 500)
+
+function formatNumberInput(input) {
+  
+    if (isNaN(input.value)) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+    }
+    input.value = parseFloat(input.value).toLocaleString('en-US');
+}
+function formatNumberInputQuantity(input, index) {
+    var id = $(`#product_select_${index}`).val();
+    var product = productList.find(p => p.ProductSkusID == id);
+
+    if (isNaN(input.value)) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+    }
+    var value = parseFloat(input.value);
+    if (value > product.Quantity) {
+        value = product.Quantity;
+    }
+    input.value = value.toLocaleString('en-US');
+}

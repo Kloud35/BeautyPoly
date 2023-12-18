@@ -60,10 +60,8 @@ namespace BeautyPoly.Areas.Admin.Controllers
                     }
                     //đăng nhập thành công
 
-                    var taikhoanID = HttpContext.Session.GetString("AccountID");
-                    //identity
-                    //luuw seccion Makh
-                    HttpContext.Session.SetString("AccountID", tk.AccountID.ToString());
+
+                    HttpContext.Session.SetInt32("AccountID", tk.AccountID);
                     //identity
                     var userClaims = new List<Claim>
                     {

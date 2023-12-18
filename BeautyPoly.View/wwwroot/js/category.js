@@ -81,30 +81,18 @@ function createUpdate() {
 }
 
 function addCate() {
-    $('#category-edit-parentid').html('');
-    var cateExistsFirst = arrCate.filter(p => p.parentID == null);
-    if (cateExistsFirst.lenght>0) {
-        var node = $('#category-list').tree('getSelected');
-        if (node) {
-            $('#parent_cate').text(node.text);
-            $('#cate_parent_id_cate').val(node.id);
-            $('#cate_id_cate').val(0);
-            $('#cate_name_cate').val('');
-            $('#cate_code_cate').val('');
-            $('#modal_cate').modal('show');
-        } else {
-            alert('Vui lòng chọn danh mục bạn muốn thêm vào!');
-        }
+    var node = $('#category-list').tree('getSelected');
+    if (node) {
+        $('#parent_cate').text(node.text);
+        $('#cate_parent_id_cate').val(node.id);
     } else {
         $('#parent_cate').text('Không - Danh mục lớn nhất');
         $('#cate_parent_id_cate').val(null);
-        $('#cate_id_cate').val(0);
-        $('#cate_name_cate').prop('disabled', true);
-        $('#cate_code_cate').prop('disabled', true);
-        $('#cate_name_cate').val('C0');
-        $('#cate_code_cate').val('Toàn bộ danh mục');
-        $('#modal_cate').modal('show');
     }
+    $('#cate_id_cate').val(0);
+    $('#cate_name_cate').val('');
+    $('#cate_code_cate').val('');
+    $('#modal_cate').modal('show');
 }
 
 function editCate() {
@@ -112,17 +100,17 @@ function editCate() {
     if (node) {
         $('#cate_id_cate').val(node.id);
         var cate = arrCate.find(p => p.cateId == parseInt(node.id));
-       
+
         $('#cate_parent_id_cate').val(cate.parentID);
-        var cateDependent = arrCate.find(p => p.cateId == cate.parentID);
-        if (cateDependent) {
-            $('#parent_cate').html(`${cateDependent.cateCode} - ${cateDependent.cateName}`);
-            $('#category-edit-parentid').html(
-                `<div class="accordion" id="accordionExample">
+        $('#category-edit-parentid').html(
+            `<div class="accordion" id="accordionExample">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button btn-gradient collapsed" type="button" data-bs-toggle="collapse" data-bs-        target="#collapseOne"   aria-expanded="true" aria-controls="collapseOne">
-                            Chọn danh mục thuộc
+                            <p>Chọn danh mục thuộc: 
+                                <input type="checkbox" id="firstNode" onchange="CheckFirstNode()"/>
+                                <label>Không - Danh mục lớn nhất</label>
+                            </p>                          
                         </button>
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-    parent="#accordionExample">
@@ -135,16 +123,17 @@ function editCate() {
                     </div>
                 </div>
             </div>`
-            );
+        );
+        var cateDependent = arrCate.find(p => p.cateId == cate.parentID);
+        if (cateDependent) {
+            $('#parent_cate').html(`${cateDependent.cateCode} - ${cateDependent.cateName}`);
+
         } else {
             $('#parent_cate').text('Không - Danh mục lớn nhất');
-            //$('#cate_name_cate').prop('disabled', true);
-            //$('#cate_code_cate').prop('disabled', true);
-            $('#category-edit-parentid').html('');
         }
         $('#cate_name_cate').val(cate.cateName);
         $('#cate_code_cate').val(cate.cateCode);
-        
+
         $('#category-list-edit').tree({
             data: arrCateToTree,
             onClick: function (node) {
@@ -160,12 +149,24 @@ function editCate() {
             var nodeToFind = $('#category-list-edit').tree('find', cateDependent.cateId);
             $('#category-list-edit').tree('select', nodeToFind.target);
             $('#cate_parent_id_cate').val(nodeToFind.id);
-            $('#modal_cate').modal('show');
         } else {
-            alert('Danh mục lớn nhất không thể sửa');
+            $('#cate_parent_id_cate').val(null);
         }
+        $('#modal_cate').modal('show');
     } else {
         alert('Vui lòng chọn danh mục cần sửa!')
+    }
+}
+function CheckFirstNode() {
+    debugger
+    var bool = $('#firstNode').prop('checked');
+    if (bool) {
+        $('#parent_cate').text('Không - Danh mục lớn nhất');
+        $('#cate_parent_id_cate').val(null);
+    } else {
+        var node = $('#category-list-edit').tree('getSelected');
+        $('#parent_cate').text(node.text);
+        $('#cate_parent_id_cate').val(node.id);
     }
 }
 function deleteCate() {

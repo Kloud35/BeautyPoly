@@ -21,7 +21,7 @@
         public string? MedthodPayment { get; set; }
         public bool? IsApproved { get; set; }
         public bool? IsDelete { get; set; }
-
+        public int? Discount { get; set; }
         public virtual Accounts? Accounts { get; set; }
         public virtual TransactStatus? TransactStatus { get; set; }
         public virtual Coupon? Coupon { get; set; }

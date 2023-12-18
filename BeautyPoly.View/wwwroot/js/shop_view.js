@@ -2,6 +2,7 @@
 var arrCateId = [];
 var minValue = 0;
 var maxValue = 1000000;
+var idString = 0;
 var range = document.getElementById('slider-range-shop');
 $(document).ready(function () {
     function formatCurrency(value) {
@@ -27,7 +28,7 @@ $(document).ready(function () {
         document.getElementById('filter-max-shop').innerHTML = max;
         minValue = parseInt(values[0]);
         maxValue = parseInt(values[1]);
-        loadProductOfShop(0);
+        loadProductOfShop(idString);
     });
 
     GetAllCate();
@@ -39,14 +40,16 @@ $(document).ready(function () {
                 arrCate = [specifiedNode.id].concat(specifiedNodeChildren.map(function (child) {
                     return child.id;
                 }));
-                var idString = `${arrCate.join(',')}`;
-                loadProductOfShop(idString);
+                idString = `${arrCate.join(',')}`;
+                loadProductOfShop();
             }
         }
     });
-
+    $("#on_sale").change(function () {
+        loadProductOfShop();
+    });
     $('#filter-keyword').val('');
-    loadProductOfShop(0);
+    loadProductOfShop();
     GetProductInCart();
 });
 function GetAllCate() {
@@ -67,7 +70,8 @@ function GetAllCate() {
         }
     });
 }
-function loadProductOfShop(value) {
+function loadProductOfShop() {
+    var onSale = $('#on_sale').prop('checked');
     var keyword = $('#filter-keyword').val();
     $.ajax({
         url: '/shop/get-product',
@@ -78,10 +82,13 @@ function loadProductOfShop(value) {
             keyword: keyword,
             min: minValue,
             max: maxValue,
-            listCateId: value
+            listCateId: idString
         },
         success: function (result) {
             arrProduct = result
+            if (onSale) {
+                arrProduct = arrProduct.filter(item => item.SaleID !== 0);
+            }
             var html = '';
             $.each(arrProduct, function (key, item) {
                 var price = item.SaleID === 0 ? `<span class="price fs-5">${item.PriceText} đ</span>` : `<span class="price  fs-5">${item.PriceTextNew} đ</span>

@@ -57,6 +57,8 @@
                         <h2 class="title">Billing details</h2>
                         <div class="billing-form-wrap">
                             <form action="#" method="post">
+                                <input type="hidden" id="total_hidden" />
+                                <input type="hidden" id="discount_hidden" />
                                 <div class="row">
                                     <div class="col-md-6 form-group">
                                         <label>Họ tên <span class="text-danger">(*)</span></label>
@@ -74,15 +76,11 @@
                                         <span class="text-danger" id="mess_email"></span>
                                         <input class="form-control" name="email" type="text" id="email_ck">
                                     </div>
-
-
-
                                     <div class="col-md-6 form-group">
                                         <label>Chọn Tỉnh/thành<span class="text-danger">(*)</span></label>
                                         <span class="text-danger" id="mess_provin"></span>
                                         <select class="custom-select form-control" asp-items="@ViewBag.Provin" id="provin">
                                             <option selected value="0">Chọn tỉnh thành</option>
-
                                         </select>
                                     </div>
                                     <div class="col-md-6 form-group">
@@ -95,15 +93,11 @@
                                         <span class="text-danger" id="mess_district"></span>
                                         <select class="custom-select form-control" id="district">
                                             <option selected value="0">Chọn quận huyện </option>
-
                                         </select>
                                     </div>
-
                                     <div class="col-md-6 form-group">
-
                                         <label for="exampleFormControlTextarea1" class="form-label">Ghi chú</label>
                                         <textarea class="form-control" name="note" id="note_ck" rows="3"></textarea>
-
                                     </div>
                                     <div class="col-md-6 form-group">
                                         <label>Chọn Phường/Xã<span class="text-danger">(*)</span></label>
