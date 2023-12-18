@@ -386,19 +386,7 @@ function parseJwt(token) {
 }
 
 
-function GetUserName() {
-    const token = localStorage.getItem("Token");
-    const decodedToken = parseJwt(token);
-    var userName = decodedToken['Name'];
-    return userName;
-}
 
-function GetUserId() {
-    const token = localStorage.getItem("Token");
-    const decodedToken = parseJwt(token);
-    var userId = decodedToken['Id'];
-    return userId;
-}
 
 function GetUserEmail() {
     const token = localStorage.getItem("Token");

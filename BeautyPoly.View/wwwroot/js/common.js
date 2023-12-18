@@ -7,7 +7,19 @@ var formatCurrency = new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: 'vnd',
 });
+function GetUserName() {
+    const token = localStorage.getItem("Token");
+    const decodedToken = parseJwt(token);
+    var userName = decodedToken['Name'];
+    return userName;
+}
 
+function GetUserId() {
+    const token = localStorage.getItem("Token");
+    const decodedToken = parseJwt(token);
+    var userId = decodedToken['Id'];
+    return userId;
+}
 $(document).ready(function () {
     CheckDisabledUserWorkPlan();
     var origin = window.location.origin;

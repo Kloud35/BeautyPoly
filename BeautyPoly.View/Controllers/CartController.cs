@@ -28,7 +28,6 @@ namespace BeautyPoly.View.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart([FromBody] ProductSkusDTO model)
         {
-            var authorizationHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
 
             var customerID = 0;
             if (customerID == 0)

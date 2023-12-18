@@ -314,11 +314,10 @@ function GetVoucher(customerID) {
     });
 }
 function onVoucher() {
-    GetVoucher(customerID);
-
+    GetVoucher(GetUserId());
     setInterval(function () {
         updateCountdown(enddate);
-        GetVoucher(customerID);
+        GetVoucher(GetUserId());
     }, 1000 * 60 * 60);
 
     $('input[name="voucher"]').prop('checked', false);
@@ -345,7 +344,6 @@ function addVoucher() {
             voucherID: voucherID,
             total: total
         },
-
         success: function (result) {
             if (result !== null) {
                 if (result.voucher !== null) {
@@ -417,6 +415,7 @@ function CreateOrder() {
         CouponID: parseInt(couponID),
         VoucherID: parseInt(voucherID),
         Discount: parseInt(discount),
+        CustomerID: GetUserId()
     }
     $.ajax({
         url: '/checkout/create-order',

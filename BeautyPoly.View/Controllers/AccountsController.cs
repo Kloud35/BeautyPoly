@@ -83,9 +83,6 @@ namespace BeautyPoly.View.Controllers
 
                 // Serialize the token to a string
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-                Response.Headers.Add("Authorization", $"Bearer {tokenString}");
-                //HttpContext.Session.SetInt32("CustommerID", check.PotentialCustomerID);
-
                 return Json(new { success = true, token = tokenString });
                 //return RedirectToAction("Index", "Customer");
             }
@@ -131,6 +128,7 @@ namespace BeautyPoly.View.Controllers
 
         public IActionResult Logout()
         {
+
             HttpContext.SignOutAsync("MyCookie");
             return RedirectToAction("Index", "Home");
         }
