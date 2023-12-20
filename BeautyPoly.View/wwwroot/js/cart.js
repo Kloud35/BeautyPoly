@@ -7,7 +7,8 @@ function GetCart() {
         url: '/Cart/GetProductInCart',
         type: 'GET',
         dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
+        //contentType: 'application/json;charset=utf-8',
+        data: { customerID :GetUserId()},
         success: function (result) {
             arrProductSku = result;
             var groupedData = {};
@@ -94,7 +95,7 @@ function ChangeQuantity(id) {
         type: 'GET',
         dataType: "json",
         //contentType: 'application/json;charset=utf-8',
-        data: { productSkuID: id, quantity: qty },
+        data: { productSkuID: id, quantity: qty, customerID: GetUserId()},
         success: function (result) {
             GetCart();
         },
@@ -119,7 +120,7 @@ function deleteProductSku(id) {
                 url: '/cart/delete',
                 type: 'DELETE',
                 dataType: "json",
-                data: { productSkuID: id },
+                data: { productSkuID: id, customerID:GetUserId() },
                 success: function (result) {
                     if (result == 1) {
                         GetCart();

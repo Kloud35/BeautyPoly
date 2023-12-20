@@ -16,6 +16,8 @@ function GetUserName() {
 
 function GetUserId() {
     const token = localStorage.getItem("Token");
+    console.log(token);
+    if (token === null) return 0;
     const decodedToken = parseJwt(token);
     var userId = decodedToken['Id'];
     return userId;

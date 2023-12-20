@@ -11,6 +11,7 @@
         public bool UseVNPay { get; set; }
         public int Discount { get; set; }
         public int VoucherID { get; set; }
+        public int CustomerID { get; set; }
 
     }
 }

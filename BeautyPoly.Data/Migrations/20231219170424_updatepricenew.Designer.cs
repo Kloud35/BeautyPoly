@@ -4,6 +4,7 @@ using BeautyPoly.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BeautyPoly.Data.Migrations
 {
     [DbContext(typeof(BeautyPolyDbContext))]
-    partial class BeautyPolyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231219170424_updatepricenew")]
+    partial class updatepricenew
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,9 +362,6 @@ namespace BeautyPoly.Data.Migrations
 
                     b.Property<DateTime?>("ShipDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("ShipPrice")
-                        .HasColumnType("int");
 
                     b.Property<double?>("TotalMoney")
                         .HasColumnType("float");

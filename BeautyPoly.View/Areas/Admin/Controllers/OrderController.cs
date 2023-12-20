@@ -14,14 +14,14 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         ProductRepo prodRepo;
         DetailOrderRepo detailOrderRepo;
         ProductSkuRepo productSkuRepo;
-        CustomerRepository customerRepository;
+        CustomerRepository customerRepo;
         public OrderController(OrderRepo orderRepo, ProductRepo prodRepo, DetailOrderRepo detailOrderRepo, ProductSkuRepo productSkuRepo, CustomerRepository customerRepository)
         {
             this.orderRepo = orderRepo;
             this.prodRepo = prodRepo;
             this.detailOrderRepo = detailOrderRepo;
             this.productSkuRepo = productSkuRepo;
-            this.customerRepository = customerRepository;
+            this.customerRepo = customerRepository;
         }
         [Route("admin/order")]
         public IActionResult Index()
@@ -92,6 +92,15 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             try
             {
                 int accID = (int)HttpContext.Session.GetInt32("AccountID");
+                var customer = await customerRepo.FirstOrDefaultAsync(p => p.Phone.Trim() == orderDTO.CustomerPhone);
+                if (customer == null)
+                {
+                    PotentialCustomer potentialCustomer = new PotentialCustomer();
+                    potentialCustomer.Phone = orderDTO.CustomerPhone;
+                    potentialCustomer.FullName = orderDTO.CustomerName.Trim() == "" ? "" : orderDTO.CustomerName.Trim();
+                    await customerRepo.InsertAsync(customer);
+                    customer = potentialCustomer;
+                }
                 if (orderDTO != null)
                 {
                     if (orderDTO.prods.Count() < 0)
@@ -105,7 +114,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                         order = await orderRepo.FirstOrDefaultAsync(p => p.OrderID == orderDTO.OrderID);
                         order.AccountID = accID;
                         order.AccountName = "ACNAME";
-                        order.PotentialCustomerID = 1;
+                        order.PotentialCustomerID = customer.PotentialCustomerID;
                         order.CustomerName = orderDTO.CustomerName;
                         order.OrderDate = DateTime.Now;
                         order.ShipDate = DateTime.Now.AddDays(3);
@@ -123,7 +132,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                         order.TransactStatusID = 1;
                         order.AccountID = accID;
                         order.AccountName = "ACNAME";
-                        order.PotentialCustomerID = 1;
+                        order.PotentialCustomerID = customer.PotentialCustomerID;
                         order.CustomerName = orderDTO.CustomerName;
                         order.OrderDate = DateTime.Now;
                         order.ShipDate = DateTime.Now.AddDays(3);

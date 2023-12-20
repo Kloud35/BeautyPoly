@@ -128,7 +128,6 @@ namespace BeautyPoly.View.Controllers
             HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;
 
             Provin lstprovin = new Provin();
-
             if (responseProvin.IsSuccessStatusCode)
             {
                 string jsonData2 = responseProvin.Content.ReadAsStringAsync().Result;
@@ -137,6 +136,7 @@ namespace BeautyPoly.View.Controllers
                 lstprovin = JsonConvert.DeserializeObject<Provin>(jsonData2);
                 ViewBag.Provin = new SelectList(lstprovin.data, "ProvinceID", "ProvinceName");
             }
+
             return View();
         }
 
@@ -166,6 +166,7 @@ namespace BeautyPoly.View.Controllers
                             return Json(_couponViewModel);
                         }
                         var existCustomer = orderRepo.GetAllAsync().Result.FirstOrDefault(p => p.CouponID == item.CouponID && p.CustomerPhone == phone);
+                        item.Orders = null;
                         if (existCustomer != null)
                         {
                             _couponViewModel.Note = $"Tài khoản với SDT: [{phone}] đã sử dụng mã giảm giá!";
@@ -269,15 +270,14 @@ namespace BeautyPoly.View.Controllers
         {
             try
             {
-                var customerID = HttpContext.Session.GetInt32("CustommerID");
                 var listCart = new List<CartDetails>();
-                if (customerID == null)
+                if (checkOut.CustomerID == 0)
                 {
                     listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
                 }
                 else
                 {
-                    listCart = cartDetailsRepo.FindAsync(p => p.CartID == customerID).Result.ToList();
+                    listCart = cartDetailsRepo.FindAsync(p => p.CartID == checkOut.CustomerID).Result.ToList();
                 }
                 foreach (var item in listCart)
                 {
@@ -297,6 +297,7 @@ namespace BeautyPoly.View.Controllers
                     customer.Password = MaHoaMD5.EncryptPassword("1");
                     await customersRepo.InsertAsync(customer);
                 }
+                double totalPrice = (double)HttpContext.Session.GetInt32("shiptotal");
                 Order order = new Order();
                 order.TransactStatusID = 1;
                 order.Address = checkOut.Address;
@@ -307,10 +308,9 @@ namespace BeautyPoly.View.Controllers
                 order.MedthodPayment = "cash";
                 order.OrderDate = DateTime.Now;
                 order.Note = checkOut.Note;
-
+                order.ShipPrice = Convert.ToInt32(totalPrice);
                 await orderRepo.InsertAsync(order);
                 List<ProductSkusViewModel> listSkuCart = new List<ProductSkusViewModel>();
-                double totalPrice = (double)HttpContext.Session.GetInt32("shiptotal"); ;
                 foreach (var item in listCart)
                 {
                     var model = SQLHelper<ProductSkusViewModel>.ProcedureToModel("spGetProductToCart", new string[] { "@SkuID", "@Quantity" }, new object[] { item.ProductSkusID, item.Quantity });
@@ -319,6 +319,7 @@ namespace BeautyPoly.View.Controllers
                     orderDetails.ProductSkusID = model.ProductSkusID;
                     orderDetails.Quantity = model.QuantityCart;
                     orderDetails.Price = TextUtils.ToInt(model.Price);
+                    orderDetails.PriceNew = TextUtils.ToInt(model.PriceNew);
                     orderDetails.TotalMoney = model.TotalPrice;
                     totalPrice += model.TotalPrice;
                     await detailOrderRepo.InsertAsync(orderDetails);
@@ -342,7 +343,7 @@ namespace BeautyPoly.View.Controllers
                     {
                         voucher.Quantity--;
                         await voucherRepo.UpdateAsync(voucher);
-                        var voucherCustomer = voucherDetailsRepo.GetAllAsync().Result.FirstOrDefault(p => p.VoucherID == voucher.VoucherID && p.PotentialCustomerID == customerID);
+                        var voucherCustomer = voucherDetailsRepo.GetAllAsync().Result.FirstOrDefault(p => p.VoucherID == voucher.VoucherID && p.PotentialCustomerID == checkOut.CustomerID);
                         if (voucherCustomer != null)
                         {
                             await voucherDetailsRepo.DeleteAsync(voucherCustomer);
@@ -356,9 +357,13 @@ namespace BeautyPoly.View.Controllers
                 await orderRepo.UpdateAsync(order);
                 if (checkOut.UseVNPay)
                 {
-                    return Json(Payment(order));
+                    return Json(Payment(order, checkOut.CustomerID));
                 }
                 HttpContext.Session.Remove("CartDetail");
+                if (checkOut.CustomerID > 0)
+                {
+                    await cartDetailsRepo.DeleteRangeAsync(listCart);
+                }
                 return Json(1);
             }
             catch (Exception ex)
@@ -367,10 +372,10 @@ namespace BeautyPoly.View.Controllers
             }
 
         }
-        public string Payment(Order order)
+        public string Payment(Order order, int customerID)
         {
             string url = "http://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            string returnUrl = $"https://localhost:44315/Checkout/PaymentConfirm?id={order.OrderID}";
+            string returnUrl = $"https://localhost:44315/Checkout/PaymentConfirm?id={order.OrderID}&customerID={customerID}";
             string tmnCode = "6AV1KO3E";
             string hashSecret = "UGHKKYGUTTLWWTQOJBECDFAMDHZDBLWW";
 
@@ -397,7 +402,7 @@ namespace BeautyPoly.View.Controllers
             return paymentUrl;
         }
 
-        public async Task<IActionResult> PaymentConfirm(int id)
+        public async Task<IActionResult> PaymentConfirm(int id, int customerID)
         {
             var order = await orderRepo.GetByIdAsync(id);
             if (Request.QueryString.Value != null)
@@ -436,9 +441,9 @@ namespace BeautyPoly.View.Controllers
                             order.MedthodPayment = "credit_card";
                             await orderRepo.UpdateAsync(order);
                         }
-                        var customerID = HttpContext.Session.GetInt32("CustommerID");
+
                         var listCart = new List<CartDetails>();
-                        if (customerID == null)
+                        if (customerID == 0)
                         {
                             HttpContext.Session.Remove("CartDetail");
                         }

@@ -17,17 +17,19 @@ namespace BeautyPoly.View.Controllers
     public class AccountsController : Controller
     {
 
-
+        CustomerRepository _customerRepository;
         LoginAccountRepository _loginRepository;
+
         private readonly ISendEmail _sendEmail;
 
         private readonly BeautyPolyDbContext _context;
 
-        public AccountsController(LoginAccountRepository loginRepository, ISendEmail sendEmail)
+        public AccountsController(LoginAccountRepository loginRepository, ISendEmail sendEmail, CustomerRepository customerRepository)
         {
             _loginRepository = loginRepository;
             _sendEmail = sendEmail;
             _context = new BeautyPolyDbContext();
+            _customerRepository = customerRepository;
         }
         [HttpPost("account/register")]
         public IActionResult Register([FromBody] PotentialCustomer model)
@@ -220,5 +222,43 @@ namespace BeautyPoly.View.Controllers
             }
 
         }
+        [HttpPost("account/changepass")]
+        public async Task<IActionResult> ChangePassword(string passwordold, string passwordnew)
+        {
+            var token = Request.Headers["Authorization"].ToString();
+            token = token.Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token);
+            var tokenS = jsonToken as JwtSecurityToken;
+            var customerIDstr = tokenS.Claims.First(claim => claim.Type == "Id").Value;
+            var customerId = Int32.Parse(customerIDstr);
+            if (customerId != null && passwordnew != null && passwordold != null)
+            {
+                try
+                {
+                    //var customer =  _customerRepository.GetByIdAsync(customerId);
+                    PotentialCustomer customer = await _customerRepository.FirstOrDefaultAsync(p => p.PotentialCustomerID == customerId);
+                    string password_old = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(passwordold);
+                    string password_new = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(passwordnew);
+                    if (customer.Password != password_old)
+                    {
+                        return Json(3);
+                    }
+                    if (customer.Password == password_new)
+                    {
+                        return Json(2);
+                    }
+                    customer.Password = password_new;
+                    await _customerRepository.UpdateAsync(customer);
+                    return Json(1);
+                }
+                catch
+                {
+                    return Json(0);
+                }
+            }
+            return Json(0);
+        }
+
     }
 }

@@ -2,15 +2,15 @@
 var listProvin = []
 var listDistrict = []
 var listWard = []
+var arrOrder = []
 var locationIndex = 0;
 var index = 2;
 $(document).ready(function () {
     $("#user_name").text(GetUserName());
     $("#user_name_manager").text(GetUserName());
-    $("#user_name_managers").text(GetUserName());
     GetProvin();
     GetDistrict();
-
+    getDetailAccount();
 });
 
 function GetProvin() {
@@ -45,13 +45,13 @@ function GetDistrict() {
         }
     });
 }
-
 function GetAllLocation() {
     $.ajax({
-        url: `/admin/potentialcustomer/locations?CustomerID=${GetUserId()}`,
+        url: `/admin/potentialcustomer/locations`,
         type: 'GET',
         dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
+        //contentType: 'application/json;charset=utf-8',
+        data: { CustomerID: GetUserId() },
         success: function (result) {
             arrLocationCustomer = result;
             $("#list-location tr").remove();
@@ -60,6 +60,7 @@ function GetAllLocation() {
                 locationIndex = key;
                 var html = `
                     <tr>
+                        <td><input ${item.isDefault ? 'checked' : ''} type="radio" onclick="setNewDefaultAddres(${item.locationCustomerID})"/></td>    
                         <td>${item.provinceName}</td>    
                         <td>${item.districtName}</td>    
                         <td>${item.wardName}</td>    
@@ -82,7 +83,6 @@ function GetAllLocation() {
         }
     });
 }
-
 function addLocation() {
     $("#locationContainer div").remove();
     locationIndex++;
@@ -121,7 +121,8 @@ function addLocation() {
                         </div>
                     </div>
                 <div class="d-flex justify-content-end">
-                    <button onclick="createLocation()">Save</button>
+                    <button  class="btn btn-success" onclick=" closeTab()"><i class='bx bxs-left-arrow-square'></i></button>
+                    <button  class="btn btn-success" onclick="createLocation()"><i class='bx bx-save' ></i></button>
                 </div>
                  </div>
             `;
@@ -129,7 +130,7 @@ function addLocation() {
     locationIndex++; // Tăng index cho việc tạo ID và Name duy nhất
 }
 function UpdateLocation(id) {
-    console.log("ID: ",id);
+    console.log("ID: ", id);
     $("#locationContainer div").remove();
     locationIndex++;
     arrLocationCustomer.forEach(item => {
@@ -185,7 +186,9 @@ function UpdateLocation(id) {
                         </div>
                     </div>
                     <div class="d-flex justify-content-end">
-                        <button onclick="updateLocation()">Update</button>
+                        <button class="btn btn-success" onclick="GetAllLocation()"><i class='bx bxs-left-arrow-square'></i></button>
+                        <button  class="btn btn-success" onclick="updateLocation()"><i class='bx bx-save' ></i></button>
+
                     </div>
                  </div>
             `;
@@ -372,6 +375,44 @@ function createLocation() {
         }
     });
 }
+function getDetailAccount() {
+    $("#full-name").val("");
+    $("#date-of-birth").val("");
+    $("#phone-number").val("");
+    $("#email-address").val("");
+    $("#full-name").val(GetUserName());
+    $("#date-of-birth").val(GetUserDateOfBirth());
+    $("#phone-number").val(GetUserPhone());
+    $("#email-address").val(GetUserEmail());
+}
+function setNewDefaultAddres(id) {
+    var getUrl = window.location;
+    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/";
+    $.ajax({
+        url: baseUrl + 'admin/potentialcustomer/update-default-location?id=' + id,
+        type: 'PUT',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        success: function (result) {
+            if (result == 1) {
+                GetAllLocation();
+                $('#modal_customer').modal('hide');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${result}`,
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+
+            }
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    })
+}
 
 /// JWT 
 
@@ -381,16 +422,130 @@ function parseJwt(token) {
     var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-
     return JSON.parse(jsonPayload);
 }
 
-
-
-
+function GetUserName() {
+    const token = localStorage.getItem("Token");
+    const decodedToken = parseJwt(token);
+    var userName = decodedToken['Name'];
+    return userName;
+}
+function GetUserPhone() {
+    const token = localStorage.getItem("Token");
+    const decodedToken = parseJwt(token);
+    var phone = decodedToken['Phone'];
+    return phone;
+}
+function GetUserDateOfBirth() {
+    const token = localStorage.getItem("Token");
+    const decodedToken = parseJwt(token);
+    var dateOfBirth = decodedToken['DateOfBirth'];
+    if (dateOfBirth != null && dateOfBirth != "") {
+        dateOfBirth = dateOfBirth.split(" ")[0]
+    }
+    return dateOfBirth;
+}
 function GetUserEmail() {
     const token = localStorage.getItem("Token");
     const decodedToken = parseJwt(token);
-    var userId = decodedToken['Id'];
-    return userId;
+    var email = decodedToken['Email'];
+    return email;
 }
+
+
+
+function openmodalorder(id) {
+    $.ajax({
+        url: "/Customer/GetOrderDetailCustomer",
+        type: 'GET',
+        dataType: 'json',
+        //contentType: 'application/json;charset=utf-8',
+        data: { orderID: id },
+        success: function (result) {
+            var order = arrOrder.find(p => p.OrderID == id);
+            console.log(order)
+            $("#customer_name_order_detail").text(GetUserName());
+            $("#order_code_order_detail").text(order.OrderCode);
+            var html = '';
+            $.each(result, (key, item) => {
+                html += ` <div class="card shadow-0 border mb-4">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <img src="/images/${item.Image}"
+                                                         class="img-fluid" alt="Phone">
+                                                </div>
+                                                <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p class="text-muted mb-0">${item.ProductName}</p>
+                                                </div>
+                                                <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p class="text-muted mb-0 small">
+                                                        ${item.CombinedOptionValues}
+                                                    </p>
+                                                </div>
+                                                <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p class="text-muted mb-0 small"> ${item.Price}</p>
+                                                </div>
+                                                <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p class="text-muted mb-0 small">Số lượng: ${item.Quantity}</p>
+                                                </div>
+                                                <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                                    <p class="text-muted mb-0 small">${formatCurrency.format(item.TotalMoney)}</p>
+                                                </div>
+                                            </div>
+                                            <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
+                                        </div>
+                                    </div>`;
+            });
+            $("#product_order_detail").html(html);
+            $("#total_money_order_order_detail").text(formatCurrency.format(order.TotalMoney))
+            $("#discount_price_order_customer").text(formatCurrency.format(order.Discount));
+            $("#order_date_order_customer").text(getFormattedDateDMY(order.OrderDate));
+            $("#ship_price_order_customer").text(getFormattedDateDMY(order.ShipPrice));
+            $("#payment_date_order_detail_customer").text(getFormattedDateDMY(order.PaymentDate));
+            $("#total_amount_order_customer").text(formatCurrency.format(order.TotalMoney));
+            $('#modal-oder-details').modal('show');
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    })
+}
+
+function closeTab() {
+    $("#locationContainer div").remove();
+
+}
+
+function GetOrder() {
+    $.ajax({
+        url: "/Customer/GetOrderCustomer",
+        type: 'GET',
+        dataType: 'json',
+        //contentType: 'application/json;charset=utf-8',
+        data: { customerID: GetUserId() },
+        success: function (result) {
+            arrOrder = result;
+            var html = "";
+            $.each(result, (key, item) => {
+
+                html += `<tr>
+                            <td>${item.OrderCode}</td>
+                            <td>${getFormattedDateDMY(item.OrderDate)}</td>
+                            <td>${getFormattedDateDMY(item.ShipDate)}</td>
+                            <td>${item.StatusName}</td>
+                            <td>${item.TotalMoney}</td>
+                            <td><a onclick="openmodalorder(${item.OrderID})" class="check-btn sqr-btn ">Xem chi tiết</a>
+                            </td>
+                        </tr>`
+            });
+            $("#tbody_order_customer").html(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    })
+}
+
+

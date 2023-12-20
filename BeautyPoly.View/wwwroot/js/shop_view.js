@@ -243,7 +243,8 @@ function addToCart() {
 
     var obj = {
         ID: skuId,
-        Quantity: quatityToCart
+        Quantity: quatityToCart,
+        CustomerID: GetUserId()
     }
     $.ajax({
         url: '/Cart/AddToCart',

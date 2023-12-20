@@ -8,6 +8,7 @@
         public string? Sku { get; set; }
         public double? CapitalPrice { get; set; }
         public double? Price { get; set; }
+        public double? PriceNew { get; set; }
         public int? Quantity { get; set; }
         public bool? IsDelete { get; set; }
         public int CountOption { get; set; }

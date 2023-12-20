@@ -195,43 +195,9 @@ function editProductSku(id) {
                 //contentType: 'application/json;charset=utf-8',
                 data: { productSkuID: id, productID: result.ProductID },
                 success: function (result1) {
+                    console.log(result1);
                     $('#product_id_product_sku_edit').val(result.ProductID).trigger('change');
-                    //$.each(result1.Item2, (key, item) => {
-                    //    var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
-                    //    $.each(arrOption, function (key, item) {
-                    //        htmlOption += `<option value="${item.OptionID}">${item.OptionName}</option>`
-                    //    });
-
-                    //    var html = `<div class="row mt-2">
-                    //        <div class="col-12 col-md-4">
-                    //            <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" >
-                    //            </select>
-                    //        </div>
-                    //        <div class="col-12 col-md-4" id="div_option_value_edit_${index}">
-                    //        </div>
-                    //          <div class="col-12 col-md-4">
-                       
-                    //        </div>
-                    //    </div>`
-                    //    $('#option_value_product_edit').append(html);
-                    //    $(`#option_product_edit_${index}`).html(htmlOption);
-                    //    $(`#option_product_edit_${index}`).select2({
-                    //        dropdownParent: $("#modal_product_sku_edit"),
-                    //        theme: "bootstrap-5"
-                    //    })
-                    //    $(`#option_product_edit_${index}`).val(item.OptionID).trigger('change');
-                    //    index++;
-                    //    var idx = index - 1;
-                    //    GetOptionValueEdit(item.OptionID, `option_product_edit_${idx}`)
-                    //        .then(() => {
-                    //            var optionValue = result1.Item1.find(p => p.OptionDetailsID == item.OptionDetailsID).OptionValueID;
-                    //            $(`#option_value_product_edit_${idx}`).val(optionValue).trigger('change');
-                    //        })
-                    //        .catch(error => {
-                    //            console.error("Error fetching option value:", error);
-                    //        });
-                    //});
-                     processData(result1);
+                    processData(result1);
                     optionValueChangeEdit();
                     $('#modal_product_sku_edit').modal('show');
                 },
@@ -258,7 +224,11 @@ function processItem(item, index, result1) {
                 <select class="form-control" id="option_product_edit_${index}" onchange="GetOptionValueEdit(this.value,this.id)" ></select>
             </div>
             <div class="col-12 col-md-4" id="div_option_value_edit_${index}"></div>
-            <div class="col-12 col-md-4"></div>
+            <div class="col-12 col-md-4">
+                <div class="d-flex justify-content-end">
+                    <button class="btn text-danger" onclick="deleteOption(this)"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
         </div>`;
         $('#option_value_product_edit').append(html);
         $(`#option_product_edit_${index}`).html(htmlOption);
@@ -284,7 +254,7 @@ function processItem(item, index, result1) {
 async function processData(result1) {
     for (let i = 0; i < result1.Item2.length; i++) {
         try {
-            await processItem(result1.Item2[i], index,result1);
+            await processItem(result1.Item2[i], index, result1);
             index++;
         } catch (error) {
             console.error("Error processing item:", error);
@@ -292,8 +262,9 @@ async function processData(result1) {
     }
 }
 
+function deleteOption() {
 
-
+}
 
 function addOptionEdit() {
     var htmlOption = '<option value="0" selected disabled>--Chọn thuộc tính--</option>';
@@ -323,7 +294,6 @@ function addOptionEdit() {
     index++;
 }
 function GetOptionValueEdit(id, selectID) {
-
     var i = selectID.split('_')[3];
     return $.ajax({
         url: '/admin/option/getallvalue',
@@ -910,7 +880,7 @@ function saveEdit() {
     var price = parseFloat($(`#price_product_sku_edit`).val());
     var quantity = parseInt($(`#quantity_product_sku_edit`).val());
     var optionValueID = $("#option_value_id_product_sku_edit").val();
-   
+
     var obj = {
         ListOptionID: listOptionID,
         CapitalPrice: capitalPrice,

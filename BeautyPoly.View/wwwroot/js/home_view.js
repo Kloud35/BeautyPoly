@@ -22,8 +22,10 @@ function addToCart() {
 
     var obj = {
         ID: skuId,
-        Quantity: quatityToCart
+        Quantity: quatityToCart,
+        CustomerID: GetUserId()
     }
+    console.log(obj);
     $.ajax({
         url: '/Cart/AddToCart',
         type: 'POST',
@@ -76,7 +78,8 @@ function GetProductInCart() {
         url: '/Cart/GetProductInCart',
         type: 'GET',
         dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
+        //contentType: 'application/json;charset=utf-8',
+        data: { customerID: GetUserId()},
         success: function (result) {
             // Tạo đối tượng để lưu trữ dữ liệu đã nhóm
             var groupedData = {};

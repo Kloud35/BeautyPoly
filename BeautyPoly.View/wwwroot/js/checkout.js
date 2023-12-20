@@ -3,6 +3,7 @@ var coupon = [];
 var voucher = [];
 var couponID = 0;
 var voucherID = 0;
+var discount = $('#discount_hidden').val();
 var enddate;
 //function formatCurrency(value) {
 //    return value.toLocaleString('en-US', {
@@ -19,16 +20,18 @@ function GetCartCheckOut() {
         url: '/Cart/GetProductInCart',
         type: 'GET',
         dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
+        //contentType: 'application/json;charset=utf-8',
+        data: { customerID: GetUserId() },
         success: function (result) {
             totalMoney = 0;
             var html = '';
             $.each(result, (key, item) => {
+                var total = item.SaleID === 0 ? item.TotalPrice : item.TotalPriceSale;
                 html += `<tr class="cart-item">
-                                        <td class="product-name">${item.ProductSkuName} <span class="product-quantity"> x${item.QuantityCart} </span></td>
-                                        <td class="product-total">${formatCurrency.format(item.TotalPrice)}</td>
-                                    </tr>`;
-                totalMoney += item.TotalPrice;
+                            <td class="product-name">${item.ProductSkuName} <span class="product-quantity"> x${item.QuantityCart} </span></td>
+                            <td class="product-total">${formatCurrency.format(total)}</td>
+                        </tr>`;
+                totalMoney += total;
             })
             $('#tbody_checkout_product').html(html);
             $('#subtotal_checkout').text(formatCurrency.format(totalMoney));
@@ -388,7 +391,8 @@ function clearVoucher() {
             if (result !== null) {
                 voucher = [];
                 $('#value').text(result.value);
-                $('#total_value').text(`${result.totalValue} ₫`);
+                //$('#total_value').text(`${result.totalValue} ₫`);
+                $('#total_value').text(`${formatCurrency.format(result.totalValue)}`);
                 $('#voucher_note').hide();
                 $('#modal_voucher').modal('hide');
             } else {
@@ -428,7 +432,7 @@ function CreateOrder() {
                 MessageSucces("Thanh toán thành công!");
                 window.location.href = `/`
             } else if (result == 0) {
-              
+
                 alert("Đã xảy ra lỗi. Vui lòng thử lại sau!");
             } else {
                 window.location.href = `${result}`;

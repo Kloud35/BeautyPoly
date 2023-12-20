@@ -1,16 +1,19 @@
-﻿using BeautyPoly.Data.Repositories;
-using BeautyPoly.Data.ViewModels.Customer;
+﻿using BeautyPoly.Common;
+using BeautyPoly.Data.Repositories;
+using BeautyPoly.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Text.Json;
 namespace BeautyPoly.View.Controllers
 {
     public class CustomerController : Controller
     {
         CustomerRepository _customerRepo;
+        OrderRepo orderRepo;
 
-        public CustomerController(CustomerRepository customerRepository)
+        public CustomerController(CustomerRepository customerRepository, OrderRepo orderRepo)
         {
             _customerRepo = customerRepository;
+            this.orderRepo = orderRepo;
         }
 
         public IActionResult EditCustomer()
@@ -18,16 +21,6 @@ namespace BeautyPoly.View.Controllers
             var customerIdClaim = HttpContext.User.FindFirst("CustomerId");
             if (customerIdClaim != null)
             {
-                //var customer = _customerRepo.GetByIdAsync(Convert.ToInt64(customerIdClaim.Value));
-                //CustomerViewModel customerView = new CustomerViewModel();
-                //customerView.CustomerId = customer.CustomerId;
-                //customerView.FullName = customer.FullName;
-                //customerView.Phone = customer.Phone;
-                //customerView.Email = customer.Email;
-                //customerView.DateBirth = customer.DateBirth;
-                //customerView.Address = customer.Address;
-                //customerView.Sex = customer.Sex;
-                //return View(customerView);
                 return View();
             }
             else
@@ -38,6 +31,17 @@ namespace BeautyPoly.View.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        public IActionResult GetOrderCustomer(int customerID)
+        {
+            var order = SQLHelper<OrderViewModel>.ProcedureToList("spGetOrderCustomer", new string[] { "@CustomerID" }, new object[] { customerID });
+            return Json(order, new JsonSerializerOptions());
+        }
+        public IActionResult GetOrderDetailCustomer(int orderID)
+        {
+            var orderDetail = SQLHelper<OrderDetailViewModel>.ProcedureToList("spGetOrderDetailCustomer", new string[] { "@OrderID" }, new object[] { orderID });
+            return Json(orderDetail, new JsonSerializerOptions());
         }
     }
 }

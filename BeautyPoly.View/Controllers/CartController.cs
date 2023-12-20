@@ -29,8 +29,8 @@ namespace BeautyPoly.View.Controllers
         public async Task<IActionResult> AddToCart([FromBody] ProductSkusDTO model)
         {
 
-            var customerID = 0;
-            if (customerID == 0)
+            //var customerID = 0;
+            if (model.CustomerID == 0)
             {
                 var list = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
                 var productSku = await productSkuRepo.GetByIdAsync(model.ID);
@@ -57,15 +57,14 @@ namespace BeautyPoly.View.Controllers
             }
             else
             {
-
-                var checkExist = cartRepo.FirstOrDefaultAsync(p => p.PotentialCustomerID == customerID);
+                var checkExist = await cartRepo.FirstOrDefaultAsync(p => p.PotentialCustomerID == model.CustomerID);
                 if (checkExist == null)
                 {
                     Cart cart = new Cart();
-                    cart.PotentialCustomerID = (int)customerID;
+                    cart.PotentialCustomerID = model.CustomerID;
                     await cartRepo.InsertAsync(cart);
                 }
-                var list = cartDetailsRepo.FindAsync(p => p.CartID == customerID).Result.ToList();
+                var list = cartDetailsRepo.FindAsync(p => p.CartID == model.CustomerID).Result.ToList();
 
                 var productSku = await productSkuRepo.GetByIdAsync(model.ID);
                 CartDetails cartDetails = new CartDetails();
@@ -88,7 +87,7 @@ namespace BeautyPoly.View.Controllers
                         cartDetails = new CartDetails();
                         cartDetails.ProductSkusID = model.ID;
                         cartDetails.Quantity = model.Quantity;
-                        cartDetails.CartID = customerID;
+                        cartDetails.CartID = model.CustomerID;
                         if (cartDetails.Quantity > productSku.Quantity)
                         {
                             cartDetails.Quantity = productSku.Quantity;
@@ -101,18 +100,17 @@ namespace BeautyPoly.View.Controllers
                     cartDetails = new CartDetails();
                     cartDetails.ProductSkusID = model.ID;
                     cartDetails.Quantity = model.Quantity;
-                    cartDetails.CartID = customerID;
+                    cartDetails.CartID = model.CustomerID;
                     await cartDetailsRepo.InsertAsync(cartDetails);
                 }
             }
             return Json(1);
         }
 
-        public IActionResult GetProductInCart()
+        public IActionResult GetProductInCart(int customerID)
         {
-            var customerID = HttpContext.Session.GetInt32("CustommerID");
             var listCart = new List<CartDetails>();
-            if (customerID == null)
+            if (customerID == 0)
             {
                 listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
             }
@@ -131,13 +129,13 @@ namespace BeautyPoly.View.Controllers
             return Json(listSkuCart, new System.Text.Json.JsonSerializerOptions());
         }
         [Route("cart/change-quantity")]
-        public async Task<IActionResult> ChangeQuantity(int productSkuID, int quantity)
+        public async Task<IActionResult> ChangeQuantity(int productSkuID, int quantity, int customerID)
         {
             var productSku = await productSkuRepo.GetByIdAsync(productSkuID);
 
-            var customerID = HttpContext.Session.GetInt32("CustommerID");
+
             var listCart = new List<CartDetails>();
-            if (customerID == null)
+            if (customerID == 0)
             {
                 listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
                 int index = listCart.FindIndex(p => p.ProductSkusID == productSkuID);
@@ -166,17 +164,15 @@ namespace BeautyPoly.View.Controllers
             return Json(1);
         }
         [HttpDelete("cart/delete")]
-        public async Task<IActionResult> DeleteCartDetail(int productSkuID)
+        public async Task<IActionResult> DeleteCartDetail(int productSkuID, int customerID)
         {
-            var customerID = HttpContext.Session.GetInt32("CustommerID");
+
             var listCart = new List<CartDetails>();
-            if (customerID == null)
+            if (customerID == 0)
             {
                 listCart = HttpContext.Session.GetObject<List<CartDetails>>("CartDetail");
                 listCart.RemoveAt(listCart.FindIndex(p => p.ProductSkusID == productSkuID));
-
                 HttpContext.Session.SetObject<List<CartDetails>>("CartDetail", listCart);
-
             }
             else
             {
