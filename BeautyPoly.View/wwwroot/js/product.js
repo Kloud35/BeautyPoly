@@ -5,18 +5,17 @@ var arrProduct = [];
 var arrProductImage = [];
 var arrProductSku = [];
 var arrProductSale = [];
+var arrProductByID = [];
 var index = 1;
 class DynamicArrayCombiner {
     constructor() {
         this.arrays = [];
         this.combinations = [];
     }
-
     addArray(array) {
         this.arrays.push(array);
         this.generateCombinations();
     }
-
     removeArray(array) {
         const index = this.arrays.indexOf(array);
         if (index !== -1) {
@@ -49,9 +48,6 @@ class DynamicArrayCombiner {
         this.combinations = result;
     }
 }
-
-
-
 const arrayCombiner = new DynamicArrayCombiner();
 const arrayCombinerText = new DynamicArrayCombiner();
 
@@ -64,7 +60,6 @@ $(document).ready(function () {
     $('#uploadBtn').click(function () {
         $('#fileInput').click();
     });
-
     $('#fileInput').change(function () {
         displayImages(this.files);
     });
@@ -171,6 +166,35 @@ function addProductSku() {
     $('#btn_add_option').show();
     $('#btn_add_option_edit').hide();
     $('#modal_product_sku').modal('show');
+}
+
+function onChangeProduct() {
+    var id = $('#product_id_product_sku').val();
+    var name = '';
+    if (id > 0) {
+        $("#option_value_product").empty();
+        name = arrProduct.find(p => p.ProductID == id).ProductName;
+        $.ajax({
+            url: '/admin/product/get-option-by-product-id',
+            type: 'GET',
+            dataType: 'json',
+            //contentType: 'application/json;charset=utf-8',
+            data: { productID: id },
+            success: function (result) {
+                $.each(result, (key, item) => {
+                    addOption();
+                    var i = index - 1;
+                    $(`#option_product_${i}`).val(item.OptionID).trigger('change');
+                    $(`#option_detail_id_${i}`).val(item.OptionDetailsID);
+                });
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        });
+    }
+
+    $("#product_name_view_product_sku").val(name);
 }
 
 function editProductSku(id) {
@@ -328,7 +352,61 @@ function GetOptionValueEdit(id, selectID) {
 }
 
 function DeleteProductSku(id) {
-
+    var productSku = arrProductSku.find(p => p.ProductSkusID == id);
+    $.ajax({
+        url: '/admin/product/check-is-order',
+        type: 'GET',
+        dataType: 'json',
+        //contentType: 'application/json;charset=utf-8',
+        data: { productSkuID: id },
+        success: function (data) {
+            if (data == 1) {
+                Swal.fire({
+                    title: `Bạn có chắc muốn xóa Mã sản phẩm [${productSku.Sku}] này không?`,
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Có',
+                    denyButtonText: 'Không'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/admin/product/delet-product-sku',
+                            type: 'DELETE',
+                            dataType: 'json',
+                            //contentType: 'application/json;charset=utf-8',
+                            data: { productSkuID: id },
+                            success: function (result1) {
+                                if (result1 == 1) {
+                                    GetProduct();
+                                    GetProductSku();
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Oops...',
+                                        text: `Lỗi !`,
+                                        showConfirmButton: true
+                                    })
+                                }
+                            },
+                            error: function (err) {
+                                console.log(err)
+                            }
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${data}`,
+                    showConfirmButton: true
+                })
+            }
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
 }
 
 function loadImage(id) {
@@ -419,6 +497,7 @@ function editProduct(id) {
         contentType: 'application/json;charset=utf-8',
         data: { ID: id },
         success: function (result) {
+            arrProductByID = result;
             $('#product_id_product').val(result.ProductID);
             $('#product_code_product').val(result.ProductCode);
             $('#product_name_product').val(result.ProductName);
@@ -434,11 +513,9 @@ function editProduct(id) {
                 },
             });
             var nodeToFind = $('#category-list').tree('find', result.CateID);
-            console.log(result.CateID);
-            console.log(nodeToFind);
             $('#category-list').tree('select', nodeToFind.target);
             $('#cate-name').text(nodeToFind.text);
-            GetProductSale(id);
+            GetProductSale(id, result.MinPrice, result.MaxPrice);
             html = `<div class="accordion mt-2" id="accordion_sale">
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingOne">
@@ -454,7 +531,7 @@ function editProduct(id) {
                                                 <th>STT</th>
                                                 <th>Tên chương trình</th>
                                                 <th>Giá trị Sale</th>    
-                                                <th>Thời gian còn lại</th>    
+                                                <th>Ghi chú</th>    
                                                 <th class="d-flex justify-content-center"><a href="/admin/sale" class="btn btn-primary">Thêm Sale</a></th>
                                             </tr>
                                         </thead>                                            
@@ -555,6 +632,7 @@ function addOption() {
     });
 
     var html = `<div class="row mt-2">
+                    
                     <div class="col-12 col-md-4">
                         <select class="form-control" id="option_product_${index}" onchange="GetOptionValue(this.value,this.id)" >
                         </select>
@@ -563,7 +641,9 @@ function addOption() {
                     </div>
                       <div class="col-12 col-md-4">
                         <div class="d-flex justify-content-end">
-                            <button class="btn text-danger" onclick="deleteRow(this)"><i class="bi bi-trash"></i></button>
+                        <input value="0" id="option_detail_id_${index}" class="input-option-detail input" hidden/>
+                          <button class="btn text-danger" id="delete_${index}" onclick="deleteRow(this)"><i class="bi bi-trash"></i></button>
+                           
                         </div>
                     </div>
                 </div>`
@@ -626,13 +706,37 @@ function GetOption() {
     });
 }
 
+var listDeleteOptionDetail = []
 function deleteRow(button) {
-    // Find the parent row element and remove it
-    const row = button.closest('.row');
-    if (row) {
-        row.remove();
-        optionValueChange()
+    const i = $(button).attr('id').split('_')[1];
+    var optionDetailID = parseInt($(`#option_detail_id_${i}`).val());
+    if (optionDetailID > 0) {
+        Swal.fire({
+            title: 'Bạn có chắc muốn xóa thuộc tính này ra khỏi sản phẩm?',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Có',
+            denyButtonText: `Không`,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const row = button.closest('.row');
+                if (row) {
+                    row.remove();
+                    optionValueChange()
+                }
+                listDeleteOptionDetail.push(optionDetailID);
+            } else if (result.isDenied) {
+
+            }
+        })
+    } else {
+        const row = button.closest('.row');
+        if (row) {
+            row.remove();
+            optionValueChange()
+        }
     }
+
 }
 
 function addOption1() {
@@ -663,7 +767,6 @@ function optionValueChangeEdit() {
 
         if (values && values.length > 0) {
             var texts = arrOptionValue.filter(p => values.map(Number).includes(p.OptionValueID)).map(o => o.OptionValueName);
-
             allSelectedValues.push(values);
             allSelectText.push(texts);
         }
@@ -788,6 +891,7 @@ function saveProduct() {
     var cateId = parseInt($('#product_id_cate').val());
     var selectedImages = [];
     var id = parseInt($('#product_id_product').val());
+    var saleId = parseInt($('input[name="sale"]:checked').val());
     $('.image-container').each(function () {
         var imageSource = $(this).find('img').attr('src');
         selectedImages.push(imageSource);
@@ -796,6 +900,7 @@ function saveProduct() {
         ProductCode: productCode,
         ProductName: productName,
         CateID: cateId,
+        SaleID: saleId,
         Images: selectedImages,
         ID: id
     }
@@ -934,7 +1039,7 @@ function GetAllCateToTree() {
         }
     });
 }
-function GetProductSale(id) {
+function GetProductSale(id, minPrice, maxPrice) {
     var enddate;
     var product = arrProduct.find(p => p.ProductID == id);
     $.ajax({
@@ -961,9 +1066,16 @@ function GetProductSale(id) {
             $.each(arrProductSale, (key, item) => {
                 var value = item.SaleType == 0 ? `${item.DiscountValue}%` : formatCurrency(parseInt(item.DiscountValue));
                 enddate = item.EndDate;
-                var countdown = updateCountdown(enddate);
+                var countdown = `Kết thúc sau: ${updateCountdown(enddate)}`;
                 var disabled = countdown === '<span class="fw-bold" style="color: red;">Khuyến mãi đã kết thúc</span>' ? 'disabled' : '';
-                var checked = product.SaleID === item.SaleID ? 'checked' : ''
+                var checked = product.SaleID === item.SaleID ? 'checked' : '';
+                if (item.SaleType == 1) {
+                    if (item.DiscountValue > minPrice || item.DiscountValue > maxPrice) {
+                        disabled = 'disabled';
+                        countdown = `Sản phẩm có khoảng giá <span class="text-danger">[${minPrice} - ${maxPrice}]</span> không thể áp dụng`;
+                        checked = '';
+                    }
+                }
                 if (disabled === 'disabled' && checked === 'checked') {
                     ChangeProductSale(id, 0);
                     checked = '';
@@ -987,7 +1099,7 @@ function GetProductSale(id) {
         }
     });
     setInterval(function () {
-        GetProductSale(id);
+        GetProductSale(id, arrProductByID.MinPrice, arrProductByID.MaxPrice);
     }, 1000 * 60);
 }
 function formatCurrency(value) {

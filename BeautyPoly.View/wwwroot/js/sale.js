@@ -432,7 +432,10 @@ function createUpdate() {
 function addSale() {
     $('#sale_id_sale').val(0);
     $('#sale_name_sale').val('');
-    $('#sale_code_sale').val('');
+    const currentDate = new Date();
+    const currentTick = currentDate.getTime();
+    var code = "S" + currentTick;
+    $('#sale_code_sale').val(code);
     $('#sale_quantity_sale').val(0);
     $('#sale_start_date_sale').val('');
     $('#sale_end_date_sale').val('');

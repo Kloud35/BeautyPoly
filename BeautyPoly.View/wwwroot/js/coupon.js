@@ -300,7 +300,10 @@ function createUpdate() {
 function addCoupon() {
     $('#coupon_id_coupon').val(0);
     $('#coupon_name_coupon').val('');
-    $('#coupon_code_coupon').val('');
+    const currentDate = new Date();
+    const currentTick = currentDate.getTime();
+    var code = "CP" + currentTick;
+    $('#coupon_code_coupon').val(code);
     $('#coupon_quantity_coupon').val(0);
     $('#coupon_start_date_coupon').val('');
     $('#coupon_end_date_coupon').val('');
@@ -335,12 +338,22 @@ function deleteCoupon(id) {
         if (result.isConfirmed) {
             $.ajax({
                 url: '/admin/coupon/delete',
-                type: 'DELETE',
+                type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json;charset=utf-8',
                 data: JSON.stringify(id),
                 success: function (result) {
-                    GetAll();
+                    if (result == 1) {
+                        GetAll();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: `${result}`,
+                            showConfirmButton: false,
+                            timer: 10000
+                        });
+                    }
                 },
                 error: function (err) {
                     console.log(err)

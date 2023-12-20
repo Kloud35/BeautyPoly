@@ -190,7 +190,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             }
             return Json(1);
         }
-        [HttpDelete("admin/sale/delete")]
+        [HttpPost("admin/sale/delete")]
         public async Task<IActionResult> Delete([FromBody] int saleID)
         {
             var obj = await saleRepo.GetByIdAsync(saleID);

@@ -3,7 +3,6 @@ var coupon = [];
 var voucher = [];
 var couponID = 0;
 var voucherID = 0;
-var discount = $('#discount_hidden').val();
 var enddate;
 //function formatCurrency(value) {
 //    return value.toLocaleString('en-US', {
@@ -409,6 +408,7 @@ function clearVoucher() {
 
 function CreateOrder() {
     var useVNPay = $("#flexRadioDefault2").is(":checked");
+    var discount = $('#discount_hidden').val();
     var obj = {
         FullName: $("#fullname_ck").val(),
         Email: $("#email_ck").val(),

@@ -308,7 +308,10 @@ function createUpdate() {
 function addVoucher() {
     $('#voucher_id_voucher').val(0);
     $('#voucher_name_voucher').val('');
-    $('#voucher_code_voucher').val('');
+    const currentDate = new Date();
+    const currentTick = currentDate.getTime();
+    var code = "VC" + currentTick;
+    $('#voucher_code_voucher').val(code);
     $('#voucher_quantity_voucher').val(0);
     $('#voucher_start_date_voucher').val('');
     $('#voucher_end_date_voucher').val('');
@@ -353,12 +356,22 @@ function deleteVoucher(id) {
         if (result.isConfirmed) {
             $.ajax({
                 url: '/admin/voucher/delete',
-                type: 'DELETE',
+                type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json;charset=utf-8',
                 data: JSON.stringify(id),
                 success: function (result) {
-                    GetAll();
+                    if (result == 1) {
+                        GetAll();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: `${result}`,
+                            showConfirmButton: false,
+                            timer: 10000
+                        });
+                    }
                 },
                 error: function (err) {
                     console.log(err)

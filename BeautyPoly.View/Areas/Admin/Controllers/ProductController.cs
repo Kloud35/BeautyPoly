@@ -2,6 +2,7 @@
 using BeautyPoly.Data.Models.DTO;
 using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
+using BeautyPoly.Data.ViewModels.Customer;
 using BeautyPoly.Helper;
 using BeautyPoly.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         ProductDetailRepo productDetailRepo;
         OptionDetailRepo optionDetailRepo;
         ProductImagesRepo productImagesRepo;
-
-        public ProductController(OptionRepo optionRepo, CategoryRepo categoryRepo, OptionValueRepo optionValueRepo, ProductRepo productRepo, ProductSkuRepo productSkuRepo, ProductDetailRepo productDetailRepo, OptionDetailRepo optionDetailRepo, ProductImagesRepo productImagesRepo)
+        DetailOrderRepo detailOrderRepo;
+        public ProductController(OptionRepo optionRepo, CategoryRepo categoryRepo, OptionValueRepo optionValueRepo, ProductRepo productRepo, ProductSkuRepo productSkuRepo, ProductDetailRepo productDetailRepo, OptionDetailRepo optionDetailRepo, ProductImagesRepo productImagesRepo, DetailOrderRepo detailOrderRepo)
         {
             this.optionRepo = optionRepo;
             this.categoryRepo = categoryRepo;
@@ -31,6 +32,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             this.productDetailRepo = productDetailRepo;
             this.optionDetailRepo = optionDetailRepo;
             this.productImagesRepo = productImagesRepo;
+            this.detailOrderRepo = detailOrderRepo;
         }
 
         [Route("admin/product")]
@@ -123,10 +125,10 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
 
         }
         [HttpGet("admin/product/get-product-by-id")]
-        public async Task<IActionResult> GetProductById(int ID)
+        public IActionResult GetProductById(int ID)
         {
-            Product product = await productRepo.GetByIdAsync(ID);
-            return Json(product, new JsonSerializerOptions());
+            var obj = SQLHelper<ProductDetailsViewModelCustomer>.ProcedureToModel("spGetProductByID", new string[] { "@ID" }, new object[] { ID });
+            return Json(obj, new JsonSerializerOptions());
         }
         [HttpGet("admin/product/get-product-image")]
         public async Task<IActionResult> GetProductImages(int productID)
@@ -382,6 +384,39 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                     product.IsSale = false;
                 }
                 await productRepo.UpdateAsync(product);
+                return Json(1);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex);
+            }
+
+        }
+        [HttpGet("admin/product/get-option-by-product-id")]
+        public async Task<IActionResult> GetOptionByProductID(int productID)
+        {
+            var listOption = await optionDetailRepo.FindAsync(p => p.ProductID == productID);
+            return Json(listOption, new JsonSerializerOptions());
+        }
+        [HttpGet("admin/product/check-is-order")]
+        public async Task<IActionResult> CheckIsOrderProduct(int productSkuID)
+        {
+            var check = await detailOrderRepo.FindAsync(p => p.ProductSkusID == productSkuID);
+            if (check != null)
+            {
+                return Json("Sản phẩm chi tiết đã được bán không thể xóa!");
+            }
+            return Json(1);
+        }
+
+        [HttpDelete("admin/product/delet-product-sku")]
+        public async Task<IActionResult> DeleteProductSku(int productSkuID)
+        {
+            try
+            {
+                var listDetail = await productDetailRepo.FindAsync(p => p.ProductSkusID == productSkuID);
+                await productDetailRepo.DeleteRangeAsync(listDetail);
+                await productSkuRepo.DeleteAsync(await productSkuRepo.GetByIdAsync(productSkuID));
                 return Json(1);
             }
             catch (Exception ex)

@@ -90,10 +90,12 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             }
             return Json(1);
         }
-        [HttpDelete("admin/coupon/delete")]
+        [HttpPost("admin/coupon/delete")]
         public async Task<IActionResult> Delete([FromBody] int couponID)
         {
-            await couponRepo.DeleteAsync(await couponRepo.GetByIdAsync(couponID));
+            var obj = await couponRepo.GetByIdAsync(couponID);
+            obj.IsDelete = true;
+            await couponRepo.UpdateAsync(obj);
             return Json(1);
         }
     }

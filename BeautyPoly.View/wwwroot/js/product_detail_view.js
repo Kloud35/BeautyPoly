@@ -72,8 +72,10 @@ function ChangeOption(id) {
         data: { listOptionValueID: listid, productID: productId },
         success: function (result) {
             var commaCount = (listid.match(/,/g) || []).length + 1;
+            var price = result.SaleID === 0 ? `<h4 class="price">${formatCurrency.format(result.Price)} đ</h4>` : `<h4 class="price">${formatCurrency.format(result.PriceNew)}</h4>
+                                                                                                <span class="price-old"><strike>${formatCurrency.format(result.Price)}</strike></span>`;
             if (commaCount == result.CountOption) {
-                $('#price_product_detail').text(formatCurrency.format(result.Price));
+                $('#price_product_detail').html(price);
                 $('#inventory_productsku').text("Số lượng còn lại: " + result.Quantity);
                 $('#product_sku_id').val(result.ProductSkusID);
                 $('#product_sku_inventory').val(result.Quantity)

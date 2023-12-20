@@ -8,7 +8,7 @@ function GetCart() {
         type: 'GET',
         dataType: 'json',
         //contentType: 'application/json;charset=utf-8',
-        data: { customerID :GetUserId()},
+        data: { customerID: GetUserId() },
         success: function (result) {
             arrProductSku = result;
             var groupedData = {};
@@ -38,6 +38,8 @@ function GetCart() {
 
                     // Hiển thị sản phẩm trong nhóm
                     $.each(productList, function (index, product) {
+                        var price = product.SaleID === 0 ? `<h4 class="price">${formatCurrency.format(product.Price)}</h4>` : `<h4 class="price">${formatCurrency.format(product.PriceNew)}</h4> <strike><span class="price-old">${formatCurrency.format(product.Price)}</span><strike>`;
+                        var total = product.SaleID === 0 ? product.TotalPrice : product.TotalPriceSale;
                         html += `<tr class="tbody-item group-content ${groupId}" >
                                 <td class="product-remove">
                                     <a class="remove"  onclick="deleteProductSku(${product.ProductSkusID})">×</a>
@@ -53,7 +55,7 @@ function GetCart() {
                                     <a class="title" href="single-product.html">${product.ProductSkuName}</a>
                                 </td>
                                 <td class="product-price">
-                                    <span class="price">${formatCurrency.format(product.Price)}</span>
+                                    ${price}
                                 </td>
                                 <td class="product-quantity">
                                     <div class="pro-qty">
@@ -61,15 +63,16 @@ function GetCart() {
                                     </div>
                                 </td>
                                 <td class="product-subtotal">
-                                    <span class="price">${formatCurrency.format(product.QuantityCart * product.Price)}</span>
+                                    <span class="price">${formatCurrency.format(total)}</span>
                                 </td>
                             </tr>`;
-                        totalMoney += product.QuantityCart * product.Price;
+                        totalMoney += total;
                     });
                 }
             }
             $('#total_amount').text(formatCurrency.format(totalMoney));
             $('#total_amount_cart').text(formatCurrency.format(totalMoney));
+            $('#total_value').text(formatCurrency.format(totalMoney));
             $('#tbody_cart').html(html);
 
             $(document).on('click', '.group-title', function () {
@@ -90,12 +93,16 @@ function generateUniqueId() {
 
 function ChangeQuantity(id) {
     var qty = $(`#quantity_${id}`).val();
+    if (qty <= 0 || isNaN(qty)) {
+        qty = 1;
+    }
+
     $.ajax({
         url: '/cart/change-quantity',
         type: 'GET',
         dataType: "json",
         //contentType: 'application/json;charset=utf-8',
-        data: { productSkuID: id, quantity: qty, customerID: GetUserId()},
+        data: { productSkuID: id, quantity: qty, customerID: GetUserId() },
         success: function (result) {
             GetCart();
         },
@@ -120,7 +127,7 @@ function deleteProductSku(id) {
                 url: '/cart/delete',
                 type: 'DELETE',
                 dataType: "json",
-                data: { productSkuID: id, customerID:GetUserId() },
+                data: { productSkuID: id, customerID: GetUserId() },
                 success: function (result) {
                     if (result == 1) {
                         GetCart();

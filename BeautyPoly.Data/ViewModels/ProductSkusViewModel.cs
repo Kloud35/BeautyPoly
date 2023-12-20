@@ -4,6 +4,7 @@
     {
         public int ProductSkusID { get; set; }
         public int? ProductID { get; set; }
+        public int? SaleID { get; set; }
         public long? STT { get; set; }
         public string? Sku { get; set; }
         public double? CapitalPrice { get; set; }
@@ -15,6 +16,7 @@
         public string? ProductSkuName { get; set; }
         public int QuantityCart { get; set; }
         public double TotalPrice { get; set; }
+        public double TotalPriceSale { get; set; }
         public string? ProductName { get; set; }
         public string? Image { get; set; }
     }

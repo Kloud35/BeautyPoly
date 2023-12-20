@@ -48,6 +48,10 @@ $(document).ready(function () {
     $("#on_sale").change(function () {
         loadProductOfShop();
     });
+    $("#all_cate").click(function () {
+        idString = 0;
+        loadProductOfShop();
+    });
     $('#filter-keyword').val('');
     loadProductOfShop();
     GetProductInCart();
@@ -183,7 +187,8 @@ function GetProductDetail(id) {
                 // All AJAX requests have completed
                 $("#product_option").html(html);
                 $('#product_name_detail_modal').text(product.ProductName);
-                $('#price_product_detail').text(product.PriceText + ' đ');
+                var price = product.SaleID === 0 ? `<h4 class="price">${product.PriceText} đ</h4>` : `<h4 class="price">${product.PriceTextNew} đ</h4>                                                                                                                           <strike><span class="price-old">${product.PriceText} đ</span></strike>`;
+                $('#price_product_detail').html(price);
             });
         },
         error: function (err) {
@@ -213,7 +218,9 @@ function ChangeOption(id) {
         success: function (result) {
             var commaCount = (listid.match(/,/g) || []).length + 1;
             if (commaCount == result.CountOption) {
-                $('#price_product_detail').text(formatCurrency.format(result.Price));
+                var price = result.SaleID === 0 ? `<h4 class="price">${formatCurrency.format(result.Price)} đ</h4>` : `<h4 class="price">${formatCurrency.format(result.PriceNew)}</h4>
+                                                                                                <strike><span class="price-old">${formatCurrency.format(result.Price)}</span></strike>`;
+                $('#price_product_detail').html(price);
                 $('#inventory_productsku').text("Số lượng còn lại: " + result.Quantity);
                 $('#product_sku_id').val(result.ProductSkusID);
                 $('#product_sku_inventory').val(result.Quantity)

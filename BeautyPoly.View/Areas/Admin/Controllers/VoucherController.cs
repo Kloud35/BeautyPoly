@@ -92,10 +92,12 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             }
             return Json(1);
         }
-        [HttpDelete("admin/voucher/delete")]
+        [HttpPost("admin/voucher/delete")]
         public async Task<IActionResult> Delete([FromBody] int voucherID)
         {
-            await voucherRepo.DeleteAsync(await voucherRepo.GetByIdAsync(voucherID));
+            var obj = await voucherRepo.GetByIdAsync(voucherID);
+            obj.IsDelete = true;
+            await voucherRepo.UpdateAsync(obj);
             return Json(1);
         }
     }

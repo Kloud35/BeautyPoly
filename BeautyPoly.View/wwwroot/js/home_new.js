@@ -11,21 +11,24 @@ function loadProduct() {
         contentType: 'application/json;charset=utf-8',
         success: function (result) {
             arrProduct = result
+            arrProduct = arrProduct.filter(item => item.SaleID !== 0);
             var html = '';
             $.each(arrProduct, function (key, item) {
+                var price = item.SaleID === 0 ? `<span class="price fs-5">${item.PriceText} đ</span>` : `<span class="price  fs-5">${item.PriceTextNew} đ</span>
+                                                                                                        <br /><span class="price-old">${item.PriceText} đ</span>`;
+                var spanSale = item.SaleID === 0 ? '' : item.SaleType === 0 ? `<span class="flag-new">- ${item.DiscountValue} %</span>` : item.SaleType === 1 ? `<span class="flag-new">- ${item.DiscountValue.toLocaleString('en-US')} đ</span> ` : ''
                 html += `<div class="col-6 col-lg-4 mb-4 mb-sm-9">
                 <div class="product-item product-st2-item">
                     <div class="product-thumb">
                         <a class="d-block" href="/product-detail/${item.ProductID}">
                         <img src="/images/${item.Image}" width="370" height="450" style="height: 450px !important;" alt="">
                         </a>
-                        <span class="flag-new">new</span>
+                        ${spanSale}
                     </div>
                     <div class="product-info">
                         <h4 class="title"><a href="/product-detail/${item.ProductID}">${item.ProductName}</a></h4>
                         <div class="prices">
-                            <span class="price">${item.PriceText} đ</span>
-                            <span class="price-old">300.00</span>
+                            ${price}
                         </div>
                         <div class="product-action">
                             <button type="button" class="product-action-btn action-btn-cart" data-bs-toggle="modal" data-bs-target="#action-QuickViewModal" onclick="GetProductDetail(${item.ProductID})">
@@ -101,7 +104,8 @@ function GetProductDetail(id) {
                 // All AJAX requests have completed
                 $("#product_option").html(html);
                 $('#product_name_detail_modal').text(product.ProductName);
-                $('#price_product_detail').text(product.PriceText + ' đ');
+                var price = product.SaleID === 0 ? `<h4 class="price">${product.PriceText} đ</h4>` : `<h4 class="price">${product.PriceTextNew} đ</h4>                                                                                                                           <strike><span class="price-old">${product.PriceText} đ</span></strike>`;
+                $('#price_product_detail').html(price);
             });
         },
         error: function (err) {
@@ -131,7 +135,9 @@ function ChangeOption(id) {
         success: function (result) {
             var commaCount = (listid.match(/,/g) || []).length + 1;
             if (commaCount == result.CountOption) {
-                $('#price_product_detail').text(formatCurrency.format(result.Price));
+                var price = result.SaleID === 0 ? `<h4 class="price">${formatCurrency.format(result.Price)} đ</h4>` : `<h4 class="price">${formatCurrency.format(result.PriceNew)}</h4>
+                                                                                                <strike><span class="price-old">${formatCurrency.format(result.Price)}</span></strike>`;
+                $('#price_product_detail').html(price);
                 $('#inventory_productsku').text("Số lượng còn lại: " + result.Quantity);
                 $('#product_sku_id').val(result.ProductSkusID);
                 $('#product_sku_inventory').val(result.Quantity)

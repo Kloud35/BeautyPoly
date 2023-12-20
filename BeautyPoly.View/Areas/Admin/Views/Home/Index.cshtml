@@ -1,8 +1,76 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "DashBoard";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>Index</h1>
+<h1>DashBoard</h1>
+<section class="section dashboard">
+    <div class="row">
+        <div class="card top-selling overflow-auto" style="height:40vh">
+            <div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                        <h6>Filter</h6>
+                    </li>
 
+                    <li><a class="dropdown-item" onclick="Today()">Today</a></li>
+                    <li><a class="dropdown-item" onclick="ThisMonth()" >This Month</a></li>
+                    <li><a class="dropdown-item" onclick="ThisYear()" >This Year</a></li>
+                </ul>
+            </div>
+
+            <div class="card-body pb-0">
+                <h5 class="card-title">Top Selling <span id="title_product_dashboard">| Today</span></h5>
+
+                <table class="table table-borderless w-100">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width:10%">Preview</th>
+                            <th scope="col" style="width:45%">Product</th>
+                            <th scope="col" style="width:15%">Price</th>
+                            <th scope="col" style="width:15%">Sold</th>
+                            <th scope="col" style="width:15%">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody_dashboard">
+                       
+                       @*  <tr>
+                            <th scope="row"><a href="#"><img src="assets/img/product-2.jpg" alt=""></a></th>
+                            <td><a href="#" class="text-primary fw-bold">Exercitationem similique doloremque</a></td>
+                            <td>$46</td>
+                            <td class="fw-bold">98</td>
+                            <td>$4,508</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="#"><img src="assets/img/product-3.jpg" alt=""></a></th>
+                            <td><a href="#" class="text-primary fw-bold">Doloribus nisi exercitationem</a></td>
+                            <td>$59</td>
+                            <td class="fw-bold">74</td>
+                            <td>$4,366</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="#"><img src="assets/img/product-4.jpg" alt=""></a></th>
+                            <td><a href="#" class="text-primary fw-bold">Officiis quaerat sint rerum error</a></td>
+                            <td>$32</td>
+                            <td class="fw-bold">63</td>
+                            <td>$2,016</td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="#"><img src="assets/img/product-5.jpg" alt=""></a></th>
+                            <td><a href="#" class="text-primary fw-bold">Sit unde debitis delectus repellendus</a></td>
+                            <td>$79</td>
+                            <td class="fw-bold">41</td>
+                            <td>$3,239</td>
+                        </tr> *@
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+@section Scripts{
+    <script src="~/js/dashboard.js"></script>
+}

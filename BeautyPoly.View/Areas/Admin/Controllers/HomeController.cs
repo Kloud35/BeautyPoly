@@ -1,12 +1,13 @@
 ﻿using BeautyPoly.Areas.Admin.Models;
 using BeautyPoly.Common;
+using BeautyPoly.Data.ViewModels;
 using BeautyPoly.DBContext;
 using BeautyPoly.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-
+using System.Text.Json;
 
 namespace BeautyPoly.Areas.Admin.Controllers
 {
@@ -105,6 +106,17 @@ namespace BeautyPoly.Areas.Admin.Controllers
             {
                 return RedirectToAction("AdminLogin", "Home", new { Area = "Admin" });
             }
+        }
+
+        public IActionResult DashBoard()
+        {
+            return View();
+        }
+        [HttpGet("admin/home/GetProductToDashboard")]
+        public IActionResult GetProductToDashboard(DateTime dateStart, DateTime dateEnd)
+        {
+            var list = SQLHelper<ProductViewDashboard>.ProcedureToList("spGetProductThongKe", new string[] { "@DateStart", "@DateEnd" }, new object[] { dateStart, dateEnd });
+            return Json(list, new JsonSerializerOptions());
         }
     }
 }

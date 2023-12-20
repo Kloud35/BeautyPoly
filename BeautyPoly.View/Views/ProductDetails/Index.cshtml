@@ -61,7 +61,15 @@
                 <div class="product-details-content">
                     <h5 class="product-details-collection">Premioum collection</h5>
                     <h3 class="product-details-title">@Model.Item1.ProductName</h3>
-                    <h5 id="price_text">@Model.Item1.PriceText ₫</h5>
+                    @if (Model.Item1.SaleID == 0)
+                    {
+                        <h5 id="price_text">@Model.Item1.PriceText ₫</h5>
+                    }
+                    else
+                    {
+                        <h5 id="price_text">@Model.Item1.PriceTextNew ₫</h5>
+                        <span id="price_text"><strike>@Model.Item1.PriceText ₫</strike></span>
+                    }
                     <div class="product-details-qty-list" id="product_option">
                     </div>
                     <div class="product-details-pro-qty">
@@ -72,7 +80,7 @@
                         </div>
                     </div>
                     <div class="product-details-action">
-                        <h4 class="price" id="price_product_detail"></h4>
+                        <div class="prices" id="price_product_detail"></div>
                         <div class="product-details-cart-wishlist">
                             <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#action-CartAddModal" onclick="addToCart()">Add to cart</button>
                         </div>

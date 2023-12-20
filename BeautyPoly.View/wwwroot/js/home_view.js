@@ -107,17 +107,19 @@ function GetProductInCart() {
 
                     // Hiển thị sản phẩm trong nhóm
                     $.each(productList, function (index, product) {
+                        var price = product.SaleID === 0 ? `<span class="price">${formatCurrency.format(product.Price)}</span>` : `<span class="price">${formatCurrency.format(product.PriceNew)}</span>`;
+                        var total = product.SaleID === 0 ? product.TotalPrice : product.TotalPriceSale;
                         html += `<li class="aside-product-list-item">
                                 <a href="#/" class="remove">×</a>
                                 <a href="product-details.html">
                                     <img src="/images/${product.Image}" width="68" height="84" style="height: 84px !important;" alt="">
                                     <span class="product-title">${product.ProductSkuName}</span>
                                 </a>
-                                <span class="product-price">${formatCurrency.format(product.Price)}</span>
+                                ${price}
                                 <span class="product-quantity">x${product.QuantityCart}</span>
                             </li>`;
 
-                        totalMoney += product.QuantityCart * product.Price;
+                        totalMoney += total;
                     });
 
                     // Đóng danh sách nhóm
