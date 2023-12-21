@@ -1,6 +1,7 @@
 ﻿using BeautyPoly.Data.Models.DTO;
 using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
+using BeautyPoly.DBContext;
 using BeautyPoly.Models;
 using BeautyPoly.View.Areas.Admin.ViewModels;
 using BeautyPoly.View.Extension;
@@ -15,21 +16,21 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
     public class PotentialCustomerController : Controller
     {
         private readonly HttpClient _httpClient;
-
+        BeautyPolyDbContext _dbContext;
         PotentialCustomersRepo _potentialCustomerRepo;
         LocationRepo _locationCustomerRepo;
         Provin _lstprovin = new Provin();
         District _lstDistrict = new District();
-        public PotentialCustomerController(PotentialCustomersRepo potentialCustomersRepo, LocationRepo locationRepo)
+        public PotentialCustomerController(BeautyPolyDbContext dbContext, PotentialCustomersRepo potentialCustomersRepo, LocationRepo locationRepo)
         {
             _httpClient = new HttpClient();
+            _dbContext = dbContext;
             _httpClient.DefaultRequestHeaders.Add("token", "71f04310-864d-11ed-b09a-9a2a48e971b0");
 
             this._potentialCustomerRepo = potentialCustomersRepo;
             this._locationCustomerRepo = locationRepo;
             GetDataCache();
         }
-
 
 
         [HttpGet("admin/potentialcustomer/getlistprovin")]
@@ -84,8 +85,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/potentialcustomer")]
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetInt32("AccountID") == null)
-                return RedirectToRoute("Login");
             //Lấy địa chỉ tỉnh thành
             HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;
 
@@ -129,7 +128,34 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             locations = locations.Where(p => p.PotentialCustomerID == CustomerID).ToList();
             return Json(locations);
         }
+        [HttpPut("admin/potentialcustomer/update-default-location")]
+        public async Task<IActionResult> UpdateDefaultLocation(int id)
+        {
+            var checkExists = await _locationCustomerRepo.FirstOrDefaultAsync(entity => entity.LocationCustomerID == id);
+            if (checkExists == null)
+            {
+                return Json(0);
+            }
+            else
+            {
+                //var phone = _dbContext.PotentialCustomers.Where(c => c.Phone == customer.Phone).ToList();
+                //if (temp.Count < 1 && phone.Count < 1)
+                var checkCurrDefault = await _locationCustomerRepo.FirstOrDefaultAsync(entity => entity.PotentialCustomerID == checkExists.PotentialCustomerID && entity.IsDefault == true);
 
+                if (checkCurrDefault == null)
+                {
+                    return Json(0);
+                }
+                else
+                {
+                    checkCurrDefault.IsDefault = false;
+                    await _locationCustomerRepo.UpdateAsync(checkCurrDefault);
+                }
+                checkExists.IsDefault = true;
+                await _locationCustomerRepo.UpdateAsync(checkExists);
+                return Json(1);
+            }
+        }
         [HttpPost("admin/potentialcustomer/create")]
         public async Task<IActionResult> CreateOrUpdate([FromBody] CustomerDTO customerDTO)
         {
@@ -139,7 +165,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 return Json("Email khách hàng đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
             }
             var checkExistsPhone = await _potentialCustomerRepo.FirstOrDefaultAsync(p => p.Phone.Trim() == customerDTO.PotentialCustomer.Phone.Trim() && p.PotentialCustomerID != customerDTO.PotentialCustomer.PotentialCustomerID);
-            if (checkExistsEmail != null)
+            if (checkExistsPhone != null)
             {
                 return Json("Số điện thoại khách hàng đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
 
@@ -229,15 +255,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             return Json(1);
         }
 
-        //[HttpGet("admin/potentialcustomer/getlocations")]
-        //public IActionResult GetLocations(int CustomerID)
-        //{
-        //    List<LocationCustomer> locations = _locationCustomerRepo.GetAllAsync().Result.ToList();
-        //    locations = locations.Where(p => p.PotentialCustomerID == CustomerID).ToList();
-
-        //    return View("LocationView", locations);
-        //}
-
         [HttpDelete("admin/potentialcustomer/deletelocation")]
         public async Task<IActionResult> DeleteLocation(int id_location)
         {
@@ -309,6 +326,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                 data.PotentialCustomerID = (int)p.PotentialCustomerID;
                 data.ProvinceName = _lstprovin.data.FirstOrDefault(x => x.ProvinceID == p.ProvinceID).ProvinceName;
                 data.DistrictName = _lstDistrict.data.FirstOrDefault(x => x.DistrictID == p.DistrictID).DistrictName;
+
                 HttpResponseMessage responseWard = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id=" + p.DistrictID).Result;
                 Ward lstWard = new Ward();
                 if (responseWard.IsSuccessStatusCode)
@@ -321,9 +339,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             });
             return Json(locationsResult);
         }
-
-
-
         private void GetDataCache()
         {
             HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;

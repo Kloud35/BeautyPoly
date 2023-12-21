@@ -98,6 +98,16 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             }
             return Json(1);
         }
+        [HttpPost("admin/option/updateisdelete")]
+        public async Task<IActionResult> UpdateIsDelete(int optionID)
+        {
+
+            var option = await optionRepo.GetByIdAsync(optionID);
+            option.IsDelete = !option.IsDelete;
+            await optionRepo.UpdateAsync(option);
+            return Json(1);
+
+        }
         [HttpDelete("admin/option/delete")]
         public async Task<IActionResult> Delete([FromBody] int optionID)
         {

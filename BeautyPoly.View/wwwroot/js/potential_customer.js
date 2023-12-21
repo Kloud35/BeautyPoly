@@ -7,9 +7,9 @@ var listDistrict = []
 var listWard = []
 var locationIndex = 0;
 $(document).ready(function () {
-    GetAll();
     GetProvin();
     GetDistrict();
+    setTimeout(GetAll(), 3000);
 });
 function formatDate(dateString) {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -25,16 +25,26 @@ function GetAll() {
         data: { filter: keyword },
         success: function (result) {
             arrCustomer = result;
-            var html = '';
+            console.log(result)
+            var html = 'Chua co dia chi';
             $.each(result, function (key, item) {
                 var isAcitve = item.isAcitve ? "checked" : ""
                 var formattedDate = formatDate(item.createDate);
                 var provin = GetAllLocation(item.potentialCustomerID);
+                var results_prv_name = '';
+                var results_prv = [];
+                if (item.locationCustomers.length > 0) {
+                    results_prv = listProvin.filter((prv) => prv.ProvinceID == item.locationCustomers[0].provinceID);
+                    console.log(results_prv)
+                }
+                if (results_prv.length > 0) {
+                    results_prv_name = results_prv[0].ProvinceName;
+                }
                 html += `<tr>
-                           <td>
+                           <td class="text-center">
                                 <button class="btn btn-success btn-sm" onclick="edit(${item.potentialCustomerID})">
-                                <i class="bx bx-pencil"></i>
-                            </button>
+                                <i class='bx bx-detail'></i>
+                                </button>
                                
                             </td>
 
@@ -43,12 +53,7 @@ function GetAll() {
                             <td>${item.email}</td>
                             <td>${item.phone}</td>
                             <td>${formattedDate}</td>
-                            <td>${provin}</td>
-                            <td>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" ${isAcitve}>
-                                </div>
-                            </td>
+                            
                         </tr>`;
             });
             $('#tbody_customer').html(html);
@@ -123,7 +128,7 @@ function GetAllLocation(id) {
             `;
                 $("#locationContainer").append(html);
                 GenarateWardSelected(item.districtID, locationIndex, item.WardID)
-              
+
             });
         },
         error: function (err) {
@@ -230,11 +235,10 @@ function validate() {
     var customerName = $('#customer_name_customer').val();
     var customerEmail = $('#customer_email_customer').val();
     var customerPhone = $('#customer_phone_customer').val();
-    var customerBirthday = $('#customer_birthday_customer').val();
     var provin = parseInt($(`provin_location_${locationIndex}`).val());
-    if ( customerName == '' || customerEmail == '' || customerPhone == '' || provin == '' || customerBirthday == '') {
+    if (customerName == '' || customerEmail == '' || customerPhone == '' || provin == '') {
         count++;
-    }
+    }   
     if (count > 0) {
         Swal.fire({
             icon: 'error',
@@ -245,59 +249,30 @@ function validate() {
         })
         return false;
     }
-   
-    // Validate email field
-    var emailPattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-    if (!emailPattern.test(customerEmail)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Email không hợp lệ',
-            showConfirmButton: false,
-            timer: 1000
-        })
-        return false;
-    }
-    // Validate phone field
     let phonePattern = /(03|05|07|08|09)+([0-9]{8})\b/g;
     if (!phonePattern.test(customerPhone)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Số điện thoại không hợp lệ',
-            showConfirmButton: false,
-            timer: 1000
-        })
+        swal("Cảnh báo", "Số điện thoại không hợp lệ!", "warning");
         return false;
     }
-    var regex = /\d/; // Biểu thức này sẽ kiểm tra xem có chữ số nào trong chuỗi hay không
-    if (regex.test(customerName)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Tên khách hàng không hợp lệ',
-            showConfirmButton: false,
-            timer: 1000
-        })
+    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Biểu thức chính quy để kiểm tra địa chỉ email
+    if (!regex.test(customerEmail)) {
+        swal("Cảnh báo", "Email không hợp lệ!", "warning");
         return false;
     }
     return true;
 }
+
 function create() {
     if (!validate()) return;
     var id = parseInt($('#customerid_customer').val());
-    var customerCode = $('#customer_code_customer').val();
     var customerName = $('#customer_name_customer').val();
     var customerEmail = $('#customer_email_customer').val();
-    var customerBirthday = $('#customer_birthday_customer').val();
     var customerPhone = $('#customer_phone_customer').val();
     //var formattedDate = formatDate(item.createDate);
     var isactive = $('#isactive_customer').prop('checked');
     var customer = {
         PotentialCustomerID: id,
-        PotentialCustomerCode: customerCode,
         FullName: customerName,
-        Birthday: customerBirthday,
         Email: customerEmail,
         Phone: customerPhone,
         IsActive: isactive
@@ -306,14 +281,14 @@ function create() {
     for (var i = 0; i < locationIndex; i++) {
         var provin = parseInt($(`#provin_location_${i}`).val());
         var distric = parseInt($(`#district_location_${i}`).val());
-        var ward =$(`#ward_location_${i}`).val();
+        var ward = parseInt($(`#ward_location_${i}`).val());
         var addss = $(`#customer_address_location_${i}`).val();
         var lon = {
             LocationCustomerID: 0,
             ProvinceID: provin,
             DistrictID: distric,
             WardID: ward,
-            Address: addss,
+            address: addss,
             IsDefault: true,
             IsDelete: true
         }
@@ -354,52 +329,28 @@ function create() {
 }
 function add() {
     $('#customerid_customer').val(0);
-    $('#customer_code_customer').val('');
+    //$('#customer_code_customer').val('');
     $('#customer_name_customer').val('');
     $('#customer_email_customer').val('');
     $('#customer_phone_customer').val('');
-    $('#customer_birthday_customer').val('');
+    //$('#customer_birthday_customer').val('');
     $('#modal_customer').modal('show');
     arrLocationCustomer = [];
-    $("#locationContainer div").remove();
+    $("#rlocationContainer div").remove();
     $('#locationcustomer_locationname_locationcustomer').val('');
 
 }
 function edit(id) {
     var potentialCustomer = arrCustomer.find(p => p.potentialCustomerID == id);
-    $('#customerid_customer').val(potentialCustomer.potentialCustomerID);
-    $('#customer_code_customer').val(potentialCustomer.potentialCustomerCode);
-    $('#customer_name_customer').val(potentialCustomer.fullName);
-    $('#customer_email_customer').val(potentialCustomer.email);
-    $('#customer_phone_customer').val(potentialCustomer.phone);
-    $('#customer_birthday_customer').val(potentialCustomer.birthday);
-    $('#isactive_customer').prop('checked', potentialCustomer.isAcitve).trigger('change');
+    $('#rcustomerid_customer').val(potentialCustomer.potentialCustomerID);
+    $('#rcustomer_code_customer').val(potentialCustomer.potentialCustomerCode);
+    $('#rcustomer_name_customer').val(potentialCustomer.fullName);
+    $('#rcustomer_email_customer').val(potentialCustomer.email);
+    $('#rcustomer_phone_customer').val(potentialCustomer.phone);
+    //$('#customer_birthday_customer').val(potentialCustomer.birthday);
+    //$('#isactive_customer').prop('checked', potentialCustomer.isAcitve).trigger('change');
     GetAllLocation(id);
-    $('#modal_customer').modal('show');
-}
-function Delete(id) {
-    Swal.fire({
-        title: 'Bạn có chắc muốn xóa không?',
-        showDenyButton: true,
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-
-    }).then((result) => {
-
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/admin/potentialcustomer/deletelocation?id_location=${id}`,
-                type: 'DELETE',
-                success: function (result) {
-                    Swal.fire('Khách hàng đã được xóa !', '', 'success')
-                    GetAll();
-                },
-                error: function (err) {
-                    console.log(err)
-                }
-            });
-        }
-    })
+    $('#modal_customer_edit').modal('show');
 }
 function change(el, index) {
     console.log(el);
@@ -450,7 +401,7 @@ function addLocation() {
                     </div>
                  </div>
             `;
-    $("#locationContainer").append(html);
+    $("#rlocationContainer").append(html);
     locationIndex++; // Tăng index cho việc tạo ID và Name duy nhất
 }
 function deleteLocation(locationIndex) {
@@ -472,7 +423,7 @@ function deleteLocation(locationIndex) {
                 success: function (result) {
                     if (result.success) {
                         Swal.fire('Địa chỉ đã được xóa !', '', 'success')
-                        
+
                     } else {
                         // Xử lý lỗi nếu cần thiết.
                         console.log(result.message);

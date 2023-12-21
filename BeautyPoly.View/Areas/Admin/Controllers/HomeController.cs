@@ -49,7 +49,9 @@ namespace BeautyPoly.Areas.Admin.Controllers
 
                     if (tk == null)
                     {
-                        ModelState.AddModelError("", "Tài khoản không tồn tại");
+                        ModelState.AddModelError("", "Thông tin đăng nhập không đúng. Vui lòng thử lại.");
+
+                        return View(model);
                     }
                     string password = string.IsNullOrEmpty(model.Password) ? "" : MaHoaMD5.EncryptPassword(model.Password);
                     //string pass = (model.Password.Trim());

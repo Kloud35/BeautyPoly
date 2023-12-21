@@ -40,6 +40,7 @@ function GetAll() {
             $.each(result, function (key, item) {
                 var isPublish = item.IsPublish ? "checked" : ""
                 var isDelete = item.IsDelete ? "checked" : ""
+                var uniqueId = "flexSwitchCheckChecked_" + key;
                 html += `<tr>
                            <td class='text-center'>
                                 <button class="btn btn-success btn-sm" onclick="edit(${item.OptionID})">
@@ -48,17 +49,49 @@ function GetAll() {
                                 <button class="btn btn-danger btn-sm" onclick="Delete(${item.OptionID})">
                                     <i class="bx bx-trash"></i>
                                 </button>
-                            </td>
+                           </td>
 
-                            <td>${item.OptionName.toUpperCase()}</td>
-                            <td>
+                           <td>${String(item.OptionName).toUpperCase()}</td>
+                           <td>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" ${isDelete}>
+                                    <input class="form-check-input" type="checkbox" id="${uniqueId}" onchange="updateCheckBox(${item.OptionID},${item.isDelete},${item.OptionName})"  ${isDelete}>
                                 </div>
-                            </td>
-                        </tr>`;
+                           </td>
+                       </tr>`;
             });
             $('#tbody_option').html(html);
+        },
+        error: function (err) {
+            console.log(err)
+        }
+    });
+}
+function updateCheckBox(optionID, isDelete, optionName) {
+    console.log(optionID)
+
+    var option = {
+        OptionName: optionName,
+    }
+
+
+    $.ajax({
+        url: '/admin/option/updateisdelete',
+        type: 'POST',
+        dataType: 'json',
+        data: { optionID: optionID },
+        success: function (result) {
+            if (result == 1) {
+                GetAll();
+                $('#modal_option').modal('hide');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${result}`,
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+            }
         },
         error: function (err) {
             console.log(err)

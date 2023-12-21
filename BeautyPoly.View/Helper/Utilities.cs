@@ -193,9 +193,12 @@ namespace BeautyPoly.Helper
             {
                 string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", fileName);
                 CreateIfMissing(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images"));
-                base64String = base64String.Replace("data:image/png;base64,", "");
+                string base64 = "";
+                base64 = base64String.Replace("data:image/png;base64,", "");
+                base64 = base64String.Replace("data:image/jpeg;base64,", "");
+                base64 = base64String.Replace("data:image/jpg;base64,", "");
 
-                byte[] imageBytes = Convert.FromBase64String(base64String);
+                byte[] imageBytes = Convert.FromBase64String(base64.Trim());
 
                 using (MemoryStream ms = new MemoryStream(imageBytes))
                 {
