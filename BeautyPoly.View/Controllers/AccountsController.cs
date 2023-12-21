@@ -94,38 +94,7 @@ namespace BeautyPoly.View.Controllers
             }
         }
 
-        //[HttpPost]
-        //public IActionResult ChangePassword(string passwordold, string passwordnew)
-        //{
-        //    var customerId = HttpContext.User.FindFirst("CustomerId").Value;
-        //    if (customerId != null && passwordnew != null && passwordold != null)
-        //    {
-        //        try
-        //        {
-        //            var customer = _customerRepo.GetByIdAsync(Convert.ToInt64(customerId));
 
-        //            string password_old = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(passwordold);
-        //            string password_new = string.IsNullOrEmpty(customer.Password) ? "" : Common.MaHoaMD5.EncryptPassword(passwordnew);
-        //            if (customer.Password != password_old)
-        //            {
-        //                return Json(3);
-        //            }
-        //            if (customer.Password == password_new)
-        //            {
-        //                return Json(2);
-        //            }
-        //            customer.Password = password_new;
-        //            _customerRepo.Update(customer);
-        //            return Json(1);
-        //        }
-        //        catch
-        //        {
-
-        //            return Json(0);
-        //        }
-        //    }
-        //    return Json(0);
-        //}
         [Authorize]
 
         public IActionResult Logout()
@@ -260,5 +229,37 @@ namespace BeautyPoly.View.Controllers
             return Json(0);
         }
 
+        [HttpPost("account/changeinfo")]
+        public async Task<IActionResult> ChageInfo(string fullname, string phone, DateTime birthday)
+        {
+            var token = Request.Headers["Authorization"].ToString();
+            token = token.Replace("Bearer ", "");
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadToken(token);
+            var tokenS = jsonToken as JwtSecurityToken;
+            var customerIDstr = tokenS.Claims.First(claim => claim.Type == "Id").Value;
+            var customerId = Int32.Parse(customerIDstr);
+            if (customerId != null && fullname != null && phone != null && birthday != null)
+            {
+                try
+                {
+                    PotentialCustomer customer = await _customerRepository.FirstOrDefaultAsync(p => p.PotentialCustomerID == customerId);
+                    customer.FullName = fullname;
+                    customer.Phone = phone;
+                    customer.Birthday = birthday;
+                    await _customerRepository.UpdateAsync(customer);
+                    await _context.SaveChangesAsync();
+                    return Json(1);
+
+                }
+                catch
+                {
+
+                    return Json(0);
+                }
+            }
+            return Json(0);
+
+        }
     }
 }

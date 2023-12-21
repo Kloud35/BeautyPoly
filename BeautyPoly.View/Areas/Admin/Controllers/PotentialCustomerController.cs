@@ -3,6 +3,7 @@ using BeautyPoly.Data.Repositories;
 using BeautyPoly.Data.ViewModels;
 using BeautyPoly.Models;
 using BeautyPoly.View.Areas.Admin.ViewModels;
+using BeautyPoly.View.Extension;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis;
@@ -29,22 +30,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             GetDataCache();
         }
 
-        //[HttpGet("admin/potentialcustomer/getlistprovin")]
-        //public JsonResult GetProvin() 
-        //{
-        //    HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;
-        //    Provin lstprovin = new Provin();
-
-        //    if (responseProvin.IsSuccessStatusCode)
-        //    {
-        //        string jsonData2 = responseProvin.Content.ReadAsStringAsync().Result;
-
-
-        //        lstprovin = JsonConvert.DeserializeObject<Provin>(jsonData2);
-        //    }
-        //    return Json(lstprovin, new System.Text.Json.JsonSerializerOptions());
-
-        //}
 
 
         [HttpGet("admin/potentialcustomer/getlistprovin")]
@@ -99,6 +84,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/potentialcustomer")]
         public IActionResult Index()
         {
+            if (HttpContext.Session.GetInt32("AccountID") == null)
+                return RedirectToRoute("Login");
             //Lấy địa chỉ tỉnh thành
             HttpResponseMessage responseProvin = _httpClient.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province").Result;
 
@@ -117,10 +104,22 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         }
 
         [HttpGet("admin/potentialcustomer/getall")]
-        public IActionResult GetAll(string filter)
+        public async Task<IActionResult> GetAll(string filter)
         {
             List<PotentialCustomer> list = _potentialCustomerRepo.GetAll(filter);
-            return Json(list);
+            List<PotentialCustomer> list_new = new List<PotentialCustomer>();
+            list.ForEach(potentialCustomer =>
+            {
+                var locationCustomers = new List<LocationCustomer>();
+                var provin = _locationCustomerRepo.FirstOrDefault(e => e.PotentialCustomerID == potentialCustomer.PotentialCustomerID && e.IsDefault == true);
+                if (provin != null)
+                {
+                    locationCustomers.Add(provin);
+                }
+                potentialCustomer.LocationCustomers = locationCustomers;
+                list_new.Add(potentialCustomer);
+            });
+            return Json(list_new);
         }
 
         [HttpGet("admin/potentialcustomer/getlocation")]
@@ -134,19 +133,22 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [HttpPost("admin/potentialcustomer/create")]
         public async Task<IActionResult> CreateOrUpdate([FromBody] CustomerDTO customerDTO)
         {
-
-            var checkExists = await _potentialCustomerRepo.FirstOrDefaultAsync(p => p.PotentialCustomerCode.Trim() == customerDTO.PotentialCustomer.PotentialCustomerCode.Trim() && p.PotentialCustomerID != customerDTO.PotentialCustomer.PotentialCustomerID);
-            if (checkExists != null)
+            var checkExistsEmail = await _potentialCustomerRepo.FirstOrDefaultAsync(p => p.Email.Trim() == customerDTO.PotentialCustomer.Email.Trim() && p.PotentialCustomerID != customerDTO.PotentialCustomer.PotentialCustomerID);
+            if (checkExistsEmail != null)
             {
-                return Json("Mã khách hàng đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
+                return Json("Email khách hàng đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
             }
+            var checkExistsPhone = await _potentialCustomerRepo.FirstOrDefaultAsync(p => p.Phone.Trim() == customerDTO.PotentialCustomer.Phone.Trim() && p.PotentialCustomerID != customerDTO.PotentialCustomer.PotentialCustomerID);
+            if (checkExistsEmail != null)
+            {
+                return Json("Số điện thoại khách hàng đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
 
+            }
             PotentialCustomer customer = new PotentialCustomer();
 
             if (customerDTO.PotentialCustomer.PotentialCustomerID > 0)
             {
                 customer = customerDTO.PotentialCustomer;
-                customerDTO.PotentialCustomer.CreateDate = customer.CreateDate;
                 await _potentialCustomerRepo.UpdateAsync(customer);
                 foreach (var item in customerDTO.LocationCustomers)
                 {
@@ -173,23 +175,17 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
             }
             else
             {
-                customer.PotentialCustomerCode = customerDTO.PotentialCustomer.PotentialCustomerCode;
+                var random = RandomCode.GenerateRandomCode(6);
+                string code = $"KH{random}";
+                customer.PotentialCustomerCode = code;
                 customer.FullName = customerDTO.PotentialCustomer.FullName;
-                customer.Birthday = customerDTO.PotentialCustomer.Birthday;
-                //if (avatar != null)
-                //{
-                //    string extension = Path.GetExtension(avatar.FileName);
-                //    string imageName = Utilities.SEOUrl(customer.FullName) + extension;
-                //    customer.Avatar = await Utilities.UploadFile(avatar, @"avatarCustomer", imageName.ToLower());
-                //}
-                //if (string.IsNullOrEmpty(customer.Avatar)) customer.Avatar = "default.jpg";
-                // customer.Avatar = customerDTO.potentialCustomer.Avatar;
+
+                if (string.IsNullOrEmpty(customer.Avatar)) customer.Avatar = "default.jpg";
                 customer.Email = customerDTO.PotentialCustomer.Email;
                 customer.Phone = customerDTO.PotentialCustomer.Phone;
                 customer.CreateDate = DateTime.Now;
-                customer.Password = "MQAyADMANAA1ADYA"; //=123456
+                customer.Password = "MQA=";
                 customer.IsActive = customerDTO.PotentialCustomer.IsActive;
-                customer.IsDelete = customerDTO.PotentialCustomer.IsDelete;
                 await _potentialCustomerRepo.InsertAsync(customer);
                 if (customerDTO.LocationCustomers == null)
                 {

@@ -7,6 +7,11 @@ var arrProductSku = [];
 var arrProductSale = [];
 var arrProductByID = [];
 var index = 1;
+
+var formatCurrency = new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'vnd',
+});
 class DynamicArrayCombiner {
     constructor() {
         this.arrays = [];
@@ -149,8 +154,8 @@ function GetProductSku() {
                             <td class='text-center'>${item.Sku}</td>
                             <td>${item.ProductSkuName}</td>
                             <td class='text-end'>${item.Quantity}</td>
-                            <td class='text-center'>${item.CapitalPrice}</td>
-                            <td class='text-center'>${item.Price}</td>
+                            <td class='text-center'>${formatCurrency.format(item.CapitalPrice)}</td>
+                            <td class='text-center'>${formatCurrency.format(item.Price)}</td>
                         </tr>`
             });
             $('#tbody_product_sku').html(html);
@@ -162,9 +167,12 @@ function GetProductSku() {
 }
 
 function addProductSku() {
-    $('#product_id_product_sku').val(0);
+    $("#option_value_product").empty();
+    $("#tbody_product_detail").empty();
+    $('#product_id_product_sku').val(0).trigger('change');
     $('#btn_add_option').show();
     $('#btn_add_option_edit').hide();
+    listDeleteOptionDetail = [];
     $('#modal_product_sku').modal('show');
 }
 
@@ -172,7 +180,9 @@ function onChangeProduct() {
     var id = $('#product_id_product_sku').val();
     var name = '';
     if (id > 0) {
+        listDeleteOptionDetail = [];
         $("#option_value_product").empty();
+        $("#tbody_product_detail").empty();
         name = arrProduct.find(p => p.ProductID == id).ProductName;
         $.ajax({
             url: '/admin/product/get-option-by-product-id',
@@ -185,6 +195,7 @@ function onChangeProduct() {
                     addOption();
                     var i = index - 1;
                     $(`#option_product_${i}`).val(item.OptionID).trigger('change');
+                    $(`#option_product_${i}`).prop('disabled', true);
                     $(`#option_detail_id_${i}`).val(item.OptionDetailsID);
                 });
             },
@@ -193,11 +204,11 @@ function onChangeProduct() {
             }
         });
     }
-
     $("#product_name_view_product_sku").val(name);
 }
 
 function editProductSku(id) {
+    listDeleteOptionDetail = [];
     $('#option_value_product_edit').empty();
     $('#btn_add_option').hide();
     $('#btn_add_option_edit').show();
@@ -219,7 +230,7 @@ function editProductSku(id) {
                 //contentType: 'application/json;charset=utf-8',
                 data: { productSkuID: id, productID: result.ProductID },
                 success: function (result1) {
-                    console.log(result1);
+
                     $('#product_id_product_sku_edit').val(result.ProductID).trigger('change');
                     processData(result1);
                     optionValueChangeEdit();
@@ -250,10 +261,11 @@ function processItem(item, index, result1) {
             <div class="col-12 col-md-4" id="div_option_value_edit_${index}"></div>
             <div class="col-12 col-md-4">
                 <div class="d-flex justify-content-end">
-                    <button class="btn text-danger" onclick="deleteOption(this)"><i class="bi bi-trash"></i></button>
+                    <button class="btn text-danger" id="delete_${index}" onclick="deleteOption(this,${item.OptionDetailsID})"><i class="bi bi-trash"></i></button>
                 </div>
             </div>
         </div>`;
+        //console.log(item);
         $('#option_value_product_edit').append(html);
         $(`#option_product_edit_${index}`).html(htmlOption);
         $(`#option_product_edit_${index}`).select2({
@@ -261,7 +273,7 @@ function processItem(item, index, result1) {
             theme: "bootstrap-5"
         });
         $(`#option_product_edit_${index}`).val(item.OptionID).trigger('change');
-
+        $(`#option_product_edit_${index}`).prop("disabled", true);
         GetOptionValueEdit(item.OptionID, `option_product_edit_${index}`)
             .then(() => {
                 var optionValue = result1.Item1.find(p => p.OptionDetailsID == item.OptionDetailsID).OptionValueID;
@@ -286,8 +298,25 @@ async function processData(result1) {
     }
 }
 
-function deleteOption() {
+function deleteOption(button, id) {
+    Swal.fire({
+        title: 'Bạn có chắc muốn xóa thuộc tính này ra khỏi sản phẩm?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Có',
+        denyButtonText: `Không`,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const row = button.closest('.row');
+            if (row) {
+                row.remove();
+                optionValueChange()
+            }
+            listDeleteOptionDetail.push(optionDetailID);
+        } else if (result.isDenied) {
 
+        }
+    })
 }
 
 function addOptionEdit() {
@@ -305,7 +334,7 @@ function addOptionEdit() {
                     </div>
                       <div class="col-12 col-md-4">
                         <div class="d-flex justify-content-end">
-                            <button class="btn text-danger" onclick="deleteRow(this)"><i class="bi bi-trash"></i></button>
+                            <button class="btn text-danger" id="delete_${index}" onclick="deleteRow(this)"><i class="bi bi-trash"></i></button>
                         </div>
                     </div>
                 </div>`
@@ -659,34 +688,24 @@ function addOption() {
 
 function GetOptionValue(id, selectID) {
     var i = selectID.split('_')[2];
-    return $.ajax({
-        url: '/admin/option/getallvalue',
-        type: 'GET',
-        dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
-        data: { optionID: id },
-        success: function (result) {
-            $(`#option_value_product_${i}`).select2('destroy');
-            var html = ` <select class="form-control" id="option_value_product_${i}" state="states" multiple="multiple">
+
+    var result = arrOptionValue.filter(p => p.OptionID == id);
+    $(`#option_value_product_${i}`).select2('destroy');
+    var html = ` <select class="form-control" id="option_value_product_${i}" state="states" multiple="multiple">
                 </select> `
-            $(`#div_option_value_${i}`).html(html);
-            var htmlValue = ''
-            $.each(result, function (key, item) {
-                htmlValue += `<option value="${item.OptionValueID}" >${item.OptionValueName}</option>`
-            })
-            $(`#option_value_product_${i}`).html(htmlValue);
-            $(`#option_value_product_${i}`).select2({
-                dropdownParent: $("#modal_product_sku"),
-                placeholder: '---Chọn giá trị---',
-                theme: "classic"
-            });
-            $(`#option_value_product_${i}`).on('change', function () {
-                optionValueChange();
-            });
-        },
-        error: function (err) {
-            console.log(err)
-        }
+    $(`#div_option_value_${i}`).html(html);
+    var htmlValue = ''
+    $.each(result, function (key, item) {
+        htmlValue += `<option value="${item.OptionValueID}" >${item.OptionValueName}</option>`
+    })
+    $(`#option_value_product_${i}`).html(htmlValue);
+    $(`#option_value_product_${i}`).select2({
+        dropdownParent: $("#modal_product_sku"),
+        placeholder: '---Chọn giá trị---',
+        theme: "classic"
+    });
+    $(`#option_value_product_${i}`).on('change', function () {
+        optionValueChange();
     });
 }
 
@@ -886,6 +905,7 @@ function validate() {
 }
 
 function saveProduct() {
+    var count = 0;
     var productCode = $('#product_code_product').val();
     var productName = $('#product_name_product').val();
     var cateId = parseInt($('#product_id_cate').val());
@@ -896,6 +916,26 @@ function saveProduct() {
         var imageSource = $(this).find('img').attr('src');
         selectedImages.push(imageSource);
     });
+    if (1 == 1) {
+        if (productCode == '') {
+            $('#error-message-product').text('[Mã sản phẩm] không được trống. Vui lòng nhập lại !');
+            count = 0;
+            count++;
+            return;
+        }
+        if (productName == '') {
+            $('#error-message-product').text('[Tên sản phẩm] không được trống. Vui lòng nhập lại !');
+            count = 0;
+            count++;
+            return;
+        }
+        if (cateId == '') {
+            $('#error-message-product').text('[Danh mục] không được trống. Vui lòng chọn lại !');
+            count = 0;
+            count++;
+            return;
+        }
+    }
     var objProduct = {
         ProductCode: productCode,
         ProductName: productName,
@@ -903,6 +943,11 @@ function saveProduct() {
         SaleID: saleId,
         Images: selectedImages,
         ID: id
+
+    }
+    if (count > 0) {
+        $('#error-message-product').text('');
+        return;
     }
     $.ajax({
         url: '/admin/product/create',
@@ -922,6 +967,7 @@ function saveProduct() {
 }
 
 function save() {
+    var count = 0
     var listOptionID = [];
     var listSku = [];
     var productID = parseInt($('#product_id_product_sku').val());
@@ -938,6 +984,47 @@ function save() {
         var price = parseFloat($(`#price_sku_${numberId}`).val());
         var quantity = parseInt($(`#quantity_sku_${numberId}`).val());
         var optionValueID = $(`#option_value_sku_${numberId}`).val();
+        if (1 == 1) {
+
+            if (capitalPrice == '') {
+                $('#error-message').text('[Giá vốn] không được trống. Vui lòng nhập lại !');
+                count = 0;
+                count++;
+                return;
+            }
+
+            if (quantity == '') {
+                $('#error-message').text('[Số lượng] không được trống. Vui lòng nhập lại !');
+                count = 0;
+                count++;
+                return;
+            }
+            if (capitalPrice < 0) {
+                $('#error-message').text('[Giá vốn] ngoài phạm vi cho phép. Vui lòng nhập lại !');
+                count = 0;
+                count++;
+                return;
+            }
+            if (price < 0) {
+                $('#error-message').text('[Giá bán] ngoài phạm vi cho phép. Vui lòng nhập lại !');
+                count = 0;
+                count++;
+                return;
+            }
+            if (quantity < 0 || quantity > 2147483647) {
+                $('#error-message').text('[Số lượng] ngoài phạm vi cho phép. Vui lòng nhập lại !');
+                count = 0;
+                count++;
+                return;
+            }
+            if (capitalPrice > price) {
+                $('#error-message').text('[Giá bán] không được nhỏ hơn [giá vốn]. Vui lòng nhập lại !');
+                count = 0;
+                count++;
+                return;
+            }
+
+        }
         var objSku = {
             CapitalPrice: capitalPrice,
             Price: price,
@@ -946,11 +1033,15 @@ function save() {
         }
         listSku.push(objSku);
     });
+    if (count > 0) {
+        return;
+    }
     var obj = {
         ListOptionID: listOptionID,
         ListSku: listSku,
         ProductID: productID,
-        ID: id
+        ID: id,
+        DeleteOptionDetail: listDeleteOptionDetail
     }
     $.ajax({
         url: '/admin/product/create-sku',
@@ -963,6 +1054,13 @@ function save() {
                 $('#modal_product_sku').modal('hide');
                 GetProductSku();
                 GetProduct();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: `${result}`,
+                    showConfirmButton: true
+                })
             }
         },
         error: function (err) {

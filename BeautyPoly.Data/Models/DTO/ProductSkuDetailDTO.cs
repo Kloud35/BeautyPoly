@@ -6,7 +6,7 @@
         public int ProductID { get; set; }
         public List<int> ListOptionID { get; set; }
         public List<SkuDTO> ListSku { get; set; }
-
+        public List<int> DeleteOptionDetail { get; set; }
     }
 
     public class SkuDTO

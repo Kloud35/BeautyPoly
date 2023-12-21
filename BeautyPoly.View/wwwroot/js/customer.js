@@ -11,8 +11,72 @@ $(document).ready(function () {
     GetProvin();
     GetDistrict();
     getDetailAccount();
+    $("#btn_save_info").click(function () {
+        ChangeInfo();
+    });
 });
+function ChangeInfo() {
+    var name = $("#full-name").val();
+    var sdt = $("#phone-number").val();
+    var userId = GetUserId();
 
+    console.log("fullname: ", name, " phone: ", sdt, "user id: ", userId);
+    if (name == '') {
+        swal("Cảnh báo", "Không được để trống họ và tên", "warning");
+        return false;
+    }
+    if (sdt == '') {
+        swal("Cảnh báo", "Không được để trống số điện thoại", "warning");
+        return false;
+    }
+
+    let phonePattern = /(03|05|07|08|09)+([0-9]{8})\b/g;
+    if (!phonePattern.test(sdt)) {
+        swal("Có lỗi xảy ra", "Số điện thoại không hợp lệ!", "error");
+        return false;
+    }
+
+    //var regexname = /^[A-Za-z\s\tđĐàÀáÁảẢãÃạẠăĂằẰắẮẳẲẵẴặẶâÂầẦấẤẩẨẫẪậẬêÊềỀếẾểỂễỄệỆôÔồỒốỐổỔỗỖộỘơƠờỜớỚởỞỡỠợỢưƯừỪứỨửỬữỮựỰỳỲýÝỷỶỹỸỵỴ\s\t]+$/; // Biểu thức chính quy để kiểm tra chỉ chứa chữ cái, khoảng trắng và tab
+    //if (!regexname.test(name)) {
+    //    swal("Cảnh báo", "Họ và tên không được chứa kí tự đặc biệt", "warning");
+    //    return false; // Ngăn form submit nếu không hợp lệ
+    //}
+
+    var regexphone = /\d/; // Biểu thức chính quy để kiểm tra có chứa số hay không
+    if (regexphone.test(name)) {
+        swal("Cảnh báo", "Họ và tên không được có số", "warning");
+        return false; // Ngăn form submit nếu không hợp lệ
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '/account/changeinfo',
+        data: {
+            fullname: name,
+            phone: sdt,
+
+        },
+        headers: { Authorization: "Bearer " + localStorage.getItem("Token") },
+
+        success: function (response) {
+            if (response == 1) {
+                swal("Đổi thành công", "Vui lòng đăng nhập lại", "success");
+                setTimeout(function () {
+                    logout();
+                }, 1500); // 5000 milliseconds = 5 seconds
+            }
+            else {
+                swal("Error !", "Đổi thông tin không thành công", "error");
+            }
+        },
+        error: function (xhr, status, error) {
+            // Handle error response from server
+            // ...
+        }
+
+
+    });
+}
 function GetProvin() {
     return $.ajax({
         url: '/admin/potentialcustomer/getlistprovin',
@@ -285,55 +349,64 @@ function updateLocation() {
         IsDefault: true,
         IsDelete: true
     }
-    $.ajax({
-        url: '/admin/potentialcustomer/locations',
-        type: 'PUT',
-        dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
-        data: JSON.stringify(obj),
-        success: function (result) {
-            if (result == 1) {
-                GetAllLocation();
-                //Swal.fire('Thành công !', '', 'success')
-                $('#modal_customer').modal('hide');
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: `${result}`,
-                    showConfirmButton: false,
-                    timer: 1000
-                })
-            }
-        },
-        error: function (err) {
-            console.log(err)
+    Swal.fire({
+        title: 'Bạn có chắc muốn cập nhật thông tin địa chỉ này không?',
+        showDenyButton: true,
+        confirmButtonText: 'Yes',
+
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/admin/potentialcustomer/locations',
+                type: 'PUT',
+                dataType: 'json',
+                contentType: 'application/json;charset=utf-8',
+                data: JSON.stringify(obj),
+                success: function (result) {
+                    if (result == 1) {
+                        GetAllLocation();
+                        Swal.fire('Cập nhật địa chỉ!', 'Cập nhập địa chỉ thành công', 'success')
+                        $('#modal_customer').modal('hide');
+                    } else {
+                        Swal.fire('Cập nhật địa chỉ!', 'Cập nhật địa chỉ không thành công', 'error')
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
         }
-    });
+    })
 }
 function deleteLocation(id) {
-    $.ajax({
-        url: `/admin/potentialcustomer/deletelocation?id_location=${id}`,
-        type: 'DELETE',
-        success: function (result) {
-            if (result == 1) {
-                GetAllLocation();
-                //Swal.fire('Thành công !', '', 'success')
-                $('#modal_customer').modal('hide');
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: `${result}`,
-                    showConfirmButton: false,
-                    timer: 1000
-                })
-            }
-        },
-        error: function (err) {
-            console.log(err)
+    Swal.fire({
+        title: 'Bạn có chắc muốn xóa địa chỉ này không?',
+        showDenyButton: true,
+        confirmButtonText: 'Yes',
+
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/potentialcustomer/deletelocation?id_location=${id}`,
+                type: 'DELETE',
+                success: function (result) {
+                    if (result == 1) {
+                        GetAllLocation();
+                        Swal.fire('Xóa địa chỉ!', 'Xóa địa chỉ thành công', 'success')
+                        //swal("Thành công", "Xóa địa chỉ thành công", "warning");
+                        $('#modal_customer').modal('hide');
+
+                    } else {
+                        Swal.fire('Xóa địa chỉ!', 'Xóa địa chỉ không thành công', 'error')
+                        //swal("Có lỗi xảy ra", "Xóa địa chỉ không thành công", "error");
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                }
+            });
         }
-    });
+    })
 }
 function createLocation() {
     var provin = parseInt($(`#provin_location`).val());
@@ -358,16 +431,10 @@ function createLocation() {
         success: function (result) {
             if (result == 1) {
                 GetAllLocation();
-                //Swal.fire('Thành công !', '', 'success')
+                Swal.fire('Thêm địa chỉ !', 'Thêm địa chỉ thành công', 'success')
                 $('#modal_customer').modal('hide');
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: `${result}`,
-                    showConfirmButton: false,
-                    timer: 1000
-                })
+                Swal.fire('Thêm địa chỉ !', 'Thêm địa chỉ không thành công', 'success')
             }
         },
         error: function (err) {
@@ -377,11 +444,9 @@ function createLocation() {
 }
 function getDetailAccount() {
     $("#full-name").val("");
-    $("#date-of-birth").val("");
     $("#phone-number").val("");
     $("#email-address").val("");
     $("#full-name").val(GetUserName());
-    $("#date-of-birth").val(GetUserDateOfBirth());
     $("#phone-number").val(GetUserPhone());
     $("#email-address").val(GetUserEmail());
 }

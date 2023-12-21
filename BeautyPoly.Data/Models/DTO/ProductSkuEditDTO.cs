@@ -9,5 +9,6 @@
         public double Price { get; set; }
         public int ProductID { get; set; }
         public List<int> ListOptionID { get; set; }
+        public List<int> DeleteOptioDetail { get; set; }
     }
 }

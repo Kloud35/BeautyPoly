@@ -156,35 +156,32 @@
                         <div class="myaccount-content">
                             <h3>Chi tiết tài khoản</h3>
                             <div class="account-details-form">
-                                <form action="#">
+                                <form>
                                     <div class="row">
                                         <div class="">
                                             <div class="single-input-item">
-                                                <label for="first-name" class="required">Họ và tên</label>
-                                                <input readonly type="text" id="full-name" />
+                                                <label for="first-name">Họ và tên</label>
+                                                <input type="text" id="full-name" maxlength="100" />
                                             </div>
                                         </div>
                                         <div class="">
                                             <div class="single-input-item">
-                                                <label for="last-name" class="required">Ngày sinh</label>
-                                                <input readonly type="text" id="date-of-birth" />
-                                            </div>
-                                        </div>
-                                        <div class="">
-                                            <div class="single-input-item">
-                                                <label for="last-name" class="required">Số điện thoại</label>
-                                                <input readonly type="text" id="phone-number" />
+                                                <label for="last-name">Số điện thoại</label>
+                                                <input type="text" id="phone-number" />
                                             </div>
                                         </div>
                                     </div>
                                     <div class="single-input-item">
                                         <label for="email" class="required">Địa chỉ Email</label>
-                                        <input readonly type="email" id="email-address" />
+                                        <input type="email" id="email-address" disabled style="color:darkgray" />
                                     </div>
+
+                                    <button type="button" class="btn btn-succes" id="btn_save_info">save</button>
                                 </form>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

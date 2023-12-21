@@ -41,16 +41,35 @@ function GetAllToTree() {
     });
 }
 function createUpdate() {
+    var count = 0
     var id = parseInt($('#cate_id_cate').val());
     var parentid = parseInt($('#cate_parent_id_cate').val());
     var name = $('#cate_name_cate').val();
     var code = $('#cate_code_cate').val();
+
+    if (code == '') {
+        $('#error-message').text('[Mã danh mục] không được trống. Vui lòng nhập lại !');
+        count = 0;
+        count++;
+        return;
+    }
+
+    if (name == '') {
+        $('#error-message').text('Tên danh mục] không được trống. Vui lòng nhập lại !');
+        count = 0;
+        count++;
+        return;
+    }
 
     var category = {
         cateId: id,
         parentID: parentid,
         cateName: name,
         cateCode: code,
+    }
+    if (count > 0) {
+        $('#error-message').text('');
+        return;
     }
     console.log(category)
     $.ajax({

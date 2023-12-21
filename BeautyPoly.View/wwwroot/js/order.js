@@ -128,7 +128,6 @@ function GetDGH() {
                                 <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
                                 <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
                                 <td class="text-left">${element.Note}</td>
-                                    
                             </tr>`;
             });
             $("#tbody_order_cgh").append(html);
@@ -165,9 +164,6 @@ function GetHD() {
                                     <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
                                     <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
                                     <td class="text-left">${element.Note}</td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-info" onclick="Edit(${element.OrderID})"><i class="bx bx-pencil"></i></button>
-                                    </td>
                                 </tr>`;
             });
             $("#tbody_order_hd").append(html);
@@ -204,9 +200,6 @@ function GetTC() {
                                     <td class="text-center">${getFormattedDateDMY(element.ShipDate)}</td>
                                     <td class="text-center">${getFormattedDateDMY(element.PaymentDate)}</td>
                                     <td class="text-left">${element.Note}</td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-info" onclick="Edit(${element.OrderID})"><i class="bx bx-pencil"></i></button>
-                                    </td>
                                 </tr>`;
             });
             $("#tbody_order_gtc").append(html);
@@ -494,8 +487,15 @@ function validate() {
     return true;
 }
 
+function isValidPhoneNumber(phoneNumber) {
+    let phonePattern = /(03|05|07|08|09)+([0-9]{8})\b/g;
+    return phonePattern.test(phoneNumber);
+}
+
 function createOrder() {
     if (!validate()) return;
+    var counts = 0;
+    var mesErr = $('#error-message');
     var order = {
         OrderID: parseInt($('#orderid_order').val()),
         CustomerName: $('#customer_name').val(),
@@ -504,6 +504,14 @@ function createOrder() {
         CustomerPhone: $('#customer_phone').val(),
         MedthodPayment: $("#payment_method").val(),
         OrderCode: $("#order_code").val()
+    }
+    if (!isValidPhoneNumber(order.CustomerPhone)) {
+        mesErr.text('Số điện thoại không hợp lệ. Vui lòng nhập lại!');
+        counts = 0;
+        counts++;
+        return;
+    } else {
+        mesErr.text('');
     }
     var prods = [];
     //$(".pick-prod").each(function (index) {
@@ -541,6 +549,10 @@ function createOrder() {
     });
 
     order.prods = prods;
+    if (counts > 0) {
+        $('#error-message').text('');
+        return;
+    }
 
     $.ajax({
         url: '/admin/order/create',
@@ -679,9 +691,9 @@ function changeProd(element, index) {
 
     var product = productList.find(p => p.ProductSkusID == id);
    
-    $(`#product_price_${index}`).val(product.Price);
+    $(`#product_price_${index}`).val(product.Price.toLocaleString('en-US'));
     $(`#product_quantity_${index}`).val(1);
-    $(`#product_total_${index}`).val(product.Price);
+    $(`#product_total_${index}`).val(product.Price.toLocaleString('en-US'));
 }
 // Function to populate the invoice details
 function populateInvoiceDetails(data) {

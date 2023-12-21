@@ -438,16 +438,15 @@
         <!--== End Aside Menu ==-->
 
     </div>
+    <!-- Modal đăng nhập -->
     <div class="modal fade" id="modallogin" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Login</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Đăng nhập</h5>
                     <button b-axll56s2yi="" type="button" class="btn-close" data-bs-dismiss="modal">
                     </button>
-                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button> *@
+
                 </div>
                 <div class="modal-body">
                     <form>
@@ -458,12 +457,12 @@
                         </div>
                         <div class="mb-3">
                             <div id="l_passwordHelp" class="form-text text-danger"></div>
-                            <label class="form-label">Password</label>
+                            <label class="form-label">Mật khẩu</label>
                             <input type="password" class="form-control " id="login_password">
 
                         </div>
                         <a asp-action="ForgotPassword" asp-controller="Accounts" class="float-left mb-1"><span>Quên mật khẩu?</span></a><br />
-                        <button type="button" class="btn text-white bg-dark" id="btn-login">Login</button>
+                        <button type="button" class="btn text-white bg-dark" id="btn-login">Đăng nhập</button>
                     </form>
                 </div>
 
@@ -476,7 +475,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Register</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Đăng ký</h5>
                     <button b-axll56s2yi="" type="button" class="btn-close" data-bs-dismiss="modal">
                     </button>
                 </div>
@@ -484,36 +483,14 @@
                     <form>
                         <div class="mb-3">
                             <div id="nameHelp" class="form-text text-danger"></div>
-                            <label class="form-label">Full Name</label>
+                            <label class="form-label">Họ và tên</label>
                             <input type="text" class="form-control" id="r_nameCustomer">
                         </div>
                         <div class="mb-3">
                             <div id="phoneHelp" class="form-text text-danger"></div>
-                            <label class="form-label">Phone Number</label>
+                            <label class="form-label">Số điện thoại</label>
                             <input type="number" class="form-control" id="r_phoneNumber">
                         </div>
-                        @* <div class="mb-3">
-                        <div id="addressHelp" class="form-text text-danger"></div>
-                        <label class="form-label">Address</label>
-                        <input type="text" class="form-control" id="r_address">
-                        </div> *@
-                        <div class="mb-3">
-                            <div id="datebirthHelp" class="form-text text-danger"></div>
-                            <label class="form-label">Birthday</label>
-                            <input type="date" class="form-control" id="r_datebirth">
-                        </div>
-                        @* <div class="mb-3">
-                        <div id="sexHelp" class="form-text text-danger"></div>
-                        <label class="form-label">Sex</label>
-                        <div class="form-check">
-                        <input class="form-check-input" type="radio" id="male" name="gender" value="true">
-                        <label class="form-check-label" for="male">Man</label>
-                        </div>
-                        <div class="form-check">
-                        <input class="form-check-input" type="radio" id="female" name="gender" value="false">
-                        <label class="form-check-label" for="female">Woman</label>
-                        </div>
-                        </div> *@
                         <div class="mb-3">
                             <div id="emailHelp" class="form-text text-danger"></div>
                             <label class="form-label">Email</label>
@@ -521,14 +498,14 @@
                         </div>
                         <div id="passwordHelp" class="form-text text-danger"></div>
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
+                            <label class="form-label">Mật khẩu</label>
                             <input type="password" class="form-control " id="r_Password1">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Repeat Password</label>
+                            <label class="form-label">Xác nhận mật khẩu</label>
                             <input type="password" class="form-control " id="r_Password2">
                         </div>
-                        <button type="button" class="btn text-white bg-dark" id="btn-register">Register</button>
+                        <button type="button" class="btn text-white bg-dark" id="btn-register">Đăng ký</button>
                     </form>
                 </div>
 
@@ -548,7 +525,7 @@
                 <div class="modal-body">
                     <form>
                         <div class="mb-3">
-                            <div id="password-old-mess" class="form-text "></div>
+                            <div id="password-old-mess" class="form-text text-danger "></div>
                             <label class="form-label">Nhập mật khẩu cũ</label>
                             <input type="password" class="form-control" id="password-old">
                         </div>
@@ -562,13 +539,15 @@
                             <label class="form-label"> Nhập lại mật khẩu mới</label>
                             <input type="password" class="form-control " id="password-new2">
                         </div>
-                        <button type="button" class="btn text-white bg-dark" id="btn-change-password">Đổi</button>
+                        <button type="button" class="btn text-white bg-dark" id="btn-change-password">Đổi mật khẩu</button>
                     </form>
                 </div>
 
             </div>
         </div>
     </div>
+
+
     <script src="~/js/common.js"></script>
     <script src="~/js/home_view.js"></script>
     <script src="~/js/login.js"></script>

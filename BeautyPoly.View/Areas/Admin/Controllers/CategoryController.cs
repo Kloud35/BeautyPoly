@@ -16,6 +16,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/category")]
         public IActionResult Index()
         {
+            if (HttpContext.Session.GetInt32("AccountID") == null)
+                return RedirectToRoute("Login");
             return View();
         }
         [HttpGet("admin/category/getall")]
@@ -52,6 +54,10 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         public async Task<IActionResult> CreateOrUpdate([FromBody] Category category)
         {
             var checkExists = await categoryRepo.FirstOrDefaultAsync(p => p.CateCode.ToUpper().Trim() == category.CateCode.ToUpper().Trim() && p.CateId != category.CateId);
+            if (checkExists != null)
+            {
+                return Json("Danh mục sản phẩm đã tồn tại! Vui lòng nhập lại.", new System.Text.Json.JsonSerializerOptions());
+            }
             Category cate = new Category();
             cate.ParentID = category.ParentID;
             cate.CateCode = category.CateCode;

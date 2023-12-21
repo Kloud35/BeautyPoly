@@ -26,6 +26,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/order")]
         public IActionResult Index()
         {
+            if (HttpContext.Session.GetInt32("AccountID") == null)
+                return RedirectToRoute("Login");
             return View();
         }
         [HttpGet("admin/order/getall")]
@@ -168,8 +170,6 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
                             await detailOrderRepo.InsertAsync(orderDetail);
                         }
                     }
-
-
 
                     return Json(1);
                 }

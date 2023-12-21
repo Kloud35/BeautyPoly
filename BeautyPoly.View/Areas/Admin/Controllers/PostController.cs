@@ -19,6 +19,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/post")]
         public IActionResult Index()
         {
+            if (HttpContext.Session.GetInt32("AccountID") == null)
+                return RedirectToRoute("Login");
             return View();
         }
         [HttpGet("admin/post/getall")]

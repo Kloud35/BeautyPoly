@@ -52,7 +52,6 @@ function GetAll() {
                                     <i class="bx bx-trash"></i>
                                 </button>
                             </td>
-
                             <td>${item.voucherName}</td>
                             <td>${item.voucherCode}</td>
                             <td>${item.quantity}</td>
@@ -210,7 +209,8 @@ function checkDiscountValue(value) {
         } else {
             $("#discountValueError").hide();
         }
-        $('#voucher_max_value_voucher').prop("disabled", false);
+    //    $('#voucher_max_value_voucher').prop("disabled", false);
+        $('#max_value').show();
     } else if (discountType == 1) {
         if (isNaN(value) || value <= 0) {
             $("#discountValueError").html("Giá trị giảm phải lớn hơn 0");
@@ -221,7 +221,8 @@ function checkDiscountValue(value) {
         } else {
             $("#discountValueError").hide();
         }
-        $('#voucher_max_value_voucher').prop("disabled", true);
+        //$('#voucher_max_value_voucher').prop("disabled", true);
+        $('#max_value').hide();
     }
 }
 function check() {

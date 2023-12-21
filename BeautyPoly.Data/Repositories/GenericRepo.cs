@@ -1,12 +1,7 @@
-﻿using BeautyPoly.IRepositories;
-using BeautyPoly.DBContext;
+﻿using BeautyPoly.DBContext;
+using BeautyPoly.IRepositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BeautyPoly.Data.Repositories
 {
@@ -61,6 +56,10 @@ namespace BeautyPoly.Data.Repositories
         public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbContext.Set<T>().FirstOrDefaultAsync(predicate);
+        }
+        public T FirstOrDefault(Expression<Func<T, bool>> predicate)
+        {
+            return _dbContext.Set<T>().FirstOrDefault(predicate);
         }
     }
 }

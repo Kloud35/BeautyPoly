@@ -1,10 +1,7 @@
 ﻿using BeautyPoly.Data.Repositories;
-using BeautyPoly.DBContext;
 using BeautyPoly.Models;
 using BeautyPoly.View.Areas.Admin.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace BeautyPoly.View.Areas.Admin.Controllers
 {
@@ -24,6 +21,8 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/account")]
         public IActionResult Index()
         {
+            if (HttpContext.Session.GetInt32("AccountID") == null)
+                return RedirectToRoute("Login");
             return View();
         }
 

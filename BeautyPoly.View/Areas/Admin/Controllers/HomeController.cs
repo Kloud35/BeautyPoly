@@ -24,8 +24,9 @@ namespace BeautyPoly.Areas.Admin.Controllers
         [Route("admin", Name = "index")]
         public IActionResult Index()
         {
-            //if (HttpContext.Session.GetString("AccountID") == null)
-            //    return RedirectToAction("AdminLogin", "Account");
+            if (HttpContext.Session.GetInt32("AccountID") == null)
+                return RedirectToRoute("Login");
+
             return View();
         }
         [Route("admin/login", Name = "Login")]

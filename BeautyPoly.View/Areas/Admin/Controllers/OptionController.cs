@@ -19,7 +19,7 @@ namespace BeautyPoly.View.Areas.Admin.Controllers
         [Route("admin/option")]
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("AccountID") == null)
+            if (HttpContext.Session.GetInt32("AccountID") == null)
                 return RedirectToRoute("Login");
             return View();
         }
